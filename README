@@ -1,0 +1,156 @@
+Due:
+    test 3/08/2023 @ 11:59pm
+    code 3/10/2023 @ 11:59pm
+
+Assignment:
+~~~~~~~~~~~
+
+    - Add support for reading ext2 file systems
+    - Donate a test case
+
+Warnings:
+~~~~~~~~~
+
+(1) The code I'm sharing with you doesn't synchronize access. This makes
+    it non thread safe. It is your responsibility to identify critical
+    sections and control access to them.
+
+(2) File system data structures live on disks which are slow. You might
+    be tempted to cache data in memory which is what any reasonable
+    implementation would do. Do that with care and beware of potential
+    inconsistencies (e.g. one thread reading from a cached copy and another
+    reading the same data directly from disk)
+
+The file system API:
+~~~~~~~~~~~~~~~~~~~~    
+
+Four classes work together in order to implement the file system support:
+
+    - BlockIO (in block_io.h): a base class implemented by all block
+      oriented parts of the system (Disks, Nodes, ...). You need to
+      publicly inherit from BlockIO and implement 2 methods in order
+      to support the BlockIO interface. Look in block_io.h and
+      block_io.cc for more information.
+
+    - Ide (in ide.h/ide.cc): simple IDE device driver. Gives you access
+      to disks. Our file systems will always reside in IDE device#1.
+
+    - Ext2 (in ext2.h and ext2.cc): defines the interface to the
+      file system. The interface is defined for you but you need
+      to implement it.
+
+    - Node (in ext2.h and ext2.cc): defines the interface to a node
+      in the file system hierarchy (i-node). The interface is defined
+      for you but you need to provide the implementation.
+
+    Both Ide and Node implement the BlockIO interface.
+
+    All 4 classes are required to have an embedded ref_count for ARC
+
+    Look in the header files for API details.
+
+The ext2 subset:
+~~~~~~~~~~~~~~~~
+
+We will only implement directories, files, and symbolic links. We will
+limit our file system image size to 10MB and the total size of the files
+in your test image to 100KB.
+
+Hard links come naturally with Unix-style file systems but our ability
+to test them will be limited because of GIT limitations.
+
+Defining a test case:
+~~~~~~~~~~~~~~~~~~~~~
+
+Test cases will be more involved because they require the
+preparation of a disk image. The Makefile automates a good part
+of the work but you need to do a little more work as well.
+
+You need to do 4 things in order to add a test case
+
+(1) add a <csid>.cc test driver as in previous assignments
+
+(2) add a <csid>.ok file with the expected output as in previous assignments
+
+(3) add a text file named <csid>.block_size with a single number in it.
+    It specifies the required file system block size. Acceptable values
+    are:
+
+        1024, 2048, and 4196
+
+    All other values will result in undefined behavior
+
+(4) add a directory named <csid>.dir and fill it with the files and
+    directories you want to copy to your disk image. Please limit its
+    total size to 100K. The Makefile will populate the disk image
+    with the contents of this directory before running the test.        
+
+Model your test after the given tests (t0, t1, and t2)
+
+Browsing disk images:
+~~~~~~~~~~~~~~~~~~~~~
+
+Disk images are binary files, you can use a tool like hexdump
+to browse their contents.
+
+Disk images will reside in <test>.data
+
+To make a disk image: "make <test>.data"
+To examine it: "hexdump <test>.data"
+
+For Makefile help:
+~~~~~~~~~~~~~~~~~~
+
+    make help
+
+To run tests:
+~~~~~~~~~~~~~
+
+    make clean test
+
+To make the output less noisy:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    make -s clean test
+
+Server view targets:
+~~~~~~~~~~~~~~~~~~~~
+
+    make get_results    # gets and displays your results
+    make get_tests      # gets tests from the server
+    make get_summary    # shows results per test
+
+To run one test
+~~~~~~~~~~~~~~~
+
+    make -s t0.test               # run the test once
+    make -s t0.loop               # run the test 10 times
+    LOOP_LIMIT=6 make -s t0.loop  # run the test 6 times
+    make -s t0.fail               # run the test until it fails
+
+To run by hand
+~~~~~~~~~~~~~~
+
+    ./run_qemu t0
+
+To run with gdb
+~~~~~~~~~~~~~~~
+
+    ./debug_qemu t0
+
+       Then follow the instructions on the screen
+
+Generated files
+~~~~~~~~~~~~~~~
+
+For each test, a set of files will be generated:
+
+    <test>.raw          the raw output from running QEMU
+    <test>.time         how long it took to run the test
+    <test>.failure      failure information in case of failure
+    <test>.out          the lines that start with *** from the raw output
+    <test>.diff         the difference between <test>.out and <test>.ok
+    <test>.result       pass or fail
+    <test>.data         the ext2 disk image
+
+
