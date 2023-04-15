@@ -173,15 +173,19 @@ void kernelMain(void) {
     char *base = (char *) 0xfebf0000;
     uint32_t *base_u = (uint32_t *) 0xfebf0000;
 
+    Debug::printf("Before flipping bit: VMAJ: %x\n", *((base + 3)));
+    Debug::printf("Before flipping bit: VMIN: %x\n", *( (base + 2)));
+    Debug::printf("Before flipping bit: GCAP: %x\n", *base_u);
+
     *(base_u + 2) = *(base_u + 2) | 0x01;
 
-    Debug::printf("GCTL: %x\n", *(base_u + 2));
-    Debug::printf("GCTL: %x\n", *(base_u + 2));
+    Debug::printf("After flipping bit: GCTL: %x\n", *(base_u + 2));
         
         
     Debug::printf("GCTL: %x\n", *(base_u + 2));
-    Debug::printf("VMAJ: %x\n", *((uint32_t *) (base + 3)));
-    Debug::printf("GCAP: %x\n", *base_u);
+    Debug::printf("After flipping bit: VMAJ: %x\n", *( (base + 3)));
+    Debug::printf("After flipping bit: VMIN: %x\n", *( (base + 2)));
+    Debug::printf("After flipping bit: GCAP: %x\n", *base_u);
 
 
     while(*(base_u + 2) == 0) {
