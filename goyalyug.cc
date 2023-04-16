@@ -5,6 +5,7 @@
 #include "semaphore.h"
 #include "future.h"
 #include "pit.h"
+#include "wave.h"
 
 
 uint16_t vendorID;
@@ -166,10 +167,79 @@ void checkAllBuses(void) {
     }
 }
 
+uint32_t get_response(char *base) {
+
+    while((((*(uint32_t *) (base + 0x68)) & 0x2) >> 1) != 1) {
+        Debug::printf("Response Not Ready\n");
+    }
+
+    ASSERT((((*(uint32_t *) (base + 0x68)) & 0x2) >> 1) == 1);
+
+    Debug::printf("Response is ready to be retrieved, reading from: %x\n", (base + 0x64));
+
+    // reset IRV
+    (*(uint32_t *) (base + 0x68)) = (*(uint32_t *) (base + 0x68)) & 0xFFFFFFFD; 
+
+    return *((uint32_t *) (base + 0x64));
+
+}
+
+bool send_command(uint32_t codec, uint32_t node, uint32_t command, uint32_t data, char *base) {
+
+    Debug::printf("Send Command\n");
+
+    codec = (codec & 0xf) << 28; 
+    node = (node & 0xff) << 20; 
+    command = (command & 0xfff) << 8; 
+    data = data & 0xff; 
+
+    uint32_t final_command = codec + node + command + data; 
+
+    uint32_t * command_addy = &final_command; 
+
+    ASSERT(*command_addy == final_command);
+
+    Debug::printf("Setting ICB bit to 0\n");
+    // Set ICB to 0 
+    (*(uint32_t *)(base + 0x68)) = (*(uint32_t *)(base + 0x68)) & 0xFFFFFFFE; // (setting bit 0 to 0)
+
+    // ASSERT((*(uint32_t *) (base + 0x68) & 0x1) == 0);
+
+    Debug::printf("Setting IRV bit to 0\n");
+    // Set IRV to 0 
+    (*(uint32_t *)(base + 0x68)) = (*(uint32_t *)(base + 0x68)) & 0xFFFFFFFD; // (setting bit 1 to 0)
+
+    // ASSERT(((*(uint32_t *) (base + 0x68) & 0x2) >> 1) == 0);
+
+    Debug::printf("Setting ICOI to final command\n");
+    // Sending request To ICOI
+
+    Debug::printf("Setting ICOI ~ FINAL COMMAND: %x\n", *command_addy);
+    Debug::printf("Setting ICOI ~ Mem Addy: %x\n", *(uint32_t *) (base + 0x60));
+
+    // memcpy((void *)(base + 0x60), (void *)command_addy, 4);
+    Debug::printf("Writing too: %x\n", (base + 0x60));
+    *(uint32_t *)(base + 0x60) = final_command; 
+
+    Debug::printf("Setting ICOI ~ FINAL COMMAND ~ AFTER: %x\n", *command_addy);
+    Debug::printf("Setting ICOI ~ Mem Addy ~ AFTER: %x\n", *(uint32_t *) (base + 0x60));
+
+    ASSERT(*(uint32_t *) (base + 0x60) == final_command);
+
+    Debug::printf("Setting ICB bit to 1 ~ command is valid\n");
+    // Set ICB to 1
+    (*(uint32_t *) (base + 0x68)) = (*(uint32_t *) (base + 0x68)) | 0x1; // (setting bit 0 to 1)
+
+    // ASSERT((*(uint32_t *) (base + 0x68) & 0x1) == 1);
+
+    return true; 
+}
+
 void kernelMain(void) {
 
     checkAllBuses();
 
+    // Base Adderress 
     char *base = (char *) 0xfebf0000;
     uint32_t *base_u = (uint32_t *) 0xfebf0000;
 
@@ -189,10 +259,79 @@ void kernelMain(void) {
 
 
     while(*(base_u + 2) == 0) {
-        Debug::printf("It's not on Yet, %x\n", (*(uint32_t *) 0x80002008));
+        Debug::printf("It's not on Yet, %x\n", *(base_u + 2));
     }
-    Debug::printf("Half Done\n");
-    Debug::printf("Now It's On: %x\n", *((uint32_t *) 0x80002008));
 
+
+    Debug::printf("Now It's On: %x\n", (*(base_u + 2)));
+
+    volatile uint32_t help = 0; 
+
+    while(help  < 10000) {
+        // Debug::printf("Waiting: %d\n", help);
+        help += 1; 
+    }
+
+    Debug::printf("Finding Codec\n");
+
+    Debug::printf("After flipping bit: STATESTS: %x\n", *(base + 0x0E));
+
+
+    Debug::printf("ATTEMPT TO SEND COMMAND: get number of nodes\n");
+    send_command(0, 0, 0xf00, 0x4, base);
+    Debug::printf("We got back from sending command\n");
+
+    uint32_t result = get_response(base);
+    uint32_t nodes = result & 0xFF;
+    
+    Debug::printf("ATTEMPT TO GET RESULT: get number of nodes %d\n", nodes);
+
+    send_command(0, 1, 0xf00, 0x4, base);
+    result = get_response(base);
+    nodes = result & 0xFF;
+    
+    Debug::printf("ATTEMPT TO GET RESULT for 1: get number of nodes %d\n", nodes);
+
+
+    send_command(0, 2, 0xf00, 0x9, base);
+    result = get_response(base);
+    
+    Debug::printf("ATTEMPT TO GET RESULT for 2: TYPE ~ %x\n", result);
+
+    send_command(0, 3, 0xf00, 0x9, base);
+    result = get_response(base);
+    
+    Debug::printf("ATTEMPT TO GET RESULT for 3: TYPE ~ %x\n", result);
+
+    send_command(0, 4, 0xf00, 0x9, base);
+    result = get_response(base);
+    
+    Debug::printf("ATTEMPT TO GET RESULT for 4: TYPE ~ %x\n", result);
+
+    send_command(0, 5, 0xf00, 0x9, base);
+    result = get_response(base);
+    
+    Debug::printf("ATTEMPT TO GET RESULT for 5: TYPE ~ %x\n", result);
+
+
+    send_command(0, 0, 0xf00, 0x0, base);
+
+    result = get_response(base);
+
+    Debug::printf("ATTEMPT TO GET RESULT: get number of nodes %x\n", result);
+
+    auto ide = Shared<Ide>::make(1);
+    
+    // We expect to find an ext2 file system there
+    auto fs = Shared<Ext2>::make(ide);
+
+    Debug::printf("*** block size is %d\n",fs->get_block_size());
+    Debug::printf("*** inode size is %d\n",fs->get_inode_size());
+   
+   auto root = fs->root;
+
+   auto hello = fs->find(root,"t0.dir_data_song.wav");
+
+   setUpWaveFile(hello);
 
 }
