@@ -22,15 +22,29 @@ struct Header {
     uint32_t  data_size;                     // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
 };
 
+
+struct buffer_descriptor_entry {
+    uint64_t addy; 
+    uint32_t length; 
+    uint32_t IOC; 
+};
+
 struct Wave_In_Bytes {
     Header * fmt = new Header();
-    uint32_t * pages = new uint32_t[16];
+    buffer_descriptor_entry * b_entries = new buffer_descriptor_entry[16];
 };
 
 
+class WaveParser {
 
-void setUpWaveFile(Shared<Node> file) {
+    public:
+    Header * fmt;
+    char * b_entries; 
 
+
+    WaveParser(Shared<Node> file) {
+        fmt = new Header();
+        b_entries = (char *) PhysMem::alloc_frame();
 
     // RIFF CHECK 
     char* riff = new char[5];
@@ -77,9 +91,8 @@ void setUpWaveFile(Shared<Node> file) {
 
     // DATA check 
 
-    Wave_In_Bytes * wave_info = new Wave_In_Bytes();
 
-    Header* fmt_stuff = wave_info->fmt; 
+    Header* fmt_stuff = fmt; 
 
     Debug::printf("Size Of fmt: %d\n", sizeof(Header));
     file->read_all(20 + size_of_the_junk, sizeof(Header), (char*)fmt_stuff);
@@ -97,18 +110,43 @@ void setUpWaveFile(Shared<Node> file) {
     // Make 16 Pages of data 
 
     for(int i = 0; i < 16; i++) {
-        wave_info->pages[i] = PhysMem::alloc_frame();
-        uint32_t current_addy = wave_info->pages[i]; 
-        file->read_all(20 + size_of_the_junk + sizeof(Header) + (4096 * i), 4096, (char*) (uint32_t*)current_addy);
+        char * current_entry = (b_entries + (i * 16));
+        *(uint64_t *) current_entry = PhysMem::alloc_frame();
+       
+        // (wave_info->b_entries[i]).addy = PhysMem::alloc_frame();
+        uint64_t current_addy = *(uint64_t *) current_entry; 
+
+        ASSERT(current_addy == *(uint64_t *) current_entry);
+
+        // Debug::printf("Value For Entry: %d = %x\n", i, current_addy);
+
+
+
+        *(uint32_t *) (current_entry + 8) = 4096; 
+        *(uint32_t *) (current_entry + 12) = 0;
+        file->read_all(20 + size_of_the_junk + sizeof(Header) + (4096 * i), 4096, (char*) (uint64_t*)current_addy);
     }
 
-    char * first_few = new char[5];
-    file->read_all(20 + size_of_the_junk + sizeof(Header), 4, (char*) (uint32_t*)first_few);
+    char * first_few = new char[10];
+    file->read_all(20 + size_of_the_junk + sizeof(Header), 8, (char*) (uint32_t*)first_few);
     Debug::printf("First few bytes from the wav file: %x\n", *(uint32_t *)first_few);
+    Debug::printf("First few bytes from the wav file ~ 2: %x\n", *((uint32_t *)first_few + 1));
     delete first_few; 
 
     for(int x = 0; x < 5; x++) {
-        Debug::printf("%x\n", *(((uint32_t*)(wave_info->pages[0])) + x));
+        char * current_entry = (b_entries);
+        Debug::printf("%x\n", *((uint64_t *)(*((uint64_t *) current_entry)) + x));
     }
 
+
+    // Set the Addy 
+
+    // Set Registers with the right values (, bit_channels, )
+
+    // make RUN into 1 
+
 }
+
+};
+
+

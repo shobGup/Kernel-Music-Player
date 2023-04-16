@@ -235,6 +235,61 @@ bool send_command(uint32_t codec, uint32_t node, uint32_t command, uint32_t data
     return true; 
 }
 
+void ready_to_play(WaveParser file, char * base, WaveParser wave_file) {
+
+    char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
+
+    // SDnBDL Lower Set Up 
+    Debug::printf("Addy: %x\n",wave_file.b_entries);
+    uint32_t entries = (uint32_t) wave_file.b_entries;
+    *(uint32_t *)(base_addy_plus_x + 0x18) = entries; 
+    ASSERT((*(uint32_t *)(base_addy_plus_x + 0x18)) == entries);
+    Debug::printf("Addy ~ Entries: %x\n",entries);
+
+    // LVI -> 15 
+        // *(uint16_t *)(LVI) = 15; 
+    char * LVI = base_addy_plus_x + 12; 
+    uint16_t num = 15; 
+    uint16_t * value = &num; 
+    memcpy(LVI, value, 2);
+    ASSERT(*(uint16_t *)(base_addy_plus_x + 0xC) == 15);
+    Debug::printf("LVI: %d\n", *(uint16_t *)(base_addy_plus_x + 0xC));
+
+    // SDnCBL -> 16 * 4096 
+    char * CBL = (base_addy_plus_x + 0x8); 
+    uint32_t CBL_num = 65536; 
+    uint32_t * CBL_value = &CBL_num; 
+    *(uint32_t *)(CBL) = *CBL_value;
+    Debug::printf("Value of CBL: %d and CLB Num: %d\n", *CBL_value, CBL_num); 
+    // memcpy(CBL, CBL_value, 4);
+    Debug::printf("CBL: %d\n", *(uint32_t *)((base_addy_plus_x + 0x8)));
+    ASSERT(*(uint32_t *)((base_addy_plus_x + 0x8)) == (4096*16));
+    
+
+    // SDnFMT -> 
+    char * FMT = (base_addy_plus_x + 0x12); 
+
+    uint16_t current_FMT = *(uint16_t *)(FMT);
+
+    Debug::printf("Current FMT: %x\n", current_FMT);
+
+    current_FMT = current_FMT & 0x8080; 
+    current_FMT += 0x500; 
+    *(uint16_t *)(FMT) = current_FMT;
+
+
+    Debug::printf("FMT: %x\n", *(uint16_t *)((base_addy_plus_x + 0x12)));
+    ASSERT(*(uint16_t *)((base_addy_plus_x + 0x12)) == (1280));
+
+    // SDnCTL -> Set RUN -> 1 
+    char * SDnCTL = (base_addy_plus_x); 
+    *((uint32_t*)SDnCTL) = *((uint32_t*)SDnCTL) + 0x10;
+    Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL))>> 4);
+
+
+
+}
+
 void kernelMain(void) {
 
     checkAllBuses();
@@ -332,6 +387,20 @@ void kernelMain(void) {
 
    auto hello = fs->find(root,"t0.dir_data_song.wav");
 
-   setUpWaveFile(hello);
+   WaveParser wave_file = WaveParser(hello);
+
+   Debug::printf("Addy: %x\n",wave_file.b_entries);
+
+   
+
+   uint16_t GCAP = * (uint16_t *)base; 
+   Debug::printf("GCAP: %x\n", GCAP);
+   Debug::printf("Value ISS:%d\n", (GCAP >> 8) & 0xF);
+
+   ready_to_play(wave_file, base, wave_file);
+
+   while(true) {
+       
+   }
 
 }
