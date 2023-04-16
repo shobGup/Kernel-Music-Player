@@ -5,6 +5,7 @@
 #include "semaphore.h"
 #include "future.h"
 #include "pit.h"
+#include "physmem.h"
 
 struct Header {
     char fmt_chunk_marker[4];          // fmt string with trailing null char
@@ -19,6 +20,11 @@ struct Header {
     // //questionable
     char data_chunk_header [4];               // DATA string or FLLR string
     uint32_t  data_size;                     // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
+};
+
+struct Wave_In_Bytes {
+    Header * fmt = new Header();
+    uint32_t * pages = new uint32_t[16];
 };
 
 
@@ -65,8 +71,16 @@ void setUpWaveFile(Shared<Node> file) {
 
     // Skip Junk 
 
+    // "FMT " Check 
 
-    Header* fmt_stuff = new Header();
+    // Extract and Fill Info 
+
+    // DATA check 
+
+    Wave_In_Bytes * wave_info = new Wave_In_Bytes();
+
+    Header* fmt_stuff = wave_info->fmt; 
+
     Debug::printf("Size Of fmt: %d\n", sizeof(Header));
     file->read_all(20 + size_of_the_junk, sizeof(Header), (char*)fmt_stuff);
     Debug::printf("fmt_chunk_marker: %s\n", fmt_stuff->fmt_chunk_marker);
@@ -79,15 +93,22 @@ void setUpWaveFile(Shared<Node> file) {
     Debug::printf("bits_per_sample: %d\n", fmt_stuff->bits_per_sample);
     Debug::printf("data_chunk_header: %s\n", fmt_stuff->data_chunk_header);
     Debug::printf("data size: %d\n", fmt_stuff->data_size);
-    
-
-
-    // "FMT " Check 
-
-    // Extract and Fill Info 
-
-    // DATA check 
 
     // Make 16 Pages of data 
+
+    for(int i = 0; i < 16; i++) {
+        wave_info->pages[i] = PhysMem::alloc_frame();
+        uint32_t current_addy = wave_info->pages[i]; 
+        file->read_all(20 + size_of_the_junk + sizeof(Header) + (4096 * i), 4096, (char*) (uint32_t*)current_addy);
+    }
+
+    char * first_few = new char[5];
+    file->read_all(20 + size_of_the_junk + sizeof(Header), 4, (char*) (uint32_t*)first_few);
+    Debug::printf("First few bytes from the wav file: %x\n", *(uint32_t *)first_few);
+    delete first_few; 
+
+    for(int x = 0; x < 5; x++) {
+        Debug::printf("%x\n", *(((uint32_t*)(wave_info->pages[0])) + x));
+    }
 
 }
