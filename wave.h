@@ -23,16 +23,16 @@ struct Header {
 };
 
 
-struct buffer_descriptor_entry {
-    uint64_t addy; 
-    uint32_t length; 
-    uint32_t IOC; 
-};
+// struct buffer_descriptor_entry {
+//     uint64_t addy; 
+//     uint32_t length; 
+//     uint32_t IOC; 
+// };
 
-struct Wave_In_Bytes {
-    Header * fmt = new Header();
-    buffer_descriptor_entry * b_entries = new buffer_descriptor_entry[16];
-};
+// struct Wave_In_Bytes {
+//     Header * fmt = new Header();
+//     buffer_descriptor_entry * b_entries = new buffer_descriptor_entry[16];
+// };
 
 
 class WaveParser {
@@ -113,12 +113,9 @@ class WaveParser {
         char * current_entry = (b_entries + (i * 16));
         *(uint64_t *) current_entry = PhysMem::alloc_frame();
        
-        // (wave_info->b_entries[i]).addy = PhysMem::alloc_frame();
         uint64_t current_addy = *(uint64_t *) current_entry; 
 
         ASSERT(current_addy == *(uint64_t *) current_entry);
-
-        // Debug::printf("Value For Entry: %d = %x\n", i, current_addy);
 
 
 

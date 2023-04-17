@@ -122,6 +122,7 @@ void checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
     uint32_t barz = getBarZero(bus, device, function);
     Debug::printf("Bar 0: %x \n", barz);
 
+
     // if(vId == 0x8086 && dId == 0x2668) {
     //     uint32_t * command_regis = getCommandRegister(bus, device, function); 
     //     *command_regis = *command_regis | 0x4;
@@ -235,6 +236,58 @@ bool send_command(uint32_t codec, uint32_t node, uint32_t command, uint32_t data
     return true; 
 }
 
+
+bool send_comman_extended(uint32_t codec, uint32_t node, uint32_t command, uint32_t data, char *base) {
+
+    Debug::printf("Send Command\n");
+
+    codec = (codec & 0xf) << 28; 
+    node = (node & 0xff) << 20; 
+    command = (command & 0xf) << 16; 
+    data = data & 0xffff; 
+
+    uint32_t final_command = codec + node + command + data; 
+
+    uint32_t * command_addy = &final_command; 
+
+    ASSERT(*command_addy == final_command);
+
+    Debug::printf("Setting ICB bit to 0\n");
+    // Set ICB to 0 
+    (*(uint32_t *)(base + 0x68)) = (*(uint32_t *)(base + 0x68)) & 0xFFFFFFFE; // (setting bit 0 to 0)
+
+    // ASSERT((*(uint32_t *) (base + 0x68) & 0x1) == 0);
+
+    Debug::printf("Setting IRV bit to 0\n");
+    // Set IRV to 0 
+    (*(uint32_t *)(base + 0x68)) = (*(uint32_t *)(base + 0x68)) & 0xFFFFFFFD; // (setting bit 1 to 0)
+
+    // ASSERT(((*(uint32_t *) (base + 0x68) & 0x2) >> 1) == 0);
+
+    Debug::printf("Setting ICOI to final command\n");
+    // Sending request To ICOI
+
+    Debug::printf("Setting ICOI ~ FINAL COMMAND: %x\n", *command_addy);
+    Debug::printf("Setting ICOI ~ Mem Addy: %x\n", *(uint32_t *) (base + 0x60));
+
+    // memcpy((void *)(base + 0x60), (void *)command_addy, 4);
+    Debug::printf("Writing too: %x\n", (base + 0x60));
+    *(uint32_t *)(base + 0x60) = final_command; 
+
+    Debug::printf("Setting ICOI ~ FINAL COMMAND ~ AFTER: %x\n", *command_addy);
+    Debug::printf("Setting ICOI ~ Mem Addy ~ AFTER: %x\n", *(uint32_t *) (base + 0x60));
+
+    ASSERT(*(uint32_t *) (base + 0x60) == final_command);
+
+    Debug::printf("Setting ICB bit to 1 ~ command is valid\n");
+    // Set ICB to 1
+    (*(uint32_t *) (base + 0x68)) = (*(uint32_t *) (base + 0x68)) | 0x1; // (setting bit 0 to 1)
+
+    // ASSERT((*(uint32_t *) (base + 0x68) & 0x1) == 1);
+
+    return true; 
+}
+
 void ready_to_play(WaveParser file, char * base, WaveParser wave_file) {
 
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
@@ -261,7 +314,6 @@ void ready_to_play(WaveParser file, char * base, WaveParser wave_file) {
     uint32_t * CBL_value = &CBL_num; 
     *(uint32_t *)(CBL) = *CBL_value;
     Debug::printf("Value of CBL: %d and CLB Num: %d\n", *CBL_value, CBL_num); 
-    // memcpy(CBL, CBL_value, 4);
     Debug::printf("CBL: %d\n", *(uint32_t *)((base_addy_plus_x + 0x8)));
     ASSERT(*(uint32_t *)((base_addy_plus_x + 0x8)) == (4096*16));
     
@@ -275,24 +327,30 @@ void ready_to_play(WaveParser file, char * base, WaveParser wave_file) {
 
     current_FMT = current_FMT & 0x8080; 
     current_FMT += 0x500; 
+    Debug::printf("After FMT: %x\n", current_FMT);
     *(uint16_t *)(FMT) = current_FMT;
 
 
     Debug::printf("FMT: %x\n", *(uint16_t *)((base_addy_plus_x + 0x12)));
     ASSERT(*(uint16_t *)((base_addy_plus_x + 0x12)) == (1280));
 
-    // SDnCTL -> Set RUN -> 1 
-    char * SDnCTL = (base_addy_plus_x); 
-    *((uint32_t*)SDnCTL) = *((uint32_t*)SDnCTL) + 0x10;
-    Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL))>> 4);
-
-
-
+    // // SDnCTL -> Set RUN -> 1 
+    // char * SDnCTL = (base_addy_plus_x); 
+    // *((uint32_t*)SDnCTL) = *((uint32_t*)SDnCTL) + 0x10;
+    // Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL))>> 4);
 }
 
 void kernelMain(void) {
 
     checkAllBuses();
+
+    // 0x8000200
+
+    // PCI controll register -> command register -> outl (addy we want to read) -> inl to read what it responds
+    outl(0xCF8, 0x80002004);
+    uint32_t Status_Command_Regis =  inl(0xCFC) | 0x4;
+    outl(0xCF8, 0x80002004);
+    outl(0xCFC, Status_Command_Regis);
 
     // Base Adderress 
     char *base = (char *) 0xfebf0000;
@@ -302,6 +360,7 @@ void kernelMain(void) {
     Debug::printf("Before flipping bit: VMIN: %x\n", *( (base + 2)));
     Debug::printf("Before flipping bit: GCAP: %x\n", *base_u);
 
+    // CRST Bit 
     *(base_u + 2) = *(base_u + 2) | 0x01;
 
     Debug::printf("After flipping bit: GCTL: %x\n", *(base_u + 2));
@@ -395,12 +454,43 @@ void kernelMain(void) {
 
    uint16_t GCAP = * (uint16_t *)base; 
    Debug::printf("GCAP: %x\n", GCAP);
-   Debug::printf("Value ISS:%d\n", (GCAP >> 8) & 0xF);
+   Debug::printf("Value ISS:%d\n", (GCAP >> 8) & 0xF); // 4
 
    ready_to_play(wave_file, base, wave_file);
 
+
+   // Send SetPinWidgetControl to Node 3 ~ 0x707
+   // 01000000
+   send_command(0, 3, 0xf07, 0, base);
+   uint32_t current_pinCntl = get_response(base);
+   current_pinCntl |= 0x40; 
+
+   send_command(0, 3, 0x707, current_pinCntl, base); 
+
+   // Send SetStreamChannel to Node 2 ~ 0x706 
+    // 0x706 
+    // 0001
+    // 0000
+
+    send_command(0, 2, 0x706, 0x10, base);
+
+   // SetAmplifierGain 
+   send_comman_extended(0, 2, 0x3, 0xB035, base);
+
+    // 1 0 1 1 0 0 0 0 "0" '......' 
+    // B035
+    send_comman_extended(0, 2, 0x2, 0x500, base);
+
+    // SDnCTL -> Set RUN -> 1 
+    char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
+    char * SDnCTL = (base_addy_plus_x); 
+    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x2);
+    Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
+
+    // DPLBASE ~ Sanity Check ~ FAIL ~ RIP ~ WE ARE INSANE
+
    while(true) {
-       
+       Debug::printf("Value of DPLBase: %x\n", *(uint32_t *)(base + 0x70));
    }
 
 }
