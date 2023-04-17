@@ -12,6 +12,7 @@
 #include "idt.h"
 #include "crt.h"
 #include "stdint.h"
+#include "physmem.h"
 
 struct Stack {
     static constexpr int BYTES = 4096;
@@ -32,6 +33,8 @@ bool onHypervisor = true;
 
 static constexpr uint32_t HEAP_START = 1 * 1024 * 1024;
 static constexpr uint32_t HEAP_SIZE = 5 * 1024 * 1024;
+static constexpr uint32_t VMM_FRAMES = HEAP_START + HEAP_SIZE;
+
 
 extern "C" void kernelInit(void) {
 
@@ -94,6 +97,9 @@ extern "C" void kernelInit(void) {
 
         /* running global constructors */
         CRT::init();
+
+        /* initialize physmem */
+        PhysMem::init(VMM_FRAMES, kConfig.memSize - VMM_FRAMES);
 
         /* initialize the thread module */
         threadsInit();

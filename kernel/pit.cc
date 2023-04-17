@@ -18,7 +18,7 @@ constexpr uint32_t APIT_vector = 40;
 
 uint32_t Pit::jiffiesPerSecond = 0;
 uint32_t Pit::apitCounter = 0;
-uint32_t Pit::jiffies = 0;
+volatile uint32_t Pit::jiffies = 0;
 
 struct PitInfo {
 };
