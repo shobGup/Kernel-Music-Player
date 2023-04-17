@@ -435,7 +435,17 @@ void kernelMain(void) {
     Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
 
    // DPLBASE ~ Sanity Check ~ FAIL ~ RIP ~ WE ARE INSANE
+   uint64_t offset = 4096;
+   uint32_t index = 0; 
    while(true) {
+       if(*(uint32_t *)(base_addy_plus_x + 0x4) > offset) {
+           Debug::printf("Value of SDnLPIB: %x\n", *(uint32_t *)(base_addy_plus_x + 0x4));
+           offset += 4096; 
+           wave_file.rebuildData(index);
+           index++; 
+           offset = offset %  65536;
+           index = index % 16; 
+       }
        Debug::printf("Value of SDnLPIB: %x\n", *(uint32_t *)(base_addy_plus_x + 0x4));
    }
 
