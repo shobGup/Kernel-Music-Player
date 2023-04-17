@@ -198,14 +198,14 @@ class WaveParser_list {
 
         char * first_few = new char[10];
         overallFile->read_all(offset, 8, (char*) (uint32_t*)first_few);
-        Debug::printf("First few bytes from the wav file: %x\n", *(uint32_t *)first_few);
-        Debug::printf("First few bytes from the wav file ~ 2: %x\n", *((uint32_t *)first_few + 1));
+        // Debug::printf("First few bytes from the wav file: %x\n", *(uint32_t *)first_few);
+        // Debug::printf("First few bytes from the wav file ~ 2: %x\n", *((uint32_t *)first_few + 1));
         delete first_few; 
 
         overallFile->read_all(offset, 4096, (char*) (uint64_t*)current_addy);
         offset+=4096; 
 
-        Debug::printf("I have ReSet...\n");
+        // Debug::printf("I have ReSet...\n");
 
 
         for(int x = 0; x < 5; x++) {

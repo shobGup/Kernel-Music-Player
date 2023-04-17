@@ -991,14 +991,14 @@ void kernelMain(void) {
    uint32_t index = 0; 
    while(true) {
        if(*(uint32_t *)(base_addy_plus_x + 0x4) > offset) {
-           Debug::printf("Value of SDnLPIB: %x\n", *(uint32_t *)(base_addy_plus_x + 0x4));
+        //    Debug::printf("Value of SDnLPIB: %x\n", *(uint32_t *)(base_addy_plus_x + 0x4));
            offset += 4096; 
            wave_file.rebuildData(index);
            index++; 
            offset = offset %  65536;
            index = index % 16; 
        }
-       Debug::printf("Value of SDnLPIB: %x\n", *(uint32_t *)(base_addy_plus_x + 0x4));
+    //    Debug::printf("Value of SDnLPIB: %x\n", *(uint32_t *)(base_addy_plus_x + 0x4));
    }
 
 }
