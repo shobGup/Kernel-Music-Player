@@ -342,7 +342,7 @@ void ready_to_play(WaveParser file, char * base, WaveParser wave_file) {
 
 void kernelMain(void) {
 
-    checkAllBuses();
+    // checkAllBuses();
 
     // 0x8000200
 
@@ -386,53 +386,53 @@ void kernelMain(void) {
         help += 1; 
     }
 
-    Debug::printf("Finding Codec\n");
+    // Debug::printf("Finding Codec\n");
 
-    Debug::printf("After flipping bit: STATESTS: %x\n", *(base + 0x0E));
+    // Debug::printf("After flipping bit: STATESTS: %x\n", *(base + 0x0E));
 
 
-    Debug::printf("ATTEMPT TO SEND COMMAND: get number of nodes\n");
-    send_command(0, 0, 0xf00, 0x4, base);
-    Debug::printf("We got back from sending command\n");
+    // Debug::printf("ATTEMPT TO SEND COMMAND: get number of nodes\n");
+    // send_command(0, 0, 0xf00, 0x4, base);
+    // Debug::printf("We got back from sending command\n");
 
-    uint32_t result = get_response(base);
-    uint32_t nodes = result & 0xFF;
+    // uint32_t result = get_response(base);
+    // uint32_t nodes = result & 0xFF;
     
-    Debug::printf("ATTEMPT TO GET RESULT: get number of nodes %d\n", nodes);
+    // Debug::printf("ATTEMPT TO GET RESULT: get number of nodes %d\n", nodes);
 
-    send_command(0, 1, 0xf00, 0x4, base);
-    result = get_response(base);
-    nodes = result & 0xFF;
+    // send_command(0, 1, 0xf00, 0x4, base);
+    // result = get_response(base);
+    // nodes = result & 0xFF;
     
-    Debug::printf("ATTEMPT TO GET RESULT for 1: get number of nodes %d\n", nodes);
+    // Debug::printf("ATTEMPT TO GET RESULT for 1: get number of nodes %d\n", nodes);
 
 
-    send_command(0, 2, 0xf00, 0x9, base);
-    result = get_response(base);
+    // send_command(0, 2, 0xf00, 0x9, base);
+    // result = get_response(base);
     
-    Debug::printf("ATTEMPT TO GET RESULT for 2: TYPE ~ %x\n", result);
+    // Debug::printf("ATTEMPT TO GET RESULT for 2: TYPE ~ %x\n", result);
 
-    send_command(0, 3, 0xf00, 0x9, base);
-    result = get_response(base);
+    // send_command(0, 3, 0xf00, 0x9, base);
+    // result = get_response(base);
     
-    Debug::printf("ATTEMPT TO GET RESULT for 3: TYPE ~ %x\n", result);
+    // Debug::printf("ATTEMPT TO GET RESULT for 3: TYPE ~ %x\n", result);
 
-    send_command(0, 4, 0xf00, 0x9, base);
-    result = get_response(base);
+    // send_command(0, 4, 0xf00, 0x9, base);
+    // result = get_response(base);
     
-    Debug::printf("ATTEMPT TO GET RESULT for 4: TYPE ~ %x\n", result);
+    // Debug::printf("ATTEMPT TO GET RESULT for 4: TYPE ~ %x\n", result);
 
-    send_command(0, 5, 0xf00, 0x9, base);
-    result = get_response(base);
+    // send_command(0, 5, 0xf00, 0x9, base);
+    // result = get_response(base);
     
-    Debug::printf("ATTEMPT TO GET RESULT for 5: TYPE ~ %x\n", result);
+    // Debug::printf("ATTEMPT TO GET RESULT for 5: TYPE ~ %x\n", result);
 
 
-    send_command(0, 0, 0xf00, 0x0, base);
+    // send_command(0, 0, 0xf00, 0x0, base);
 
-    result = get_response(base);
+    // result = get_response(base);
 
-    Debug::printf("ATTEMPT TO GET RESULT: get number of nodes %x\n", result);
+    // Debug::printf("ATTEMPT TO GET RESULT: get number of nodes %x\n", result);
 
     auto ide = Shared<Ide>::make(1);
     
@@ -442,40 +442,37 @@ void kernelMain(void) {
     Debug::printf("*** block size is %d\n",fs->get_block_size());
     Debug::printf("*** inode size is %d\n",fs->get_inode_size());
    
-   auto root = fs->root;
+    auto root = fs->root;
 
-   auto hello = fs->find(root,"t0.dir_data_song.wav");
+    auto hello = fs->find(root,"t0.dir_data_song.wav");
 
-   WaveParser wave_file = WaveParser(hello);
+    WaveParser wave_file = WaveParser(hello);
 
-   Debug::printf("Addy: %x\n",wave_file.b_entries);
+    Debug::printf("Addy: %x\n",wave_file.b_entries);
 
-   
+    uint16_t GCAP = * (uint16_t *)base; 
+    Debug::printf("GCAP: %x\n", GCAP);
+    Debug::printf("Value ISS:%d\n", (GCAP >> 8) & 0xF); // 4
 
-   uint16_t GCAP = * (uint16_t *)base; 
-   Debug::printf("GCAP: %x\n", GCAP);
-   Debug::printf("Value ISS:%d\n", (GCAP >> 8) & 0xF); // 4
-
-   ready_to_play(wave_file, base, wave_file);
+    ready_to_play(wave_file, base, wave_file);
 
 
-   // Send SetPinWidgetControl to Node 3 ~ 0x707
-   // 01000000
-   send_command(0, 3, 0xf07, 0, base);
-   uint32_t current_pinCntl = get_response(base);
-   current_pinCntl |= 0x40; 
+    // Send SetPinWidgetControl to Node 3 ~ 0x707
+    // 01000000
+    send_command(0, 3, 0xf07, 0, base);
+    uint32_t current_pinCntl = get_response(base);
+    current_pinCntl |= 0x40; 
 
-   send_command(0, 3, 0x707, current_pinCntl, base); 
+    send_command(0, 3, 0x707, current_pinCntl, base); 
 
-   // Send SetStreamChannel to Node 2 ~ 0x706 
+    // Send SetStreamChannel to Node 2 ~ 0x706 
     // 0x706 
     // 0001
     // 0000
-
     send_command(0, 2, 0x706, 0x10, base);
 
-   // SetAmplifierGain 
-   send_comman_extended(0, 2, 0x3, 0xB035, base);
+    // SetAmplifierGain 
+    send_comman_extended(0, 2, 0x3, 0xB035, base);
 
     // 1 0 1 1 0 0 0 0 "0" '......' 
     // B035
@@ -487,10 +484,9 @@ void kernelMain(void) {
     *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x2);
     Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
 
-    // DPLBASE ~ Sanity Check ~ FAIL ~ RIP ~ WE ARE INSANE
-
+   // DPLBASE ~ Sanity Check ~ FAIL ~ RIP ~ WE ARE INSANE
    while(true) {
-       Debug::printf("Value of DPLBase: %x\n", *(uint32_t *)(base + 0x70));
+    //    Debug::printf("Value of DPLBase: %x\n", *(uint32_t *)(base + 0x70));
    }
 
 }
