@@ -397,7 +397,7 @@ void kernelMain(void) {
    
     auto root = fs->root;
 
-    auto hello = fs->find(root,"shar.wav");
+    auto hello = fs->find(root,"taylor.wav");
 
     WaveParser_list wave_file = WaveParser_list(hello);
 
