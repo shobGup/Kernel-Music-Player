@@ -43,9 +43,11 @@ QEMU_CONFIG_FLAGS = -accel ${QEMU_ACCEL} \
 
 QEMU_FLAGS = -no-reboot \
 	     ${QEMU_CONFIG_FLAGS} \
-	     -vga std \
-         -display vnc="128.83.120.168:1" \
 	     --monitor none \
+		 -vga std \
+         -display vnc="127.0.0.1:2" \
+		 -audiodev driver=alsa,id=snd0\
+         -device ich9-intel-hda -device hda-output,audiodev=snd0 \
 	     --serial file:$*.raw \
              -drive file=kernel/build/$*.img,index=0,media=disk,format=raw \
              -drive file=$*.data,index=1,media=disk,format=raw \

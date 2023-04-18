@@ -390,7 +390,7 @@ void kernelMain(void) {
     auto fs = Shared<Ext2>::make(ide);
 
     VGA *thisVGA = new VGA();
-    thisVGA->setup(fs);
+    // thisVGA->setup(fs);
 
     Debug::printf("*** block size is %d\n",fs->get_block_size());
     Debug::printf("*** inode size is %d\n",fs->get_inode_size());
