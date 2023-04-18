@@ -1,0 +1,34 @@
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+| What just happened? Why am I here?
+| Discovering my identity and features
+|     CPUID: AuthenticAMD
+|     has SSE3
+|     has MONITOR/MWAIT
+|     running on hypervisor
+| totalProcs 4
+| memSize 0x7fd0000 127MB
+| localAPIC fee00000
+| ioAPIC fec00000
+| heap range 0x100000 0x1500000
+| switched to new UART
+| physical range 0x1500000 0x7fd0000
+| pitInit freq 44100Hz
+| pitInit divider 59659
+| APIT running at 1000240664Hz
+| APIT counter=22681 for 44100Hz
+| initialize 1
+| reset 1
+|      eip:0x8000
+| initialize 2
+| reset 2
+|      eip:0x8000
+| 1 enabling interrupts, I'm scared
+| initialize 3
+| reset 3
+|      eip:0x8000
+| 2 enabling interrupts, I'm scared
+| 0 enabling interrupts, I'm scared
+| 3 enabling interrupts, I'm scared
+After flipping bit: GCTL: 12341449
+*** Assertion [*((base + 3)) == 1] failed at /u/shobgup/Documents/cs439/Audio-Output-Final/goyalyug.cc:377
+| processor 0 halting

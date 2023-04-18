@@ -44,7 +44,7 @@ QEMU_CONFIG_FLAGS = -accel ${QEMU_ACCEL} \
 QEMU_FLAGS = -no-reboot \
 	     ${QEMU_CONFIG_FLAGS} \
 	     -vga std \
-         -display vnc="127.0.0.1:1" \
+         -display vnc="128.83.120.168:1" \
 	     --monitor none \
 	     --serial file:$*.raw \
              -drive file=kernel/build/$*.img,index=0,media=disk,format=raw \
