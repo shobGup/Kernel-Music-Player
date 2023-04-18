@@ -6,6 +6,7 @@
 #include "future.h"
 #include "pit.h"
 #include "list_wave.h"
+#include "vga.h"
 
 
 uint16_t vendorID;
@@ -387,6 +388,9 @@ void kernelMain(void) {
     
     // We expect to find an ext2 file system there
     auto fs = Shared<Ext2>::make(ide);
+
+    VGA *thisVGA = new VGA();
+    thisVGA->setup(fs);
 
     Debug::printf("*** block size is %d\n",fs->get_block_size());
     Debug::printf("*** inode size is %d\n",fs->get_inode_size());
