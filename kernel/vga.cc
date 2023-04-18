@@ -382,7 +382,7 @@ void VGA::drawString(int x, int y, const char* str, uint8_t color) {
 void VGA::spotify() {
     // Shared<Ext22> root_fs = Shared<Ext22>::make(Shared<Ide>::make(1));
     drawRectangle(width/2 - 35, length/3 - 35, width/2 + 35, length/3 + 35, BLACK, false);
-    const char* name = "travy_boy";
+    const char* name = "dsotm";
 
     Shared<Node> png = fs->find(fs->root, name);
 

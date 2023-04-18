@@ -30,7 +30,7 @@ QEMU_ACCEL ?= tcg,thread=multi
 QEMU_CPU ?= max
 QEMU_SMP ?= 4
 QEMU_MEM ?= 128m
-QEMU_TIMEOUT ?= 1000
+QEMU_TIMEOUT ?= 20
 QEMU_TIMEOUT_CMD ?= timeout
 
 QEMU_PREFER = ~gheith/public/qemu_5.1.0/bin/qemu-system-i386
@@ -46,8 +46,7 @@ QEMU_FLAGS = -no-reboot \
 	     --monitor none \
 		 -vga std \
          -display vnc="127.0.0.1:2" \
-		 -audiodev driver=alsa,id=snd0\
-         -device ich9-intel-hda -device hda-output,audiodev=snd0 \
+		 -device intel-hda -device hda-duplex \
 	     --serial file:$*.raw \
              -drive file=kernel/build/$*.img,index=0,media=disk,format=raw \
              -drive file=$*.data,index=1,media=disk,format=raw \

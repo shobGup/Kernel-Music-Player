@@ -389,7 +389,7 @@ void kernelMain(void) {
     // We expect to find an ext2 file system there
     auto fs = Shared<Ext2>::make(ide);
 
-    VGA *thisVGA = new VGA();
+    // VGA *thisVGA = new VGA();
     // thisVGA->setup(fs);
 
     Debug::printf("*** block size is %d\n",fs->get_block_size());
@@ -445,6 +445,11 @@ void kernelMain(void) {
     uint64_t written = 0; 
     uint32_t index = 0; 
     uint32_t size = wave_file.size_of_the_whole_file;
+
+    VGA *thisVGA = new VGA();
+    Debug::printf("This VGA: %x\n",thisVGA );
+    thisVGA->setup(fs);
+    
     // uint32_t x = 0;
     while(true) {
         volatile uint32_t hardware_offset = *(volatile uint32_t*) (base_addy_plus_x + 0x4);
