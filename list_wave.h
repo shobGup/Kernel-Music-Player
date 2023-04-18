@@ -27,6 +27,7 @@ class WaveParser_list {
     uint64_t offset; 
     uint32_t size_of_the_junk;
     Shared<Node> overallFile; 
+    uint32_t size_of_the_whole_file;
 
     uint32_t bit_divsor; 
     uint32_t bit_per_sample; 
@@ -36,6 +37,7 @@ class WaveParser_list {
         offset = 0; 
         fmt = new Header();
         b_entries = (char *) PhysMem::alloc_frame();
+        size_of_the_whole_file = 0;
 
     // RIFF CHECK 
     char* riff = new char[5];
@@ -48,6 +50,7 @@ class WaveParser_list {
 
     char * size_of_file = new char[5];
     file->read_all(4, 4, size_of_file);
+    size_of_the_whole_file = *(uint32_t *)size_of_file;
     Debug::printf("Size Of File: %d\n", *(uint32_t *)size_of_file);
     delete size_of_file; 
 

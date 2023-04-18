@@ -1,1 +1,1 @@
-goyalyug.data: goyalyug.dir goyalyug.dir/taylor.wav
+goyalyug.data: goyalyug.dir goyalyug.dir/shar.wav
