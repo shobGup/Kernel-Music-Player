@@ -987,114 +987,28 @@ void kernelMain(void) {
     Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
 
    // DPLBASE ~ Sanity Check ~ FAIL ~ RIP ~ WE ARE INSANE
-   uint64_t offset = 4096;
-   uint32_t index = 0; 
-   while(true) {
-       if(*(uint32_t *)(base_addy_plus_x + 0x4) > offset) {
-        //    Debug::printf("Value of SDnLPIB: %x\n", *(uint32_t *)(base_addy_plus_x + 0x4));
-           offset += 4096; 
-           wave_file.rebuildData(index);
-           index++; 
-           offset = offset %  65536;
-           index = index % 16; 
-       }
-    //    Debug::printf("Value of SDnLPIB: %x\n", *(uint32_t *)(base_addy_plus_x + 0x4));
+    // uint64_t offset = 4096;
+    uint64_t written = 0; 
+    uint32_t index = 0; 
+    while(true) {
+        volatile uint32_t hardware_offset = *(volatile uint32_t*) (base_addy_plus_x + 0x4);
+        // Debug::printf("Hardware Offset: %x\n", hardware_offset);
+        if (((hardware_offset - written) % 65536) > 4096) {
+            Debug::printf("In Here %d\n", index);
+            wave_file.rebuildData(index++);
+            written += 4096;
+            written %= 65536;
+            index %= 16; 
+        }
+        // Debug::printf("DEBUG\n");
+    //    if(*(volatile uint32_t *)(base_addy_plus_x + 0x4) > offset) {
+    //        offset += 4096; 
+    //        wave_file.rebuildData(index);
+    //        index++; 
+    //        offset = offset %  65536;
+    //        index = index % 16; 
+    //        written = offset;
+    //    }
    }
 
 }
-
-
-// #include "ide.h"
-// #include "ext2.h"
-// #include "libk.h"
-// #include "threads.h"
-// #include "semaphore.h"
-// #include "future.h"
-// #include "pit.h"
-// #include "wave.h"
-
-// char convert_scancode_to_char(uint8_t scancode, bool shift_pressed) {
-//     // Define mapping tables for non-shifted and shifted scancodes
-//     const char* scancode_map[] = {
-//         // Non-shifted scancodes
-//         "ERROR", "Esc", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=", "Backspace", "Tab",
-//         "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[", "]", "Enter", "L Ctrl", "a", "s",
-//         "d", "f", "g", "h", "j", "k", "l", ";", "'", "`", "L Shift", "\\", "z", "x", "c", "v",
-//         "b", "n", "m", ",", ".", "/", "R Shift", "Keypad *", "L Alt", "Spacebar"
-//         // Shifted scancodes (not shown)
-//     };
-    
-//     // Check if the scancode is within the non-shifted mapping table
-//     if (scancode <= 58) {
-//         // If shift is pressed, adjust the scancode to retrieve the shifted char
-//         if (shift_pressed) {
-//             switch(scancode) {
-//                 case 2: return '!';     // 1 -> !
-//                 case 3: return '@';     // 2 -> @
-//                 case 4: return '#';     // 3 -> #
-//                 case 5: return '$';     // 4 -> $
-//                 case 6: return '%';     // 5 -> %
-//                 case 7: return '^';     // 6 -> ^
-//                 case 8: return '&';     // 7 -> &
-//                 case 9: return '*';     // 8 -> *
-//                 case 10: return '(';    // 9 -> (
-//                 case 11: return ')';    // 0 -> )
-//                 case 12: return '_';    // - -> _
-//                 case 13: return '+';    // = -> +
-//                 case 26: return ':';    // ; -> :
-//                 case 27: return '\"';   // ' -> "
-//                 case 43: return '|';    // \ -> |
-//                 case 51: return '<';    // , -> <
-//                 case 52: return '>';    // . -> >
-//                 case 53: return '?';    // / -> ?
-//                 default: break;
-//             }
-//         }
-//         // Return the char corresponding to the scancode
-//         return scancode_map[scancode][0];
-//     }
-//     // Scancode is not within the non-shifted mapping table, return '\0' (null char)
-//     return '\0';
-// }
-
-// // Check if keyboard input is available
-// bool keyboard_has_input() {
-//     // Read status register (port 0x64)
-//     uint8_t status = inb(0x64);
-
-//     Debug::printf("Status: %d\n", status);
-
-//     // Check if the input buffer is full (bit 0 of status register is set)
-//     return (status & 0x01);
-// }
-
-// // Read the next character from the keyboard input buffer
-// char keyboard_read_char() {
-//     // Wait until there is keyboard input available
-//     while (!keyboard_has_input());
-
-//     // Read the scancode from data register (port 0x60)
-//     uint8_t scancode = inb(0x60);
-
-//     // Convert the scancode to an ASCII character
-//     return convert_scancode_to_char(scancode, false);
-// }
-
-
-// void kernelMain(void) {
-
-//     while (true) {
-//         // Debug::printf("Beg ! Nothing is pressed\n");
-//         if (keyboard_has_input()) {
-//             Debug::printf("User Pressed Space\n");
-//             char c = keyboard_read_char();
-//             if (c == 32) {
-//                 Debug::printf("User Pressed Space\n");
-//             } else {
-//                 Debug::printf("Nothing is pressed: %c\n", c);
-//             }
-//         }   
-//         // Debug::printf("End ! Nothing is pressed: \n");
-//     }
-
-// }
