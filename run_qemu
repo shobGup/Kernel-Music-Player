@@ -10,4 +10,4 @@ time `make qemu_cmd` `make qemu_config_flags` \
              -drive file=$1.data,index=1,media=disk,format=raw \
              -no-reboot \
              -monitor none \
-             -display vnc=127.0.0.1:1
+             -display vnc=127.0.0.1:5900
