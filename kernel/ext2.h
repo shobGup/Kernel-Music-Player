@@ -306,24 +306,8 @@ public:
     virtual ~Node() {}
 
     char* read_bmp(Shared<Node> bmp) {
-        // for (int y = 0; y < 70; ++y) {
-        //     for (int x = 0; x < 70; ++x) {
-        //         uint8_t pixel[3];
-        //         ide_n->read_all(54 + y * 70 + x, 3, (char*) pixel);
-        //         (*pixels)[(70 * (69 - y)) + x].r = pixel[2];
-        //         (*pixels)[(70 * (69 - y)) + x].g = pixel[1];
-        //         (*pixels)[(70 * (69 - y)) + x].b = pixel[0]; // endianess
-        //     }
-        // }
-
-        // char * con = new char[2];
-        // bmp->read_all(0, 2, con);
-        // Debug::printf("inside read_bmp Value of the first two: %s, Hex for Kavya: %x\n",con, *con);
-
         char* file_header = new char[14];
         char* info_header = new char[40];
-        // BMPFileHeader* fh = new BMPFileHeader();
-        // BMPInfoHeader* ih = new BMPInfoHeader();
         bmp->read_all(0, 14, (char*) file_header);
         bmp->read_all(14, 40, (char*) info_header);
 
@@ -356,14 +340,6 @@ public:
             ret_shob[rIdx] = buf[i + 2]; // red
             ret_shob[rIdx + 1] = buf[i + 1]; // green
             ret_shob[rIdx + 2] = buf[i]; // blue
-        // Debug::printf("RED: %x\n", (uint8_t)buf[i + 2]);
-        // Debug::printf("GREEN: %x\n", (uint8_t)buf[i + 1]);
-        // Debug::printf("BLUE: %x\n", (uint8_t)buf[i]);
-        // Debug::printf("ALPHA: %x\n---------\n", (uint8_t)buf[i + 3]);
-
-        // Debug::printf("RED: %x\n", (uint8_t)ret_shob[rIdx]);
-        // Debug::printf("GREEN: %x\n", (uint8_t)ret_shob[rIdx + 1]);
-        // Debug::printf("BLUE: %x\n---------\n", (uint8_t)ret_shob[rIdx + 2]);
         }
         return ret_shob;
     }

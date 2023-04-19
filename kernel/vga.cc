@@ -260,7 +260,7 @@ void VGA::drawCircle(int centerX, int centerY, int radius, uint8_t color) {
         putPixel(centerX - x, centerY - y, color);
         putPixel(centerX - y, centerY - x, color);
         if (d < 0) d += 8 * x + 12;
-        else d += 8 * (x - y) + 20; y--;
+        else { d += 8 * (x - y) + 20; y--; }
         x++;
     }
 }
@@ -321,19 +321,15 @@ void VGA::initTextMode() {
 
 void VGA::drawChar(int x, int y, char c, uint8_t color) {
     unsigned char* bitmap = vga_font[(int) c];
-
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
-            if (bitmap[row] & (1 << col)) {
-                putPixel(x + col, y + row, color);
-            }
+            if (bitmap[row] & (1 << col)) putPixel(x + col, y + row, color);
         }
     }
 }
 
 // Define a function to render a string at a given position
 void VGA::drawString(int x, int y, const char* str, uint8_t color) {
-    // Loop through each character in the string and render it
     int offset = 0;
     while (*str) {
         drawChar(x + offset, y, *str, color);
@@ -374,7 +370,6 @@ void VGA::spotify(const char* name) {
     int center_w = width / 2;
     drawRectangle(0, length/3 + 41, 320, 135, bg_color, 1);
 	drawString(center_w - ((l/2)*8), length/3 + 45, name, 63);
-    // Shared<Ext2> root_fs = Shared<Ext2>::make(Shared<Ide>::make(1));
 
     Shared<Node> png = fs->find(fs->root, name);
 
@@ -392,8 +387,6 @@ void VGA::spotify(const char* name) {
     drawTriangle(center_x-25, center_y-8, 16, 63, 0);
     drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
     play_pause();
-    // progressBarInit();
-    // playingSong();
     // moveOutPic(starting_x, starting_y, pixels, 70, 70);
 }
 
@@ -401,16 +394,16 @@ void VGA::play_pause() {
     uint32_t center_x = 160;
     uint32_t center_y = 170;
     uint32_t radius = 15;
-    uint8_t color = 25;
     if (!playing) {
-        color = 49;
+        uint32_t color = 49;
         drawPauseCircle(center_x, center_y, radius, color);
         drawTriangle(center_x-4, center_y-10, 20, 63, 1);
         playing = 1;     
     } else {
+        uint8_t color = 25;
         drawPauseCircle(center_x, center_y, radius, color);
-        drawRectangle(center_x - 8, center_y - 8, center_x - 3, center_y + 8, 63, true);
-        drawRectangle(center_x + 3, center_y - 8, center_x + 8, center_y + 8, 63, true);   
+        drawRectangle(center_x-8, center_y-8, center_x-3, center_y+8, 63, 1);
+        drawRectangle(center_x+3, center_y-8, center_x+8, center_y+8, 63, 1);   
         playing = 0;
     }
 }
@@ -422,15 +415,10 @@ uint32_t square_dist(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
 }
 
 void VGA::drawPauseCircle(uint32_t c_x, uint32_t c_y, uint32_t r, uint8_t color) {
-    // drawCircle(center_x, center_y, radius-1, color);
-    // drawCircle(center_x, center_y, radius, color);
-    // drawCircle(center_x, center_y, radius+1, color);
     for (uint32_t x = c_x - r; x <= c_x + r; x++) {
         for (uint32_t y = c_y - r; y <= c_y + r; y++) {
-            if (square_dist(c_x, c_y, x, y) < r*r) {
-                putPixel(x, y, color);
-            }
-            
+            uint32_t sq_dist = (c_x - x) * (c_x - x) + (c_y - y) * (c_y - y);
+            if (sq_dist < r*r) putPixel(x, y, color);
         }
     }
 }
