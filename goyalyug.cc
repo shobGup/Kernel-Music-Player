@@ -528,9 +528,18 @@ void kernelMain(void) {
             index %= 16; 
         }
 
-        // if(wave_file->offset >= size) {
-        //     Debug::shutdown();
-        // }
+        if(wave_file->offset >= wave_file->size) {
+            // Debug::shutdown();
+            thisKB->reset = false; 
+            written = 0; 
+            index = 0; 
+            wave_file->offset = wave_file->reset_offset;
+            reset(wave_file);
+            wave_file->howMuchRead.set(0);
+            thisVGA->new_song = true; 
+            thisVGA->elapsed_time.set(0); 
+            Debug::printf("Should be Reset\n");
+        }
 
         if(thisKB->tapped) {
             flipBit();
