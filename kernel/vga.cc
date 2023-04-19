@@ -27,11 +27,11 @@ void VGA::setup(Shared<Ext2> root_fs, bool isGraphics) {
     } else {
         initTextMode();
     }
-    const char* str = "DARK SIDE OF THE MOON";
+    const char* str = "New Romantics";
 	drawString(72, 190, str, 63);
     // const char* str = "RODEO";
     // drawString(140, 190, str, 63);
-    spotify("dsotm");
+    spotify("new romantics");
     // homeScreen("320");
 }
 
