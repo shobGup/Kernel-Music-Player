@@ -6,6 +6,7 @@
 #include "future.h"
 #include "pit.h"
 #include "physmem.h"
+#include "atomic.h"
 
 struct Header {
     char fmt_chunk_marker[4];          // fmt string with trailing null char
@@ -26,7 +27,8 @@ class WaveParser_list {
     char * b_entries; 
     uint64_t offset; 
     uint64_t reset_offset; 
-    uint64_t size; 
+    Atomic<uint32_t> howMuchRead{0};
+    uint32_t size; 
     uint32_t size_of_the_junk;
     Shared<Node> overallFile; 
     uint32_t size_of_the_whole_file;
@@ -145,10 +147,10 @@ class WaveParser_list {
     // Debug::printf("First few bytes from the wav file ~ 2: %x\n", *((uint32_t *)first_few + 1));
     delete first_few; 
 
-    for(int x = 0; x < 100; x++) {
-        char * current_entry = (b_entries);
-        Debug::printf("%x\n", *(((uint32_t *)(*((uint64_t *) current_entry))) + x));
-    }
+    // for(int x = 0; x < 100; x++) {
+    //     char * current_entry = (b_entries);
+    //     // Debug::printf("%x\n", *(((uint32_t *)(*((uint64_t *) current_entry))) + x));
+    // }
 
 
     // Set the Addy 
@@ -172,6 +174,7 @@ class WaveParser_list {
 
         overallFile->read_all(offset, 4096, (char*) (uint64_t*)current_addy);
         offset+=4096; 
+        // howMuchRead.add_fetch(4096);
 
         // for(int x = 0; x < 5; x++) {
         //     char * current_entry = (b_entries + (index * 16));
@@ -192,6 +195,7 @@ class WaveParser_list {
         // delete first_few; 
 
         bzero((void*)(uint64_t*)current_addy,4096);
+        howMuchRead.set(0);
         
         // overallFile->read_all(offset, 4096, (char*) (uint64_t*)current_addy);
         // offset+=4096; 

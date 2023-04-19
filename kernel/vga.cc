@@ -24,7 +24,7 @@ void VGA::setup(Shared<Ext2> root_fs, bool isGraphics) {
     } else {
         initTextMode();
     }
-    spotify("travis");
+    spotify("travis", false);
     // homeScreen("320");
 }
 
@@ -114,14 +114,18 @@ void VGA::progressBarInit() {
     drawLine(110, 140, 210, 140, 63);
 }
 
-void VGA::playingSong() {
-    while (playing) {
-        putPixel(110, 140, 0);
-        if ((Pit::jiffies - last_jif) / 1000 > 0) {
+void VGA::playingSong(uint32_t percentage) {
+    if (new_song) {
+        drawLine(110, 140, 210, 140, 63);
+        new_song = false;
+        Debug::printf("perc: %d", percentage);
+    } else {
+        drawLine(110, 140, 110 + percentage, 140, 0);
+        if (playing && (Pit::jiffies - last_jif) / 1000 > 0) {
             last_jif = Pit::jiffies;
-            elapsed_time ++;
-            uint32_t min = elapsed_time / 60;
-            uint32_t sec = elapsed_time % 60;
+            elapsed_time.add_fetch(1);
+            uint32_t min = elapsed_time.get() / 60;
+            uint32_t sec = elapsed_time.get() % 60;
             char* str = new char[5];
             drawRectangle(75, 136, 108, 144, bg_color, true);
             str[0] = (char) (min + ((uint8_t) '0'));
@@ -131,16 +135,7 @@ void VGA::playingSong() {
             str[4] = '\0';
             drawString(75, 136, (const char*) str, 63);
             delete[] str;
-            if (elapsed_time % 2 == 0) {
-                putPixel(110 + (elapsed_time / 2), 140, 0);
-            }
         }
-    }
-    if (new_song) {
-        // progressBarInit();
-        drawLine(110, 140, 210, 140, 63);
-        elapsed_time = 0;
-        new_song = false;
     }
 }
 
@@ -363,7 +358,7 @@ void VGA::place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t 
     }
 }
 
-void VGA::spotify(const char* name) {
+void VGA::spotify(const char* name, bool willPlay) {
     int l = K::strlen(name);
     playing = 0;
     drawLine(110, 140, 210, 140, 63);
@@ -392,6 +387,7 @@ void VGA::spotify(const char* name) {
     drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
     drawTriangle(center_x-25, center_y-8, 16, 63, 0);
     drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
+    playing = !willPlay;
     play_pause();
     // moveOutPic(starting_x, starting_y, pixels, 70, 70);
 }

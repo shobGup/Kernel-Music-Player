@@ -178,9 +178,9 @@ class VGA {
     Port color_pallete_port_read;
     uint8_t bg_color;
     volatile bool playing = 0;
-    volatile bool new_song = 0;
+    volatile bool new_song = 1;
     
-    uint32_t elapsed_time;
+    Atomic<uint32_t> elapsed_time {0};
     uint32_t last_jif;
     Shared<Ext2> fs; 
 
@@ -219,7 +219,7 @@ class VGA {
 
     void progressBarInit();
 
-    void playingSong();
+    void playingSong(uint32_t);
 
     void drawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t color, bool fill);
 
@@ -237,7 +237,7 @@ class VGA {
 
     void homeScreen(const char* name);
 
-    void spotify(const char* name);
+    void spotify(const char* name, bool willPlay);
 
     void play_pause();
 

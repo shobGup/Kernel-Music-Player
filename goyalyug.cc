@@ -495,11 +495,15 @@ void kernelMain(void) {
     thisVGA->setup(fs, 1);
 
     Shared<kb> thisKB = Shared<kb>::make(thisVGA);
+    Shared<WaveParser_list>* my_wave = &wave_file;
 
-    thread([thisVGA] {
+    thread([thisVGA, my_wave] {
         // thisVGA->progressBarInit();
+        thisVGA->last_jif = Pit::jiffies;
         while(true) {
-             thisVGA->playingSong();
+            uint32_t percentage = ((*my_wave)->howMuchRead.get() * 100) / (*my_wave)->size;
+            // Debug::printf("percentage: %d, read in: %d, size: %d\n", percentage, (*my_wave)->howMuchRead.get(), (*my_wave)->size);
+            thisVGA->playingSong(percentage);
         }
     });
 
@@ -517,6 +521,7 @@ void kernelMain(void) {
         // Debug::printf("Hardware Offset: %x\n", hardware_offset);
         if (((hardware_offset - written) % 65536) > 4096) {
             // Debug::printf("In Here %d\n", index);
+            wave_file->howMuchRead.fetch_add(4096); 
             wave_file->rebuildData(index++);
             written += 4096;
             written %= 65536;
@@ -540,6 +545,9 @@ void kernelMain(void) {
             index = 0; 
             wave_file->offset = wave_file->reset_offset;
             reset(wave_file);
+            wave_file->howMuchRead.set(0);
+            thisVGA->new_song = true; 
+            thisVGA->elapsed_time.set(0); 
             Debug::printf("Should be Reset\n");
         }
 
@@ -568,6 +576,10 @@ void kernelMain(void) {
             // Debug::printf("Should be change buffer\n");
             auto next = fs->find(root, "swift_");
             wave_file = Shared<WaveParser_list>::make(next);
+
+            thisVGA->new_song = true; 
+            thisVGA->elapsed_time.set(0);
+            
             reset(wave_file);
         }
 
@@ -586,6 +598,10 @@ void kernelMain(void) {
             auto next = fs->find(root, (const char *) (thisKB->filename));
 
             wave_file = Shared<WaveParser_list>::make(next);
+
+            thisVGA->new_song = true; 
+            thisVGA->elapsed_time.set(0); 
+
             reset(wave_file);
         }
 

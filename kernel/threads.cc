@@ -72,7 +72,6 @@ void threadsInit() {
 
     // The reaper
     thread([] {
-        //Debug::printf("| starting reaper\n");
         while (true) {
             ASSERT(!Interrupts::isDisabled());
             delete_zombies();

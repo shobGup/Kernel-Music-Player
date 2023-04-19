@@ -67,10 +67,10 @@ void kb::initializeController() {
             temp[1] = '\0';
             memcpy(filename, name, (len));
             memcpy((filename + (len)), temp, 2);
-            entered = true;
             vga->drawRectangle(0, 0, 320, 20, vga->bg_color, true);
-            vga->new_song = true;
-            vga->spotify(name);
+            // vga->new_song = true;
+            entered = true;
+            vga->spotify(name, true);
             // call wav finder
             delete[] name;
         }
@@ -80,7 +80,7 @@ void kb::initializeController() {
                 name[len] = 0;
                 int x = (320/2) - (len/2)*8;
                 vga->drawRectangle(0, 0, 320, 20, vga->bg_color, true);
-                vga->drawString(x, 10, name, 0);
+                vga->drawString(x, 10, name, 63);
             }
         }
         if(val == 208) { // Reset Song
@@ -98,7 +98,7 @@ void kb::initializeController() {
             name[len] = 0;
             int x = (320/2) - (len/2)*8;
             vga->drawRectangle(0, 0, 320, 20, vga->bg_color, true);
-            vga->drawString(x, 10, name, 0);
+            vga->drawString(x, 10, name, 63);
         }
     }
 }
