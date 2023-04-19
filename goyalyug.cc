@@ -555,7 +555,8 @@ void kernelMain(void) {
             written = 0; 
             index = 0; 
             Debug::printf("Before Offset: %d\n", wave_file.offset);
-            wave_file.offset += (wave_file.size - wave_file.reset_offset) < (4096 * 16 * 15) ? (4096 * 16 * 15) : (wave_file.size - wave_file.reset_offset);
+            // wave_file.offset += (wave_file.size - wave_file.reset_offset) < (4096 * 16 * 15) ? (4096 * 16 * 15) : (wave_file.size - wave_file.reset_offset);
+            wave_file.offset += (4096 * 16 * 15);
             Debug::printf("After Offset: %d\n", wave_file.offset);
             reset(wave_file);
             Debug::printf("Should be change buffer\n");

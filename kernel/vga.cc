@@ -188,21 +188,22 @@ void VGA::progressBarInit() {
 
 
 void VGA::playingSong() {
-    while (!playing) {
+    while (playing) {
         if ((Pit::jiffies - last_jif) / 1000 > 0) {
             last_jif = Pit::jiffies;
             elapsed_time ++;
             uint32_t min = elapsed_time / 60;
             uint32_t sec = elapsed_time % 60;
             char* str = new char[4];
-            str[0] = min + '0';
+            drawRectangle(78, 136, 86, 144, bg_color, true);
+            str[0] = (char) (min + ((uint8_t) 48));
             str[1] = ':';
-            str[2] = (sec / 10 + '0');
-            str[3] = (sec % 10 + '0');
+            str[2] = (char) (sec / 10 + ((uint8_t) 48));
+            str[3] = (char) (sec % 10 + ((uint8_t) 48));
             drawString(78, 136, (const char*) str, 63);
             delete[] str;
             if (elapsed_time % 2 == 0) {
-                putPixel(110 + (elapsed_time / 2), 115, 0);
+                drawLine(110 + (elapsed_time / 2), 140, 110 + (elapsed_time / 2) + 1, 140, 0);
             }
         }
     }
