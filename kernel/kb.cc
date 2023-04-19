@@ -238,6 +238,7 @@ void kb::kbInit() {
 
 void kb::initializeController() {
     tapped = false;
+    reset = false; 
     // disable interrupts:
     // cli();
 
@@ -294,6 +295,9 @@ void kb::initializeController() {
         }
         if (val == 0xE) { // backspace
             if (len > 0) name[len--] = 0;
+        }
+        if(val == 208) { // Reset Song
+            reset = true; 
         }
         // if numbers 0-9 || 16 - 25 || 30 - 38 || 44 - 50
         if (((val >= 2 && val <= 13) || (val >= 16 && val <= 25) || (val >= 30 && val <=38) || (val >= 44 && val <= 50)) && start) { // add char to string

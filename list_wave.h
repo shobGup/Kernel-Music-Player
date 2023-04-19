@@ -25,6 +25,7 @@ class WaveParser_list {
     Header * fmt;
     char * b_entries; 
     uint64_t offset; 
+    uint64_t reset_offset; 
     uint32_t size_of_the_junk;
     Shared<Node> overallFile; 
     uint32_t size_of_the_whole_file;
@@ -131,6 +132,7 @@ class WaveParser_list {
         *(uint32_t *) (current_entry + 12) = 0;
         file->read_all(size_of_the_junk+ (4096 * i), 4096, (char*) (uint64_t*)current_addy);
         offset = size_of_the_junk + (4096 * i) + 4096; 
+        reset_offset = size_of_the_junk + (4096 * i) + 4096; 
         Debug::printf("Offset: %d\n", offset);
     }
 

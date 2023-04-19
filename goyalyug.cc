@@ -290,6 +290,24 @@ bool send_comman_extended(uint32_t codec, uint32_t node, uint32_t command, uint3
     return true; 
 }
 
+void reset(WaveParser_list wave_file) {
+
+    char *base = (char *) 0xfebf0000;
+    char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
+    char * SDnCTL = (base_addy_plus_x); 
+
+    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFF ^ 0x2));
+
+    // SDnBDL Lower Set Up 
+    Debug::printf("Addy: %x\n",wave_file.b_entries);
+    uint32_t entries = (uint32_t) wave_file.b_entries;
+    *(uint32_t *)(base_addy_plus_x + 0x18) = entries; 
+    ASSERT((*(uint32_t *)(base_addy_plus_x + 0x18)) == entries);
+    Debug::printf("Addy ~ Entries: %x\n",entries);
+
+    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2);
+}
+
 uint16_t ready_to_play(WaveParser_list file, char * base, WaveParser_list wave_file) {
 
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
@@ -490,12 +508,20 @@ void kernelMain(void) {
         }
 
         if(thisKB->tapped) {
-
             flipBit();
             thisKB->tapped = false; 
             thisVGA->play_pause();
             // *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2);
         } 
+
+        if(thisKB->reset) {
+            thisKB->reset = false; 
+            written = 0; 
+            index = 0; 
+            wave_file.offset = wave_file.reset_offset;
+            reset(wave_file);
+            Debug::printf("Should be Reset\n");
+        }
 
         
         // Debug::printf("DEBUG\n");
