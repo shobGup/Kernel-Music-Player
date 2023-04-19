@@ -29,7 +29,7 @@ void VGA::setup(Shared<Ext2> root_fs, bool isGraphics) {
     }
     // const char* str = "RODEO";
     // drawString(140, 190, str, 63);
-    spotify("new romantics");
+    spotify("travis");
     // homeScreen("320");
 }
 
@@ -121,28 +121,26 @@ void VGA::initializePalette() {
     // }
 }
 
-
 void VGA::progressBarInit() {
     drawLine(110, 140, 210, 140, 63);
 }
 
-
 void VGA::playingSong() {
     while (playing) {
+        putPixel(110, 140, 0);
         if ((Pit::jiffies - last_jif) / 1000 > 0) {
             last_jif = Pit::jiffies;
             elapsed_time ++;
-            // uint32_t min = elapsed_time / 60;
+            uint32_t min = elapsed_time / 60;
             uint32_t sec = elapsed_time % 60;
-            char* str = new char[4];
-            drawRectangle(78, 111, 86, 119, bg_color, true);
-            // str[0] = (char) (min + ((uint8_t) '0'));
-            str[0] = (char) (((uint8_t) '0'));
-
+            char* str = new char[5];
+            drawRectangle(75, 136, 108, 144, bg_color, true);
+            str[0] = (char) (min + ((uint8_t) '0'));
             str[1] = ':';
             str[2] = (char) (sec / 10 + ((uint8_t) '0'));
             str[3] = (char) (sec % 10 + ((uint8_t) '0'));
-            drawString(78, 136, (const char*) str, 63);
+            str[4] = '\0';
+            drawString(75, 136, (const char*) str, 63);
             delete[] str;
             if (elapsed_time % 2 == 0) {
                 putPixel(110 + (elapsed_time / 2), 140, 0);
@@ -150,7 +148,6 @@ void VGA::playingSong() {
         }
     }
 }
-
 
 void VGA::initializeGraphics() {
     length = 200;
@@ -393,7 +390,7 @@ void VGA::spotify(const char* name) {
     int l = K::strlen(name);
     playing = 0;
     int center_w = width / 2;
-    drawRectangle(0, length/3 + 41, 320, 138, bg_color, 1);
+    drawRectangle(0, length/3 + 41, 320, 135, bg_color, 1);
 	drawString(center_w - ((l/2)*8), length/3 + 45, name, 63);
     // Shared<Ext2> root_fs = Shared<Ext2>::make(Shared<Ide>::make(1));
 

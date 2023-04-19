@@ -46,7 +46,7 @@ class WaveParser_list {
     char* riff = new char[5];
     riff[4] = '\0';
     file->read_all(0, 4, riff);
-    Debug::printf("WOOF WOOF: %s\n", riff);
+    // Debug::printf("WOOF WOOF: %s\n", riff);
     delete riff; 
 
     // - Size of File 
@@ -54,28 +54,28 @@ class WaveParser_list {
     char * size_of_file = new char[5];
     file->read_all(4, 4, size_of_file);
     size_of_the_whole_file = *(uint32_t *)size_of_file;
-    Debug::printf("Size Of File: %d\n", *(uint32_t *)size_of_file);
+    // Debug::printf("Size Of File: %d\n", *(uint32_t *)size_of_file);
     delete size_of_file; 
 
     // WAVE CHECK 
     char* wave = new char[5];
     wave[4] = '\0';
     file->read_all(8, 4, wave);
-    Debug::printf("Is it wave: %s\n", wave);
+    // Debug::printf("Is it wave: %s\n", wave);
     delete wave; 
 
     Header* fmt_stuff = fmt; 
 
-    Debug::printf("Size Of fmt: %d\n", sizeof(Header));
+    // Debug::printf("Size Of fmt: %d\n", sizeof(Header));
     file->read_all(12, sizeof(Header), (char*)fmt_stuff);
-    Debug::printf("fmt_chunk_marker: %s\n", fmt_stuff->fmt_chunk_marker);
-    Debug::printf("length_of_fmt: %d\n", fmt_stuff->length_of_fmt);
-    Debug::printf("format_type: %d\n", fmt_stuff->format_type);
-    Debug::printf("channels: %d\n", fmt_stuff->channels);
-    Debug::printf("sample_rate: %d\n", fmt_stuff->sample_rate);
-    Debug::printf("byte_rate: %d\n", fmt_stuff->byte_rate);
-    Debug::printf("bit_channels: %d\n", fmt_stuff->bit_channels);
-    Debug::printf("bits_per_sample: %d\n", fmt_stuff->bits_per_sample);
+    // Debug::printf("fmt_chunk_marker: %s\n", fmt_stuff->fmt_chunk_marker);
+    // Debug::printf("length_of_fmt: %d\n", fmt_stuff->length_of_fmt);
+    // Debug::printf("format_type: %d\n", fmt_stuff->format_type);
+    // Debug::printf("channels: %d\n", fmt_stuff->channels);
+    // Debug::printf("sample_rate: %d\n", fmt_stuff->sample_rate);
+    // Debug::printf("byte_rate: %d\n", fmt_stuff->byte_rate);
+    // Debug::printf("bit_channels: %d\n", fmt_stuff->bit_channels);
+    // Debug::printf("bits_per_sample: %d\n", fmt_stuff->bits_per_sample);
 
     if(fmt_stuff->sample_rate == 16000) {
         bit_divsor = 0x200; 
@@ -93,21 +93,21 @@ class WaveParser_list {
     char* junk = new char[5];
     junk[4] = '\0';
     file->read_all(12 + sizeof(Header), 4, junk);
-    Debug::printf("Is it LIST: %s\n", junk);
+    // Debug::printf("Is it LIST: %s\n", junk);
     delete junk; 
 
     // Size of junk
     char * size_of_junk = new char[5];
     file->read_all(12 + sizeof(Header) + 4, 4, size_of_junk);
     size_of_the_junk = 12 + sizeof(Header) + 4 + *(uint32_t *) size_of_junk + 4;
-    Debug::printf("Size of List: %d\n", size_of_junk);
+    // Debug::printf("Size of List: %d\n", size_of_junk);
     delete size_of_junk;
 
     // Data Check 
     char * data_chunk_header = new char[5];               // DATA string or FLLR string
     data_chunk_header[4] = '\0';
     file->read_all(size_of_the_junk, 4, data_chunk_header);
-    Debug::printf("Is it Data: %s\n", data_chunk_header);
+    // Debug::printf("Is it Data: %s\n", data_chunk_header);
     size_of_the_junk += 4; 
     delete data_chunk_header; 
                 
@@ -115,7 +115,7 @@ class WaveParser_list {
     char * data_size = new char[5];
     file->read_all(size_of_the_junk, 4, data_size);
     size = *(uint32_t*)data_size; 
-    Debug::printf("Size Of junk: %d\n", *(uint32_t*)data_size);
+    // Debug::printf("Size Of junk: %d\n", *(uint32_t*)data_size);
     size_of_the_junk += 4;
     delete data_size;
 
@@ -136,13 +136,13 @@ class WaveParser_list {
         file->read_all(size_of_the_junk+ (4096 * i), 4096, (char*) (uint64_t*)current_addy);
         offset = size_of_the_junk + (4096 * i) + 4096; 
         reset_offset = size_of_the_junk + (4096 * i) + 4096; 
-        Debug::printf("Offset: %d\n", offset);
+        // Debug::printf("Offset: %d\n", offset);
     }
 
     char * first_few = new char[10];
     file->read_all(size_of_the_junk, 8, (char*) (uint32_t*)first_few);
-    Debug::printf("First few bytes from the wav file: %x\n", *(uint32_t *)first_few);
-    Debug::printf("First few bytes from the wav file ~ 2: %x\n", *((uint32_t *)first_few + 1));
+    // Debug::printf("First few bytes from the wav file: %x\n", *(uint32_t *)first_few);
+    // Debug::printf("First few bytes from the wav file ~ 2: %x\n", *((uint32_t *)first_few + 1));
     delete first_few; 
 
     for(int x = 0; x < 100; x++) {

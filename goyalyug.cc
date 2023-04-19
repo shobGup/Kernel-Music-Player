@@ -117,12 +117,12 @@ void checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
     uint8_t classID = getClassID(bus, device, function);
     uint8_t subclassID = getSubclassID(bus, device, function);
 
-    int vId = getVendorID_priv(bus, device, function);
-    Debug::printf("vendor id %x\n", vId);
-    int dId = getDeviceID(bus, device, function);
-    Debug::printf("device id %x\n", dId);
-    uint32_t barz = getBarZero(bus, device, function);
-    Debug::printf("Bar 0: %x \n", barz);
+    // int vId = getVendorID_priv(bus, device, function);
+    // Debug::printf("vendor id %x\n", vId);
+    // int dId = getDeviceID(bus, device, function);
+    // Debug::printf("device id %x\n", dId);
+    // uint32_t barz = getBarZero(bus, device, function);
+    // Debug::printf("Bar 0: %x \n", barz);
 
 
     // if(vId == 0x8086 && dId == 0x2668) {
@@ -178,7 +178,7 @@ uint32_t get_response(char *base) {
 
     ASSERT((((*(uint32_t *) (base + 0x68)) & 0x2) >> 1) == 1);
 
-    Debug::printf("Response is ready to be retrieved, reading from: %x\n", (base + 0x64));
+    // Debug::printf("Response is ready to be retrieved, reading from: %x\n", (base + 0x64));
 
     // reset IRV
     (*(uint32_t *) (base + 0x68)) = (*(uint32_t *) (base + 0x68)) & 0xFFFFFFFD; 
@@ -190,7 +190,7 @@ uint32_t get_response(char *base) {
 
 bool send_command(uint32_t codec, uint32_t node, uint32_t command, uint32_t data, char *base) {
 
-    Debug::printf("Send Command\n");
+    // Debug::printf("Send Command\n");
 
     codec = (codec & 0xf) << 28; 
     node = (node & 0xff) << 20; 
@@ -203,34 +203,34 @@ bool send_command(uint32_t codec, uint32_t node, uint32_t command, uint32_t data
 
     ASSERT(*command_addy == final_command);
 
-    Debug::printf("Setting ICB bit to 0\n");
+    // Debug::printf("Setting ICB bit to 0\n");
     // Set ICB to 0 
     (*(uint32_t *)(base + 0x68)) = (*(uint32_t *)(base + 0x68)) & 0xFFFFFFFE; // (setting bit 0 to 0)
 
     // ASSERT((*(uint32_t *) (base + 0x68) & 0x1) == 0);
 
-    Debug::printf("Setting IRV bit to 0\n");
+    // Debug::printf("Setting IRV bit to 0\n");
     // Set IRV to 0 
     (*(uint32_t *)(base + 0x68)) = (*(uint32_t *)(base + 0x68)) & 0xFFFFFFFD; // (setting bit 1 to 0)
 
     // ASSERT(((*(uint32_t *) (base + 0x68) & 0x2) >> 1) == 0);
 
-    Debug::printf("Setting ICOI to final command\n");
+    // Debug::printf("Setting ICOI to final command\n");
     // Sending request To ICOI
 
-    Debug::printf("Setting ICOI ~ FINAL COMMAND: %x\n", *command_addy);
-    Debug::printf("Setting ICOI ~ Mem Addy: %x\n", *(uint32_t *) (base + 0x60));
+    // Debug::printf("Setting ICOI ~ FINAL COMMAND: %x\n", *command_addy);
+    // Debug::printf("Setting ICOI ~ Mem Addy: %x\n", *(uint32_t *) (base + 0x60));
 
     // memcpy((void *)(base + 0x60), (void *)command_addy, 4);
-    Debug::printf("Writing too: %x\n", (base + 0x60));
+    // Debug::printf("Writing too: %x\n", (base + 0x60));
     *(uint32_t *)(base + 0x60) = final_command; 
 
-    Debug::printf("Setting ICOI ~ FINAL COMMAND ~ AFTER: %x\n", *command_addy);
-    Debug::printf("Setting ICOI ~ Mem Addy ~ AFTER: %x\n", *(uint32_t *) (base + 0x60));
+    // Debug::printf("Setting ICOI ~ FINAL COMMAND ~ AFTER: %x\n", *command_addy);
+    // Debug::printf("Setting ICOI ~ Mem Addy ~ AFTER: %x\n", *(uint32_t *) (base + 0x60));
 
     ASSERT(*(uint32_t *) (base + 0x60) == final_command);
 
-    Debug::printf("Setting ICB bit to 1 ~ command is valid\n");
+    // Debug::printf("Setting ICB bit to 1 ~ command is valid\n");
     // Set ICB to 1
     (*(uint32_t *) (base + 0x68)) = (*(uint32_t *) (base + 0x68)) | 0x1; // (setting bit 0 to 1)
 
@@ -242,7 +242,7 @@ bool send_command(uint32_t codec, uint32_t node, uint32_t command, uint32_t data
 
 bool send_comman_extended(uint32_t codec, uint32_t node, uint32_t command, uint32_t data, char *base) {
 
-    Debug::printf("Send Command\n");
+    // Debug::printf("Send Command\n");
 
     codec = (codec & 0xf) << 28; 
     node = (node & 0xff) << 20; 
@@ -255,34 +255,34 @@ bool send_comman_extended(uint32_t codec, uint32_t node, uint32_t command, uint3
 
     ASSERT(*command_addy == final_command);
 
-    Debug::printf("Setting ICB bit to 0\n");
+    // Debug::printf("Setting ICB bit to 0\n");
     // Set ICB to 0 
     (*(uint32_t *)(base + 0x68)) = (*(uint32_t *)(base + 0x68)) & 0xFFFFFFFE; // (setting bit 0 to 0)
 
     // ASSERT((*(uint32_t *) (base + 0x68) & 0x1) == 0);
 
-    Debug::printf("Setting IRV bit to 0\n");
+    // Debug::printf("Setting IRV bit to 0\n");
     // Set IRV to 0 
     (*(uint32_t *)(base + 0x68)) = (*(uint32_t *)(base + 0x68)) & 0xFFFFFFFD; // (setting bit 1 to 0)
 
     // ASSERT(((*(uint32_t *) (base + 0x68) & 0x2) >> 1) == 0);
 
-    Debug::printf("Setting ICOI to final command\n");
+    // Debug::printf("Setting ICOI to final command\n");
     // Sending request To ICOI
 
-    Debug::printf("Setting ICOI ~ FINAL COMMAND: %x\n", *command_addy);
-    Debug::printf("Setting ICOI ~ Mem Addy: %x\n", *(uint32_t *) (base + 0x60));
+    // Debug::printf("Setting ICOI ~ FINAL COMMAND: %x\n", *command_addy);
+    // Debug::printf("Setting ICOI ~ Mem Addy: %x\n", *(uint32_t *) (base + 0x60));
 
     // memcpy((void *)(base + 0x60), (void *)command_addy, 4);
-    Debug::printf("Writing too: %x\n", (base + 0x60));
+    // Debug::printf("Writing too: %x\n", (base + 0x60));
     *(uint32_t *)(base + 0x60) = final_command; 
 
-    Debug::printf("Setting ICOI ~ FINAL COMMAND ~ AFTER: %x\n", *command_addy);
-    Debug::printf("Setting ICOI ~ Mem Addy ~ AFTER: %x\n", *(uint32_t *) (base + 0x60));
+    // Debug::printf("Setting ICOI ~ FINAL COMMAND ~ AFTER: %x\n", *command_addy);
+    // Debug::printf("Setting ICOI ~ Mem Addy ~ AFTER: %x\n", *(uint32_t *) (base + 0x60));
 
     ASSERT(*(uint32_t *) (base + 0x60) == final_command);
 
-    Debug::printf("Setting ICB bit to 1 ~ command is valid\n");
+    // Debug::printf("Setting ICB bit to 1 ~ command is valid\n");
     // Set ICB to 1
     (*(uint32_t *) (base + 0x68)) = (*(uint32_t *) (base + 0x68)) | 0x1; // (setting bit 0 to 1)
 
@@ -322,11 +322,11 @@ uint16_t ready_to_play(Shared<WaveParser_list> file, char * base, Shared<WavePar
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
 
     // SDnBDL Lower Set Up 
-    Debug::printf("Addy: %x\n",wave_file->b_entries);
+    // Debug::printf("Addy: %x\n",wave_file->b_entries);
     uint32_t entries = (uint32_t) wave_file->b_entries;
     *(uint32_t *)(base_addy_plus_x + 0x18) = entries; 
     ASSERT((*(uint32_t *)(base_addy_plus_x + 0x18)) == entries);
-    Debug::printf("Addy ~ Entries: %x\n",entries);
+    // Debug::printf("Addy ~ Entries: %x\n",entries);
 
     // LVI -> 15 
         // *(uint16_t *)(LVI) = 15; 
@@ -335,15 +335,15 @@ uint16_t ready_to_play(Shared<WaveParser_list> file, char * base, Shared<WavePar
     uint16_t * value = &num; 
     memcpy(LVI, value, 2);
     ASSERT(*(uint16_t *)(base_addy_plus_x + 0xC) == 15);
-    Debug::printf("LVI: %d\n", *(uint16_t *)(base_addy_plus_x + 0xC));
+    // Debug::printf("LVI: %d\n", *(uint16_t *)(base_addy_plus_x + 0xC));
 
     // SDnCBL -> 16 * 4096 
     char * CBL = (base_addy_plus_x + 0x8); 
     uint32_t CBL_num = 65536; 
     uint32_t * CBL_value = &CBL_num; 
     *(uint32_t *)(CBL) = *CBL_value;
-    Debug::printf("Value of CBL: %d and CLB Num: %d\n", *CBL_value, CBL_num); 
-    Debug::printf("CBL: %d\n", *(uint32_t *)((base_addy_plus_x + 0x8)));
+    // Debug::printf("Value of CBL: %d and CLB Num: %d\n", *CBL_value, CBL_num); 
+    // Debug::printf("CBL: %d\n", *(uint32_t *)((base_addy_plus_x + 0x8)));
     ASSERT(*(uint32_t *)((base_addy_plus_x + 0x8)) == (4096*16));
     
 
@@ -352,15 +352,15 @@ uint16_t ready_to_play(Shared<WaveParser_list> file, char * base, Shared<WavePar
 
     uint16_t current_FMT = *(uint16_t *)(FMT);
 
-    Debug::printf("Current FMT: %x\n", current_FMT);
+    // Debug::printf("Current FMT: %x\n", current_FMT);
 
     current_FMT = current_FMT & 0x8080; 
     current_FMT += (wave_file->bit_divsor + wave_file->bit_per_sample); 
-    Debug::printf("After FMT: %x\n", current_FMT);
+    // Debug::printf("After FMT: %x\n", current_FMT);
     *(uint16_t *)(FMT) = current_FMT;
 
 
-    Debug::printf("FMT: %x\n", *(uint16_t *)((base_addy_plus_x + 0x12)));
+    // Debug::printf("FMT: %x\n", *(uint16_t *)((base_addy_plus_x + 0x12)));
     return current_FMT;
     // ASSERT(*(uint16_t *)((base_addy_plus_x + 0x12)) == (1280));
 }
@@ -368,10 +368,10 @@ uint16_t ready_to_play(Shared<WaveParser_list> file, char * base, Shared<WavePar
 void turnOnDevice(uint32_t *base_u) {
     
     while(*(base_u + 2) == 0) {
-        Debug::printf("It's not on Yet, %x\n", *(base_u + 2));
+        // Debug::printf("It's not on Yet, %x\n", *(base_u + 2));
     }
 
-    Debug::printf("DEVICE IS TURNED ON: %x\n", (*(base_u + 2)));
+    // Debug::printf("DEVICE IS TURNED ON: %x\n", (*(base_u + 2)));
 
     volatile uint32_t help = 0; 
 
@@ -389,7 +389,7 @@ void flipBit() {
     } else {
         *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2); 
     }
-    Debug::printf("In Method SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
+    // Debug::printf("In Method SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
 }
 
 void changeFile(Shared<WaveParser_list> file, Shared<WaveParser_list> oldFile) {
@@ -415,7 +415,7 @@ void kernelMain(void) {
     *(base_u + 2) = *(base_u + 2) | 0x01;
 
 
-    Debug::printf("After flipping bit: GCTL: %x\n", *(base_u + 2));
+    // Debug::printf("After flipping bit: GCTL: %x\n", *(base_u + 2));
 
     // VMAJ
     ASSERT(*((base + 3)) == 1);
@@ -423,7 +423,7 @@ void kernelMain(void) {
     // VMIN
     ASSERT(*((base + 2)) == 0);
 
-    Debug::printf("After flipping bit: GCAP: %x\n", *base_u);
+    // Debug::printf("After flipping bit: GCAP: %x\n", *base_u);
 
     // Esuring the Device is being Turned On 
     turnOnDevice(base_u);
@@ -488,7 +488,7 @@ void kernelMain(void) {
     // uint64_t offset = 4096;
     uint64_t written = 0; 
     uint32_t index = 0; 
-    uint32_t size = wave_file->size_of_the_whole_file;
+    // uint32_t size = wave_file->size_of_the_whole_file;
 
     VGA *thisVGA = new VGA();
     // Debug::printf("This VGA: %x\n",thisVGA );
@@ -523,9 +523,9 @@ void kernelMain(void) {
             index %= 16; 
         }
 
-        if(wave_file->offset >= size) {
-            Debug::shutdown();
-        }
+        // if(wave_file->offset >= size) {
+        //     Debug::shutdown();
+        // }
 
         if(thisKB->tapped) {
             flipBit();
