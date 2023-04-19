@@ -178,7 +178,7 @@ BLOCK_SIZE = ${shell cat ${TESTS_DIR}/$*.block_size}
 ${TEST_DATA} : %.data : Makefile ${TESTS_DIR}/%.block_size
 	@echo "$*.data: ${shell find $*.dir -print}" > $*_data.d
 	@rm -f $*.data
-	mkfs.ext2 -q -b ${BLOCK_SIZE} -i ${BLOCK_SIZE} -d ${TESTS_DIR}/$*.dir  -I 128 -r 0 -t ext2 $*.data 10m
+	mkfs.ext2 -q -b ${BLOCK_SIZE} -i ${BLOCK_SIZE} -d ${TESTS_DIR}/$*.dir  -I 128 -r 0 -t ext2 $*.data 100m
 
 ${TEST_OUTS} : %.out : Makefile %.raw
 	-egrep '^\*\*\*' $*.raw > $*.out 2> /dev/null || true
