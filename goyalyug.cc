@@ -335,7 +335,7 @@ void kernelMain(void) {
 
     VGA *thisVGA = new VGA();
     // Debug::printf("This VGA: %x\n",thisVGA );
-    // thisVGA->setup(fs, 1);
+    thisVGA->setup(fileSystem, currentNode ,1);
 
     Shared<kb> thisKB = Shared<kb>::make(thisVGA);
     Shared<WaveParser_list>* my_wave = &(currentFile);
