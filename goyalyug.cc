@@ -183,6 +183,7 @@ uint32_t get_response(char *base) {
     // reset IRV
     (*(uint32_t *) (base + 0x68)) = (*(uint32_t *) (base + 0x68)) & 0xFFFFFFFD; 
 
+
     return *((uint32_t *) (base + 0x64));
 
 }
@@ -296,14 +297,18 @@ void reset(WaveParser_list wave_file) {
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
     char * SDnCTL = (base_addy_plus_x); 
 
-    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFF ^ 0x2));
+    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
 
     // SDnBDL Lower Set Up 
-    Debug::printf("Addy: %x\n",wave_file.b_entries);
+    // Debug::printf("Addy: %x\n",wave_file.b_entries);
     uint32_t entries = (uint32_t) wave_file.b_entries;
     *(uint32_t *)(base_addy_plus_x + 0x18) = entries; 
     ASSERT((*(uint32_t *)(base_addy_plus_x + 0x18)) == entries);
-    Debug::printf("Addy ~ Entries: %x\n",entries);
+    // Debug::printf("Addy ~ Entries: %x\n",entries);
+
+    for(int x = 0; x < 16; x++) {
+        wave_file.rebuildData(x);
+    }
 
     *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2);
 }
