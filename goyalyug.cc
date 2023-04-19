@@ -441,7 +441,7 @@ void kernelMain(void) {
    
     auto root = fs->root;
 
-    auto hello = fs->find(root,"swift.wav");
+    auto hello = fs->find(root,"swift_");
 
     Shared<WaveParser_list> wave_file = Shared<WaveParser_list>::make(hello);
 
@@ -566,7 +566,7 @@ void kernelMain(void) {
             // Debug::printf("After Offset: %d\n", wave_file.offset);
             // reset(wave_file);
             // Debug::printf("Should be change buffer\n");
-            auto next = fs->find(root, "swift.wav");
+            auto next = fs->find(root, "swift_");
             wave_file = Shared<WaveParser_list>::make(next);
             reset(wave_file);
         }
