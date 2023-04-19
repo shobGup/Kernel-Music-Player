@@ -159,19 +159,19 @@ class WaveParser_list {
         char * current_entry = (b_entries + (index * 16));
         uint64_t current_addy = *(uint64_t *) current_entry; 
 
-        char * first_few = new char[10];
-        overallFile->read_all(offset, 8, (char*) (uint32_t*)first_few);
-        Debug::printf("First few bytes from the wav file: %x\n", *(uint32_t *)first_few);
-        Debug::printf("First few bytes from the wav file ~ 2: %x\n", *((uint32_t *)first_few + 1));
-        delete first_few; 
+        // char * first_few = new char[10];
+        // overallFile->read_all(offset, 8, (char*) (uint32_t*)first_few);
+        // Debug::printf("First few bytes from the wav file: %x\n", *(uint32_t *)first_few);
+        // Debug::printf("First few bytes from the wav file ~ 2: %x\n", *((uint32_t *)first_few + 1));
+        // delete first_few; 
 
         overallFile->read_all(offset, 4096, (char*) (uint64_t*)current_addy);
         offset+=4096; 
 
-        for(int x = 0; x < 5; x++) {
-            char * current_entry = (b_entries + (index * 16));
-            Debug::printf("%x\n", *(((uint32_t *)(*((uint64_t *) current_entry))) + x));
-        }
+        // for(int x = 0; x < 5; x++) {
+        //     char * current_entry = (b_entries + (index * 16));
+        //     Debug::printf("%x\n", *(((uint32_t *)(*((uint64_t *) current_entry))) + x));
+        // }
 
     }
 

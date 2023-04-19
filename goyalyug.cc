@@ -7,6 +7,7 @@
 #include "pit.h"
 #include "list_wave.h"
 #include "vga.h"
+#include "kb.h"
 
 
 uint16_t vendorID;
@@ -352,6 +353,19 @@ void turnOnDevice(uint32_t *base_u) {
     }
 }
 
+void flipBit() {
+    char *base = (char *) 0xfebf0000;
+    char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
+    char * SDnCTL = (base_addy_plus_x); 
+    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x100000);
+    if(*((uint32_t*)SDnCTL) == 0x20100002) {
+        *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) - 0x2); 
+    } else {
+        *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x2); 
+    }
+    Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
+}
+
 void kernelMain(void) {
 
 
@@ -437,7 +451,7 @@ void kernelMain(void) {
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
     char * SDnCTL = (base_addy_plus_x); 
     *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x100000);
-    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x2);
+    // *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x2);
     Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
 
    // DPLBASE ~ Sanity Check ~ FAIL ~ RIP ~ WE ARE INSANE
@@ -449,13 +463,20 @@ void kernelMain(void) {
     VGA *thisVGA = new VGA();
     Debug::printf("This VGA: %x\n",thisVGA );
     thisVGA->setup(fs);
+
+    Shared<kb> thisKB = Shared<kb>::make(thisVGA);
+
+    thread([thisKB] {
+        thisKB->kbInit();
+    });
+
     
     // uint32_t x = 0;
     while(true) {
         volatile uint32_t hardware_offset = *(volatile uint32_t*) (base_addy_plus_x + 0x4);
         // Debug::printf("Hardware Offset: %x\n", hardware_offset);
         if (((hardware_offset - written) % 65536) > 4096) {
-            Debug::printf("In Here %d\n", index);
+            // Debug::printf("In Here %d\n", index);
             wave_file.rebuildData(index++);
             written += 4096;
             written %= 65536;
@@ -465,6 +486,14 @@ void kernelMain(void) {
         if(wave_file.offset >= size) {
             Debug::shutdown();
         }
+
+        if(thisKB->tapped) {
+            flipBit();
+            thisKB->tapped = false; 
+            // *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2);
+        } 
+
+        
         // Debug::printf("DEBUG\n");
     //    if(*(volatile uint32_t *)(base_addy_plus_x + 0x4) > offset) {
     //        offset += 4096; 

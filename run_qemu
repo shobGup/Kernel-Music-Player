@@ -4,6 +4,7 @@ set -e
 
 time `make qemu_cmd` `make qemu_config_flags` \
              -vga std \
+             -serial stdio \
              -device intel-hda -device hda-duplex \
              -drive file=kernel/build/$1.img,index=0,media=disk,format=raw \
              -drive file=$1.data,index=1,media=disk,format=raw \
