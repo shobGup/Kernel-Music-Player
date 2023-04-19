@@ -469,6 +469,9 @@ void kernelMain(void) {
         thisKB->kbInit();
     });
 
+    while(thisKB->tapped) {
+
+    }
     
     // uint32_t x = 0;
     while(true) {
