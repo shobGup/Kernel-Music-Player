@@ -371,6 +371,12 @@ void VGA::spotify(const char* name) {
     drawRectangle(0, length/3 + 41, 320, 135, bg_color, 1);
 	drawString(center_w - ((l/2)*8), length/3 + 45, name, 63);
 
+    drawRectangle(75, 136, 108, 144, bg_color, true);
+    const char* str = "0:00";
+    drawString(75, 136, (const char*) str, 63);
+    delete str;
+
+
     Shared<Node> png = fs->find(fs->root, name);
 
     char* pixels = png->read_bmp(png);
