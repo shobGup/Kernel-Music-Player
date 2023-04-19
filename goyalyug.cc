@@ -359,9 +359,9 @@ void flipBit() {
     char * SDnCTL = (base_addy_plus_x); 
     *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x100000);
     if(*((uint32_t*)SDnCTL) == 0x20100002) {
-        *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) - 0x2); 
+        *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) ^ 0x2); 
     } else {
-        *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x2); 
+        *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2); 
     }
     Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
 }
