@@ -15,7 +15,7 @@
 #include "stdint.h"
 #include "port.h"
 #include "ext2.h"
-// #include "Ext22.h"
+#include "pit.h"
 
 // OSDEV VGA PORTS: https://wiki.osdev.org/VGA_Hardware
 // ALL INFO GATHERED FROM OSDEV AND CIRRUS CL-GD5446
@@ -177,15 +177,14 @@ class VGA {
     Port color_pallete_port_write;
     Port color_pallete_port_read;
     uint8_t bg_color;
-
+    volatile bool playing = 0;
+    
     uint32_t elapsed_time;
     uint32_t last_jif;
+    Shared<Ext2> fs; 
 
     uint32_t length;
     uint32_t width;
-    bool playing = 0;
-    
-    Shared<Ext2> fs;
     
     VGA();
 
@@ -207,22 +206,24 @@ class VGA {
 
     void initializeScreen(uint8_t color);
 
-    void drawTriangle(uint16_t x1, uint16_t y1, uint16_t length, uint8_t color);
-
     void drawCircle(int centerX, int centerY, int radius, uint8_t color);
 
-    uint8_t getColor(uint8_t r, uint8_t g, uint8_t b);
-    
-    void progressBarInit();
+    void drawPauseCircle(uint32_t c_x, uint32_t c_y, uint32_t r, uint8_t color);
 
-    void playingSong();
+    uint8_t getColor(uint8_t r, uint8_t g, uint8_t b);
 
     void putPixel(uint16_t x, uint16_t y, uint8_t color);
 
     void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t color);
 
+    void progressBarInit();
+
+    void playingSong();
+
     void drawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t color, bool fill);
 
+    void drawTriangle(uint16_t x1, uint16_t y1, uint16_t length, uint8_t color, bool flip);
+    
     uint8_t* getFrameBuffer();
 
     void useTextMode(char* buf, uint32_t size);
@@ -239,8 +240,9 @@ class VGA {
 
     void play_pause();
 
-    void place_bmp(uint32_t x, uint32_t y, uint32_t width, uint32_t length, char* rgb_buf);
+    void place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t pic_length, char* rgb_buf);
 
+    void moveOutPic(uint32_t x, uint32_t y, char* pixels, uint32_t pic_width, uint32_t pic_length);
 
     uint8_t vga_font[128][8] = {
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0000 (nul)

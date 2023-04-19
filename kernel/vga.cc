@@ -20,18 +20,16 @@ void VGA::setup(Shared<Ext2> root_fs, bool isGraphics) {
     fs = root_fs;
     initializePorts();
     if (isGraphics) {
-        bg_color = 42;
+        bg_color = 21;
         initializePalette();
         initializeGraphics();
         initializeScreen(bg_color);
     } else {
         initTextMode();
     }
-    const char* str = "New Romantics";
-	drawString(72, 190, str, 63);
     // const char* str = "RODEO";
     // drawString(140, 190, str, 63);
-    spotify("new romantics");
+    spotify("dark side of the moon");
     // homeScreen("320");
 }
 
@@ -123,6 +121,37 @@ void VGA::initializePalette() {
     // }
 }
 
+
+void VGA::progressBarInit() {
+    drawLine(110, 140, 210, 140, 63);
+}
+
+
+void VGA::playingSong() {
+    while (playing) {
+        if ((Pit::jiffies - last_jif) / 1000 > 0) {
+            last_jif = Pit::jiffies;
+            elapsed_time ++;
+            // uint32_t min = elapsed_time / 60;
+            uint32_t sec = elapsed_time % 60;
+            char* str = new char[4];
+            drawRectangle(78, 111, 86, 119, bg_color, true);
+            // str[0] = (char) (min + ((uint8_t) '0'));
+            str[0] = (char) (((uint8_t) '0'));
+
+            str[1] = ':';
+            str[2] = (char) (sec / 10 + ((uint8_t) '0'));
+            str[3] = (char) (sec % 10 + ((uint8_t) '0'));
+            drawString(78, 136, (const char*) str, 63);
+            delete[] str;
+            if (elapsed_time % 2 == 0) {
+                putPixel(110 + (elapsed_time / 2), 140, 0);
+            }
+        }
+    }
+}
+
+
 void VGA::initializeGraphics() {
     length = 200;
     width = 320;
@@ -150,7 +179,7 @@ void VGA::initializeGraphics() {
 }
 
 uint8_t VGA::getColor(uint8_t r, uint8_t g, uint8_t b) {
-
+    // 256-Color Attempt
     const int COLOR_RANGES[] = {0, 85, 170, 255};
     int r_idx = 0, g_idx = 0, b_idx = 0;
     for (int i = 1; i < 4; i++) {
@@ -182,33 +211,6 @@ uint8_t VGA::getColor(uint8_t r, uint8_t g, uint8_t b) {
      return 1;
 }
 
-void VGA::progressBarInit() {
-    drawLine(110, 115, 210, 115, 63);
-}
-
-
-void VGA::playingSong() {
-    while (playing) {
-        if ((Pit::jiffies - last_jif) / 1000 > 0) {
-            last_jif = Pit::jiffies;
-            elapsed_time ++;
-            uint32_t min = elapsed_time / 60;
-            uint32_t sec = elapsed_time % 60;
-            char* str = new char[4];
-            drawRectangle(78, 111, 86, 119, bg_color, true);
-            str[0] = (char) (min + ((uint8_t) '0'));
-            str[1] = ':';
-            str[2] = (char) (sec / 10 + ((uint8_t) '0'));
-            str[3] = (char) (sec % 10 + ((uint8_t) '0'));
-            drawString(78, 136, (const char*) str, 63);
-            delete[] str;
-            if (elapsed_time % 2 == 0) {
-                drawLine(110 + (elapsed_time / 2), 115, 110 + (elapsed_time / 2) + 1, 115, 0);
-            }
-        }
-    }
-}
-
 void VGA::initializeScreen(uint8_t color) {
     for (uint32_t i = 0; i < width * length; i ++) {
         vga_buf[i] = color;
@@ -216,7 +218,7 @@ void VGA::initializeScreen(uint8_t color) {
 }
 
 void VGA::putPixel(uint16_t x, uint16_t y, uint8_t color) {
-    uint32_t index = x + y*320;
+    uint32_t index = (y<<8) + (y<<6) + x;
     char* col = (char*) &color;
     memcpy((char*) (index + vga_buf), col, 1);
     // vga_buf[index] = color;
@@ -250,21 +252,20 @@ void VGA::drawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint
     }
 }
 
-void VGA::drawTriangle(uint16_t x1, uint16_t y1, uint16_t length, uint8_t color) {
+void VGA::drawTriangle(uint16_t x1, uint16_t y1, uint16_t length, uint8_t color, bool flip) {
     while (length > 0) {
         drawLine(x1, y1, x1, y1+length, color);
         length -=2;
-        x1++;
+        if (flip) x1++;
+        else x1--;
         y1++;
     }
-
 }
 
 void VGA::drawCircle(int centerX, int centerY, int radius, uint8_t color) {
     int x = 0;
     int y = radius;
     int d = 5 - 4 * radius;
-
     while (x <= y) {
         putPixel(centerX + x, centerY + y, color);
         putPixel(centerX + y, centerY + x, color);
@@ -364,6 +365,7 @@ void VGA::drawString(int x, int y, const char* str, uint8_t color) {
 }
 
 void VGA::homeScreen(const char* name) {
+    // Shared<Ext2> root_fs = Shared<Ext2>::make(Shared<Ide>::make(1));
     Shared<Node> bmp = fs->find(fs->root, "320");
     char* rgb = bmp->read_bmp(bmp);
     place_bmp(0, 200, 320, 200, rgb);
@@ -388,37 +390,77 @@ void VGA::place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t 
 }
 
 void VGA::spotify(const char* name) {
-    drawRectangle(width/2 - 35, length/3 - 35, width/2 + 35, length/3 + 35, BLACK, false);
+    int l = K::strlen(name);
+    playing = 0;
+    int center_w = width / 2;
+    drawRectangle(0, length/3 + 41, 320, 138, bg_color, 1);
+	drawString(center_w - ((l/2)*8), length/3 + 45, name, 63);
+    // Shared<Ext2> root_fs = Shared<Ext2>::make(Shared<Ide>::make(1));
 
     Shared<Node> png = fs->find(fs->root, name);
 
     char* pixels = png->read_bmp(png);
 
     uint32_t starting_x = width/2 - 35;
-    uint32_t starting_y = length/3 + 36;
+    uint32_t starting_y = length/3 + 35;
     place_bmp(starting_x, starting_y, 70, 70, pixels);
-    delete pixels;
+    delete[] pixels;
+
+    uint32_t center_x = 160;
+    uint32_t center_y = 170;
+    drawTriangle(center_x+25, center_y-8, 16, 63, 1);
+    drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
+    drawTriangle(center_x-25, center_y-8, 16, 63, 0);
+    drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
     play_pause();
+    // progressBarInit();
+    // playingSong();
+    // moveOutPic(starting_x, starting_y, pixels, 70, 70);
 }
 
 void VGA::play_pause() {
-    Debug::printf("Should Pause\n");
     uint32_t center_x = 160;
-    uint32_t center_y = 150;
+    uint32_t center_y = 170;
     uint32_t radius = 15;
     uint8_t color = 25;
     if (!playing) {
         color = 49;
-        drawCircle(center_x, center_y, radius, color);
-        drawTriangle(center_x-4, center_y-10, 20, bg_color);
-        drawRectangle(center_x - 8, center_y - 9, center_x - 3, center_y + 9, 63, true);
-        drawRectangle(center_x + 3, center_y - 9, center_x + 8, center_y + 9, 63, true);    
-        playing = 1;    
+        drawPauseCircle(center_x, center_y, radius, color);
+        drawTriangle(center_x-4, center_y-10, 20, 63, 1);
+        playing = 1;     
     } else {
-        drawRectangle(center_x + 3, center_y - 9, center_x + 8, center_y + 9, bg_color, true);
-        drawRectangle(center_x - 8, center_y - 9, center_x - 3, center_y + 9, bg_color, true);
-        drawCircle(center_x, center_y, radius, color);
-        drawTriangle(center_x-4, center_y-10, 20, 63);
+        drawPauseCircle(center_x, center_y, radius, color);
+        drawRectangle(center_x - 8, center_y - 8, center_x - 3, center_y + 8, 63, true);
+        drawRectangle(center_x + 3, center_y - 8, center_x + 8, center_y + 8, 63, true);   
         playing = 0;
+    }
+}
+
+uint32_t square_dist(uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2) {
+    uint32_t x_sq = (x2 - x1) * (x2 - x1);
+    uint32_t y_sq = (y2 - y1) * (y2 - y1);
+    return x_sq + y_sq;
+}
+
+void VGA::drawPauseCircle(uint32_t c_x, uint32_t c_y, uint32_t r, uint8_t color) {
+    // drawCircle(center_x, center_y, radius-1, color);
+    // drawCircle(center_x, center_y, radius, color);
+    // drawCircle(center_x, center_y, radius+1, color);
+    for (uint32_t x = c_x - r; x <= c_x + r; x++) {
+        for (uint32_t y = c_y - r; y <= c_y + r; y++) {
+            if (square_dist(c_x, c_y, x, y) < r*r) {
+                putPixel(x, y, color);
+            }
+            
+        }
+    }
+}
+
+
+void VGA::moveOutPic(uint32_t x, uint32_t y, char* pixels, uint32_t pic_width, uint32_t pic_length) {
+    while (x + pic_width > 0) {
+        drawRectangle(x+pic_width-2, y, x+pic_width, y+pic_length, bg_color, 1);
+        x-=2;
+        place_bmp(x, y, pic_width, pic_length, pixels);
     }
 }

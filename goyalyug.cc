@@ -500,8 +500,6 @@ void kernelMain(void) {
         thisVGA->progressBarInit();
         while(true) {
              thisVGA->playingSong();
-
-             
         }
     });
 
