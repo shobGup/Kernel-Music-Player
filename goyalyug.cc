@@ -362,7 +362,7 @@ void flipBit() {
     } else {
         *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2); 
     }
-    Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
+    Debug::printf("In Method SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
 }
 
 void kernelMain(void) {
@@ -470,7 +470,7 @@ void kernelMain(void) {
     });
 
     while(thisKB->tapped) {
-
+        Debug::printf("WTF Man\n");
     }
     
     // uint32_t x = 0;

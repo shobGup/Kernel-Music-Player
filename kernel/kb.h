@@ -23,7 +23,7 @@ class kb {
     const uint8_t USB_FUNCTION = 0;
     Queue<char,InterruptSafeLock> q;
     Atomic<uint32_t> ref_count{0};
-    bool tapped; 
+    bool tapped = false; 
 
     kb(VGA* vga);
 
