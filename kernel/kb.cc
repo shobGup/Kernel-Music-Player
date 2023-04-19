@@ -62,7 +62,17 @@ void kb::initializeController() {
         if (c == '\n') { // enter
             name[len] = 0;
             start = 0;
+            char * temp= new char[5];
+            temp[0] = '.';
+            temp[1] = 'w';
+            temp[2] = 'a';
+            temp[3] = 'v';
+            temp[4] = '\0';
+            memcpy(filename, name, (len));
+            memcpy((filename + (len)), temp, 5);
+            entered = true;
             vga->drawRectangle(0, 0, 320, 20, vga->bg_color, true);
+            vga->new_song = true;
             vga->spotify(name);
             // call wav finder
             delete[] name;

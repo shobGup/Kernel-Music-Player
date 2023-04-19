@@ -178,6 +178,7 @@ class VGA {
     Port color_pallete_port_read;
     uint8_t bg_color;
     volatile bool playing = 0;
+    volatile bool new_song = 0;
     
     uint32_t elapsed_time;
     uint32_t last_jif;
@@ -186,7 +187,7 @@ class VGA {
     uint32_t length;
     uint32_t width;
     
-    VGA();
+    VGA(){};
 
     void set_miscellaneous_registers();
     void set_sequencer_registers();
