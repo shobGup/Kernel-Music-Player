@@ -490,7 +490,7 @@ void kernelMain(void) {
 
     thread([thisVGA] {
         thisVGA->playingSong();
-    })
+    });
 
     thread([thisKB] {
         thisKB->kbInit();

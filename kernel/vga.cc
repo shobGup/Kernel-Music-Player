@@ -216,9 +216,9 @@ void VGA::initializeScreen(uint8_t color) {
 
 void VGA::putPixel(uint16_t x, uint16_t y, uint8_t color) {
     uint32_t index = x + y*320;
-    // char* col = (char*) &color;
-    // memcpy((char*) (index + vga_buf), col, 1);
-    vga_buf[index] = color;
+    char* col = (char*) &color;
+    memcpy((char*) (index + vga_buf), col, 1);
+    // vga_buf[index] = color;
     
 }
 
