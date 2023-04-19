@@ -180,7 +180,7 @@ class VGA {
 
     uint32_t length;
     uint32_t width;
-    bool playing;
+    bool playing = 0;
     
     Shared<Ext2> fs;
     

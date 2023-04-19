@@ -384,13 +384,14 @@ void VGA::play_pause() {
         color = 49;
         drawCircle(center_x, center_y, radius, color);
         drawTriangle(center_x-4, center_y-10, 20, bg_color);
-        drawRectangle(center_x - 8, center_y - 9, center_x - 3, center_y + 9, 0, true);
-        drawRectangle(center_x + 3, center_y - 9, center_x + 8, center_y + 9, 0, true);        
+        drawRectangle(center_x - 8, center_y - 9, center_x - 3, center_y + 9, 63, true);
+        drawRectangle(center_x + 3, center_y - 9, center_x + 8, center_y + 9, 63, true);    
+        playing = 1;    
     } else {
         drawRectangle(center_x + 3, center_y - 9, center_x + 8, center_y + 9, bg_color, true);
         drawRectangle(center_x - 8, center_y - 9, center_x - 3, center_y + 9, bg_color, true);
         drawCircle(center_x, center_y, radius, color);
         drawTriangle(center_x-4, center_y-10, 20, 63);
+        playing = 0;
     }
-    playing = !playing;
 }
