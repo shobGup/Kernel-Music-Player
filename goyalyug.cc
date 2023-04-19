@@ -489,6 +489,7 @@ void kernelMain(void) {
     Shared<kb> thisKB = Shared<kb>::make(thisVGA);
 
     thread([thisVGA] {
+        thisVGA->progressBarInit();
         while(true) {
              thisVGA->playingSong();
         }
