@@ -357,7 +357,6 @@ void flipBit() {
     char *base = (char *) 0xfebf0000;
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
     char * SDnCTL = (base_addy_plus_x); 
-    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x100000);
     if(*((uint32_t*)SDnCTL) == 0x20100002) {
         *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) ^ 0x2); 
     } else {
