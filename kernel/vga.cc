@@ -375,6 +375,7 @@ void VGA::spotify(const char* name) {
 }
 
 void VGA::play_pause() {
+    Debug::printf("Should Pause\n");
     uint32_t center_x = 160;
     uint32_t center_y = 150;
     uint32_t radius = 15;
