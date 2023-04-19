@@ -528,6 +528,15 @@ void kernelMain(void) {
             Debug::printf("Should be Reset\n");
         }
 
+        if(thisKB->precend) {
+            thisKB->precend = false; 
+            written = 0; 
+            index = 0; 
+            wave_file.offset -= (wave_file.offset - wave_file.reset_offset) > 4096 ? 4096 : (wave_file.offset - wave_file.reset_offset);
+            reset(wave_file);
+            Debug::printf("Should be change buffer\n");
+        }
+
         
         // Debug::printf("DEBUG\n");
     //    if(*(volatile uint32_t *)(base_addy_plus_x + 0x4) > offset) {

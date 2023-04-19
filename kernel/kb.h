@@ -69,6 +69,7 @@ class kb {
     Atomic<uint32_t> ref_count{0};
     bool tapped = false;
     bool reset = false; 
+    bool precend = false; 
 
     kb(VGA* vga);
 
