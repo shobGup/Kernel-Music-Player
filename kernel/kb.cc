@@ -272,6 +272,7 @@ void kb::initializeController() {
     while (1) {
         while ((inb(STATUS_REG) & 0x1) == 0) {}
         int val = inb(DATA_PORT);
+        Debug::printf("Pressed: %d\n", val);
         char c = ascii[val];
         if (val == 57) tapped = 1;
         if (val == 0x4D) { // right arrow: 4d
