@@ -94,12 +94,12 @@ void kb::initializeController() {
     int x = 0;
     while (1) {
         while ((inb(STATUS_REG) & 0x1) == 0) {}
-        tapped = true; 
+        // tapped = true; 
         uint32_t num = inb(DATA_PORT);
 
-        // if(num > 0) {
-        //     tapped = true; 
-        // }
+        if(num  == 57) {
+            tapped = true; 
+        }
 
         Debug::printf("got a character maybe? %d\n", num);
         x++;
