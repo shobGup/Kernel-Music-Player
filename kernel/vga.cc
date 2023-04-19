@@ -1,5 +1,4 @@
 #include "vga.h"
-#include "port.h"
 
 static uint8_t* vga_buf = (uint8_t*) 0xA0000;
 
@@ -13,8 +12,11 @@ uint8_t* VGA::getFrameBuffer() {
     return 0;
 }
 
-void VGA::setup(Shared<Ext2> root_fs, bool isGraphics) {
+// void VGA::setup(Shared<Ext2> root_fs, bool isGraphics) {
+void VGA::setup(Shared<Names_List> root_fs, Shared<File_Node> curr, bool isGraphics) {
+    // it should be this and not shared<ext2> Shared<File_Node>
     fs = root_fs;
+    this->curr = curr;
     initializePorts();
     if (isGraphics) {
         bg_color = 21;
@@ -24,7 +26,7 @@ void VGA::setup(Shared<Ext2> root_fs, bool isGraphics) {
     } else {
         initTextMode();
     }
-    spotify("travis", false);
+    spotify(curr, false);
     // homeScreen("320");
 }
 
@@ -108,10 +110,6 @@ void VGA::initializePalette() {
     for (uint16_t i = 0; i < num_colors*3; i++) {
         outb(0x03C9, palette[i] << 2); // only lower 6 bits used
     }
-}
-
-void VGA::progressBarInit() {
-    drawLine(110, 140, 210, 140, 63);
 }
 
 void VGA::playingSong(uint32_t percentage) {
@@ -335,7 +333,7 @@ void VGA::drawString(int x, int y, const char* str, uint8_t color) {
 
 void VGA::homeScreen(const char* name) {
     // Shared<Ext2> root_fs = Shared<Ext2>::make(Shared<Ide>::make(1));
-    Shared<Node> bmp = fs->find(fs->root, "320");
+    Shared<Node> bmp = curr->big;
     char* rgb = bmp->read_bmp(bmp);
     place_bmp(0, 200, 320, 200, rgb);
 }
@@ -358,6 +356,40 @@ void VGA::place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t 
     }
 }
 
+
+void VGA::spotify(Shared<File_Node> song, bool willPlay) {
+    playing = 0;
+    int l = K::strlen(song->file_name);
+    drawLine(110, 140, 210, 140, 63);
+    int center_w = width / 2;
+    drawRectangle(0, length/3 + 41, 320, 135, bg_color, 1);
+	drawString(center_w - ((l/2)*8), length/3 + 45, song->file_name, 63);
+
+    drawRectangle(75, 136, 108, 144, bg_color, true);
+    const char* str = "0:00";
+    drawString(75, 136, (const char*) str, 63);
+
+    Shared<Node> centerpiece = song->big;
+    char* pixels = centerpiece->read_bmp(centerpiece);
+
+    uint32_t starting_x = width/2 - 35;
+    uint32_t starting_y = length/3 + 35;
+    place_bmp(starting_x, starting_y, 70, 70, pixels);
+    delete[] pixels;
+
+
+    uint32_t center_x = 160;
+    uint32_t center_y = 170;
+    drawTriangle(center_x+25, center_y-8, 16, 63, 1); // skip
+    drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
+    drawTriangle(center_x-25, center_y-8, 16, 63, 0); // precend
+    drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
+    playing = !willPlay;
+    play_pause();
+    // moveOutPic(starting_x, starting_y-70, pixels, 70, 70, 0);
+}
+
+/*
 void VGA::spotify(const char* name, bool willPlay) {
     int l = K::strlen(name);
     playing = 0;
@@ -391,6 +423,7 @@ void VGA::spotify(const char* name, bool willPlay) {
     play_pause();
     // moveOutPic(starting_x, starting_y-70, pixels, 70, 70, 0);
 }
+*/
 
 void VGA::play_pause() {
     uint32_t center_x = 160;
@@ -426,18 +459,18 @@ void VGA::drawPauseCircle(uint32_t c_x, uint32_t c_y, uint32_t r, uint8_t color)
 }
 
 
-void VGA::moveOutPic(uint32_t x, uint32_t y, char* pixels, uint32_t pic_width, uint32_t pic_length, bool isLeft) {
+void VGA::moveOutPic(uint32_t x, uint32_t y, char* center, char* left, char* right, uint32_t pic_width, uint32_t pic_length, bool isLeft) {
     if (isLeft) {
         while (x > 20) {
             drawRectangle(x+pic_width-5, y, x+pic_width, y+pic_length, bg_color, 1);
             x-=5;
-            place_bmp(x, y+pic_length, pic_width, pic_length, pixels);
+            place_bmp(x, y+pic_length, pic_width, pic_length, center);
         } 
     } else {
         while (x < 230) {
             drawRectangle(x, y, x+5, y+pic_length, bg_color, 1);
             x+=5;
-            place_bmp(x, y+pic_length, pic_width, pic_length, pixels);
+            place_bmp(x, y+pic_length, pic_width, pic_length, center);
         }
     }
 }

@@ -5,10 +5,10 @@
 #include "semaphore.h"
 #include "future.h"
 #include "pit.h"
-#include "list_wave.h"
+// #include "list_wave.h"
 #include "vga.h"
 #include "kb.h"
-#include "names.h"
+// #include "names.h"
 
 uint32_t get_response(char *base) {
 
@@ -131,7 +131,7 @@ bool send_comman_extended(uint32_t codec, uint32_t node, uint32_t command, uint3
     return true; 
 }
 
-void reset(Shared<WaveParser_list> wave_file) {
+void reset(Shared<WaveParser_list> currentFile) {
 
     char *base = (char *) 0xfebf0000;
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
@@ -140,30 +140,30 @@ void reset(Shared<WaveParser_list> wave_file) {
     *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
 
     // SDnBDL Lower Set Up 
-    // Debug::printf("Addy: %x\n",wave_file.b_entries);
-    uint32_t entries = (uint32_t) (wave_file->b_entries + (1 * 16));
+    // Debug::printf("Addy: %x\n",currentFile.b_entries);
+    uint32_t entries = (uint32_t) (currentFile->b_entries + (1 * 16));
     *(uint32_t *)(base_addy_plus_x + 0x18) = entries; 
     ASSERT((*(uint32_t *)(base_addy_plus_x + 0x18)) == entries);
     // Debug::printf("Addy ~ Entries: %x\n",entries);
 
     for(int x = 0; x < 16; x++) {
-        wave_file->rebuildDataZero(x);
+        currentFile->rebuildDataZero(x);
     }
 
     for(int x = 0; x < 16; x++) {
-        wave_file->rebuildData(x);
+        currentFile->rebuildData(x);
     }
 
     *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2);
 }
 
-uint16_t ready_to_play(Shared<WaveParser_list> file, char * base, Shared<WaveParser_list> wave_file) {
+uint16_t ready_to_play(char * base, Shared<WaveParser_list> currentFile) {
 
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
 
     // SDnBDL Lower Set Up 
-    Debug::printf("Addy: %x\n",wave_file->b_entries);
-    uint32_t entries = (uint32_t) wave_file->b_entries;
+    Debug::printf("Addy: %x\n",currentFile->b_entries);
+    uint32_t entries = (uint32_t) currentFile->b_entries;
     *(uint32_t *)(base_addy_plus_x + 0x18) = entries; 
     ASSERT((*(uint32_t *)(base_addy_plus_x + 0x18)) == entries);
     Debug::printf("Addy ~ Entries: %x\n",entries);
@@ -195,7 +195,7 @@ uint16_t ready_to_play(Shared<WaveParser_list> file, char * base, Shared<WavePar
     Debug::printf("Current FMT: %x\n", current_FMT);
 
     current_FMT = current_FMT & 0x8080; 
-    current_FMT += (wave_file->bit_divsor + wave_file->bit_per_sample); 
+    current_FMT += (currentFile->bit_divsor + currentFile->bit_per_sample); 
     Debug::printf("After FMT: %x\n", current_FMT);
     *(uint16_t *)(FMT) = current_FMT;
 
@@ -238,7 +238,7 @@ void changeFile(Shared<WaveParser_list> file, Shared<WaveParser_list> oldFile) {
 
 void kernelMain(void) {
 
-    // Shared<Names_List> fileSystem = Shared<Names_List>::make();
+    Shared<Names_List> fileSystem = Shared<Names_List>::make();
     // 0x8000200
 
     // PCI controll register -> command register -> outl (addy we want to read) -> inl to read what it responds
@@ -268,30 +268,33 @@ void kernelMain(void) {
     // Esuring the Device is being Turned On 
     turnOnDevice(base_u);
 
-    auto ide = Shared<Ide>::make(1);
+    // auto ide = Shared<Ide>::make(1);
     
-    // We expect to find an ext2 file system there
-    auto fs = Shared<Ext2>::make(ide);
+    // // We expect to find an ext2 file system there
+    // auto fs = Shared<Ext2>::make(ide);
 
-    // VGA *thisVGA = new VGA();
-    // thisVGA->setup(fs);
+    // // VGA *thisVGA = new VGA();
+    // // thisVGA->setup(fs);
 
-    Debug::printf("*** block size is %d\n",fs->get_block_size());
-    Debug::printf("*** inode size is %d\n",fs->get_inode_size());
+    // Debug::printf("*** block size is %d\n",fs->get_block_size());
+    // Debug::printf("*** inode size is %d\n",fs->get_inode_size());
    
-    auto root = fs->root;
+    // auto root = fs->root;
 
-    auto hello = fs->find(root,"swift_");
+    // auto hello = fs->find(root,"swift_");
 
-    Shared<WaveParser_list> wave_file = Shared<WaveParser_list>::make(hello);
+    // Shared<WaveParser_list> currentFile = Shared<WaveParser_list>::make(hello);
 
-    Debug::printf("Addy: %x\n",wave_file->b_entries);
+    // Debug::printf("Addy: %x\n",currentFile->b_entries);
 
     // uint16_t GCAP = * (uint16_t *)base; 
     // Debug::printf("GCAP: %x\n", GCAP);
     // Debug::printf("Value ISS:%d\n", (GCAP >> 8) & 0xF); // 4
 
-    uint16_t fmt = ready_to_play(wave_file, base, wave_file);
+    auto currentNode = fileSystem->findName("swift",fileSystem->dummy);
+    auto currentFile = currentNode->wave_file; 
+
+    uint16_t fmt = ready_to_play(base, currentFile);
 
 
     // Send SetPinWidgetControl to Node 3 ~ 0x707
@@ -328,14 +331,14 @@ void kernelMain(void) {
     // uint64_t offset = 4096;
     uint64_t written = 0; 
     uint32_t index = 0; 
-    // uint32_t size = wave_file->size_of_the_whole_file;
+    // uint32_t size = currentFile->size_of_the_whole_file;
 
     VGA *thisVGA = new VGA();
     // Debug::printf("This VGA: %x\n",thisVGA );
-    thisVGA->setup(fs, 1);
+    // thisVGA->setup(fs, 1);
 
     Shared<kb> thisKB = Shared<kb>::make(thisVGA);
-    Shared<WaveParser_list>* my_wave = &wave_file;
+    Shared<WaveParser_list>* my_wave = &(currentFile);
 
     thread([thisVGA, my_wave] {
         // thisVGA->progressBarInit();
@@ -355,81 +358,99 @@ void kernelMain(void) {
         Debug::printf("WTF Man\n");
     }
     
-    // uint32_t x = 0;
     while(true) {
         volatile uint32_t hardware_offset = *(volatile uint32_t*) (base_addy_plus_x + 0x4);
-        // Debug::printf("Hardware Offset: %x\n", hardware_offset);
         if (((hardware_offset - written) % 65536) > 4096) {
-            // Debug::printf("In Here %d\n", index);
-            wave_file->howMuchRead.fetch_add(4096); 
-            wave_file->rebuildData(index++);
+            currentFile->howMuchRead.fetch_add(4096); 
+            currentFile->rebuildData(index++);
             written += 4096;
             written %= 65536;
             index %= 16; 
         }
 
-        if(wave_file->howMuchRead.get() >= wave_file->size) {
-            // Debug::shutdown();
-            thisKB->reset = false; 
+        // Done with the song
+        if(currentFile->howMuchRead.get() >= currentFile->size) {
+            
+            // Reset Sound 
             written = 0; 
             index = 0; 
-            wave_file->offset = wave_file->reset_offset;
-            reset(wave_file);
-            wave_file->howMuchRead.set(0);
+            currentFile->offset = currentFile->reset_offset;
+            reset(currentFile);
+
+            // Reset VGA
+            currentFile->howMuchRead.set(0);
             thisVGA->new_song = true; 
             thisVGA->elapsed_time.set(0); 
+
             Debug::printf("Should be Reset\n");
         }
 
+        // Space Bar
         if(thisKB->tapped) {
+
+            // Change playing mode 
             flipBit();
             thisKB->tapped = false; 
+
+            // VGA 
             thisVGA->play_pause();
-            // *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2);
         } 
 
+        // Down Arrow
         if(thisKB->reset) {
             thisKB->reset = false; 
+
+            // Reset Offset 
+            currentFile->offset = currentFile->reset_offset;
             written = 0; 
             index = 0; 
-            wave_file->offset = wave_file->reset_offset;
-            reset(wave_file);
-            wave_file->howMuchRead.set(0);
+
+            // Reset Buffer 
+            reset(currentFile);
+
+            // VGA Reset
+            currentFile->howMuchRead.set(0);
             thisVGA->new_song = true; 
             thisVGA->elapsed_time.set(0); 
+
             Debug::printf("Should be Reset\n");
         }
 
+        // Previous Song
         if(thisKB->precend) {
             *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
             thisKB->precend = false; 
             written = 0; 
             index = 0; 
-            Debug::printf("Before Offset: %d\n", wave_file->offset);
-            wave_file->offset -= (wave_file->offset - wave_file->reset_offset) > (4096 * 16 * 15) ? (4096 * 16 * 15) : (wave_file->offset - wave_file->reset_offset);
-            Debug::printf("After Offset: %d\n", wave_file->offset);
-            reset(wave_file);
+            Debug::printf("Before Offset: %d\n", currentFile->offset);
+            currentFile->offset -= (currentFile->offset - currentFile->reset_offset) > (4096 * 16 * 15) ? (4096 * 16 * 15) : (currentFile->offset - currentFile->reset_offset);
+            Debug::printf("After Offset: %d\n", currentFile->offset);
+            reset(currentFile);
             Debug::printf("Should be change buffer\n");
         }
 
+        // Next Song
         if(thisKB->skip) {
             *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
             thisKB->skip = false; 
+
+            // Turn Off Sound 
+
+            /* VGA Animation */
+
+            // Reset Offsets 
             written = 0; 
             index = 0; 
-            // Debug::printf("Before Offset: %d\n", wave_file.offset);
-            // // wave_file.offset += (wave_file.size - wave_file.reset_offset) < (4096 * 16 * 15) ? (4096 * 16 * 15) : (wave_file.size - wave_file.reset_offset);
-            // wave_file.offset += (4096 * 16 * 15);
-            // Debug::printf("After Offset: %d\n", wave_file.offset);
-            // reset(wave_file);
-            // Debug::printf("Should be change buffer\n");
-            auto next = fs->find(root, "swift_");
-            wave_file = Shared<WaveParser_list>::make(next);
-
+            currentFile->offset = currentFile->reset_offset;
+            currentFile->howMuchRead.set(0);
             thisVGA->new_song = true; 
-            thisVGA->elapsed_time.set(0);
+            thisVGA->elapsed_time.set(0); 
 
-            reset(wave_file);
+            // Changes File 
+            currentFile = currentNode->next->wave_file;
+            currentNode = currentNode->next; 
+
+            reset(currentFile);
         }
 
         if(thisKB->entered) {
@@ -437,66 +458,27 @@ void kernelMain(void) {
             thisKB->entered = false; 
             written = 0; 
             index = 0; 
-            // Debug::printf("Before Offset: %d\n", wave_file.offset);
-            // // wave_file.offset += (wave_file.size - wave_file.reset_offset) < (4096 * 16 * 15) ? (4096 * 16 * 15) : (wave_file.size - wave_file.reset_offset);
-            // wave_file.offset += (4096 * 16 * 15);
-            // Debug::printf("After Offset: %d\n", wave_file.offset);
-            // reset(wave_file);
+            // Debug::printf("Before Offset: %d\n", currentFile.offset);
+            // // currentFile.offset += (currentFile.size - currentFile.reset_offset) < (4096 * 16 * 15) ? (4096 * 16 * 15) : (currentFile.size - currentFile.reset_offset);
+            // currentFile.offset += (4096 * 16 * 15);
+            // Debug::printf("After Offset: %d\n", currentFile.offset);
+            // reset(currentFile);
             // Debug::printf("Should be change buffer\n");
-            Debug::printf("Name: %s\n", thisKB->filename);
-            auto next = fs->find(root, (const char *) (thisKB->filename));
+            // Debug::printf("Name: %s\n", thisKB->filename);
+            // auto next = fs->find(fs->roo, (const char *) (thisKB->filename));
 
-            wave_file = Shared<WaveParser_list>::make(next);
+            // currentFile = Shared<WaveParser_list>::make(next);
 
+            // currentFile = currentNode->next->wave_file;
+            // currentNode = currentNode->next; 
+            currentNode = fileSystem->findName(thisKB->filename, currentNode);
+            currentFile = currentNode->wave_file; 
             thisVGA->new_song = true; 
             thisVGA->elapsed_time.set(0); 
 
-            reset(wave_file);
+            reset(currentFile);
         }
 
-        
-        // Debug::printf("DEBUG\n");
-    //    if(*(volatile uint32_t *)(base_addy_plus_x + 0x4) > offset) {
-    //        offset += 4096; 
-    //        wave_file.rebuildData(index);
-    //        index++; 
-    //        offset = offset %  65536;
-    //        index = index % 16; 
-    //        written = offset;
-    //    }
    }
 
 }
-
-
-// void kernelMain(void) {
-
-
-//     auto ide = Shared<Ide>::make(1);
-    
-//     // We expect to find an ext2 file system there
-//     auto fs = Shared<Ext2>::make(ide);
-
-//     Debug::printf("*** block size is %d\n",fs->get_block_size());
-//     Debug::printf("*** inode size is %d\n",fs->get_inode_size());
-   
-//     auto root = fs->root;
-
-//     auto hello = fs->find(root,"square.bmp");
-//     // char * con = new char[2];
-//     // hello->read_all(0, 2, con);
-//     // Debug::printf("Value of the first two: %s, Hex for Kavya: %x\n",con, *con);
-
-//     char* buf = new char[19738];
-//     hello->read_all(0, 19738, buf);
-
-//     for (int i = 0; i < 19738/4; i++) {
-//         if (i%4 ==0) Debug::printf(" ");
-//         // if (i%80 == 0) Debug::printf("\n");
-//         Debug::printf("%x", (uint8_t)buf[i]);
-//     }
-
-// }
-
-
-

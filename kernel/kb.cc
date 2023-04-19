@@ -68,10 +68,7 @@ void kb::initializeController() {
             memcpy(filename, name, (len));
             memcpy((filename + (len)), temp, 2);
             vga->drawRectangle(0, 0, 320, 20, vga->bg_color, true);
-            // vga->new_song = true;
             entered = true;
-            vga->spotify(name, true);
-            // call wav finder
             delete[] name;
         }
         if (val == 0xE) { // backspace
@@ -87,24 +84,10 @@ void kb::initializeController() {
             reset = true; 
         }
         if(val == 203) {
-            precend = true; 
-            uint32_t center_x = 160;
-            uint32_t center_y = 170;
-            vga->drawTriangle(center_x-25, center_y-8, 16, 42, 0); // precend
-            vga->drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 42, 1);
-            for (int i = 0; i < 10000; i++);
-            vga->drawTriangle(center_x-25, center_y-8, 16, 63, 0); // precend
-            vga->drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
+            precend = true;
         }
         if(val == 205) {
-            uint32_t center_x = 160;
-            uint32_t center_y = 170;
-            vga->drawTriangle(center_x+25, center_y-8, 16, 42, 1);
-            vga->drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 42, 1);
-            for (int i = 0; i < 10000; i++);
-            vga->drawTriangle(center_x+25, center_y-8, 16, 63, 1);
-            vga->drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
-            skip = true; 
+            skip = true;
         }
         // if numbers 0-9 || 16 - 25 || 30 - 38 || 44 - 50
         if (((val >= 2 && val <= 13) || (val >= 16 && val <= 25) || (val >= 30 && val <=38) || (val >= 44 && val <= 50) || val==0x39) && start) { // add char to string

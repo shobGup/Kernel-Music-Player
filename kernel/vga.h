@@ -16,6 +16,7 @@
 #include "port.h"
 #include "ext2.h"
 #include "pit.h"
+#include "names.h"
 
 // OSDEV VGA PORTS: https://wiki.osdev.org/VGA_Hardware
 // ALL INFO GATHERED FROM OSDEV AND CIRRUS CL-GD5446
@@ -182,7 +183,9 @@ class VGA {
     
     Atomic<uint32_t> elapsed_time {0};
     uint32_t last_jif;
-    Shared<Ext2> fs; 
+
+    Shared<Names_List> fs;
+    Shared<File_Node> curr; 
 
     uint32_t length;
     uint32_t width;
@@ -194,8 +197,7 @@ class VGA {
     void set_crt_controller_registers();
     void set_graphics_controller_registers();
     void set_attribute_controller_registers();
-
-    void setup(Shared<Ext2> root_fs, bool isGraphics);
+    void setup(Shared<Names_List> root_fs, Shared<File_Node> curr, bool isGraphics);
 
     void initializeGraphics();
 
@@ -217,8 +219,6 @@ class VGA {
 
     void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t color);
 
-    void progressBarInit();
-
     void playingSong(uint32_t);
 
     void drawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t color, bool fill);
@@ -237,13 +237,16 @@ class VGA {
 
     void homeScreen(const char* name);
 
-    void spotify(const char* name, bool willPlay);
+    // void spotify(const char* name, bool willPlay);
+    void spotify(Shared<File_Node> song, bool willPlay);
+
+    void spotify_move(Shared<File_Node> song, bool willPlay, bool skip);
 
     void play_pause();
 
     void place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t pic_length, char* rgb_buf);
 
-    void moveOutPic(uint32_t x, uint32_t y, char* pixels, uint32_t pic_width, uint32_t pic_length, bool isLeft);
+    void moveOutPic(uint32_t x, uint32_t y, char* center, char* left, char* right, uint32_t pic_width, uint32_t pic_length, bool isLeft);
 
     uint8_t vga_font[128][8] = {
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0000 (nul)
