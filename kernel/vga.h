@@ -243,7 +243,7 @@ class VGA {
 
     void place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t pic_length, char* rgb_buf);
 
-    void moveOutPic(uint32_t x, uint32_t y, char* pixels, uint32_t pic_width, uint32_t pic_length);
+    void moveOutPic(uint32_t x, uint32_t y, char* pixels, uint32_t pic_width, uint32_t pic_length, bool isLeft);
 
     uint8_t vga_font[128][8] = {
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0000 (nul)

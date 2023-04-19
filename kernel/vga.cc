@@ -383,13 +383,13 @@ void VGA::spotify(const char* name, bool willPlay) {
 
     uint32_t center_x = 160;
     uint32_t center_y = 170;
-    drawTriangle(center_x+25, center_y-8, 16, 63, 1);
+    drawTriangle(center_x+25, center_y-8, 16, 63, 1); // skip
     drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
-    drawTriangle(center_x-25, center_y-8, 16, 63, 0);
+    drawTriangle(center_x-25, center_y-8, 16, 63, 0); // precend
     drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
     playing = !willPlay;
     play_pause();
-    // moveOutPic(starting_x, starting_y, pixels, 70, 70);
+    // moveOutPic(starting_x, starting_y-70, pixels, 70, 70, 0);
 }
 
 void VGA::play_pause() {
@@ -426,10 +426,18 @@ void VGA::drawPauseCircle(uint32_t c_x, uint32_t c_y, uint32_t r, uint8_t color)
 }
 
 
-void VGA::moveOutPic(uint32_t x, uint32_t y, char* pixels, uint32_t pic_width, uint32_t pic_length) {
-    while (x + pic_width > 0) {
-        drawRectangle(x+pic_width-2, y, x+pic_width, y+pic_length, bg_color, 1);
-        x-=2;
-        place_bmp(x, y, pic_width, pic_length, pixels);
+void VGA::moveOutPic(uint32_t x, uint32_t y, char* pixels, uint32_t pic_width, uint32_t pic_length, bool isLeft) {
+    if (isLeft) {
+        while (x > 20) {
+            drawRectangle(x+pic_width-5, y, x+pic_width, y+pic_length, bg_color, 1);
+            x-=5;
+            place_bmp(x, y+pic_length, pic_width, pic_length, pixels);
+        } 
+    } else {
+        while (x < 230) {
+            drawRectangle(x, y, x+5, y+pic_length, bg_color, 1);
+            x+=5;
+            place_bmp(x, y+pic_length, pic_width, pic_length, pixels);
+        }
     }
 }

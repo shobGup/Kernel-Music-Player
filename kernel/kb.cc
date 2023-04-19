@@ -88,8 +88,22 @@ void kb::initializeController() {
         }
         if(val == 203) {
             precend = true; 
+            uint32_t center_x = 160;
+            uint32_t center_y = 170;
+            vga->drawTriangle(center_x-25, center_y-8, 16, 42, 0); // precend
+            vga->drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 42, 1);
+            for (int i = 0; i < 10000; i++);
+            vga->drawTriangle(center_x-25, center_y-8, 16, 63, 0); // precend
+            vga->drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
         }
         if(val == 205) {
+            uint32_t center_x = 160;
+            uint32_t center_y = 170;
+            vga->drawTriangle(center_x+25, center_y-8, 16, 42, 1);
+            vga->drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 42, 1);
+            for (int i = 0; i < 10000; i++);
+            vga->drawTriangle(center_x+25, center_y-8, 16, 63, 1);
+            vga->drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
             skip = true; 
         }
         // if numbers 0-9 || 16 - 25 || 30 - 38 || 44 - 50
