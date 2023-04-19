@@ -376,6 +376,12 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
 
     Shared<Node> centerpiece = song->big;
     char* pixels = centerpiece->read_bmp(centerpiece);
+    
+    Shared<Node> left_small = song->prev->small;
+    Shared<Node> right_small = song->next->small;
+    
+    // char* left_p = left_small->read_bmp(left_small);
+    
 
     uint32_t starting_x = width/2 - 35;
     uint32_t starting_y = length/3 + 35;
@@ -464,7 +470,21 @@ void VGA::drawPauseCircle(uint32_t c_x, uint32_t c_y, uint32_t r, uint8_t color)
 }
 
 
-void VGA::moveOutPic(uint32_t x, uint32_t y, char* center, char* left, char* right, uint32_t pic_width, uint32_t pic_length, bool isLeft) {
+void VGA::moveOutPic(uint32_t x, uint32_t y, Shared<File_Node> fn, uint32_t pic_width, uint32_t pic_length, bool isLeft) {
+/*
+    char* curr_left = fn->prev->small;
+    char* curr_center = fn->big;
+    char* curr_right = fn->next->small;
+    if (isLeft) { // skip
+        char* new_left = fn->prev->prev->small;
+        char* new_center = fn->prev->big;
+        char* new_right = fn->small;
+    } else {
+        char* new_left = fn->small;
+        char* new_center = fn->next->big;
+        char* new_right = fn->next->next->small;
+        
+    }
     if (isLeft) {
         while (x > 20) {
             drawRectangle(x+pic_width-5, y, x+pic_width, y+pic_length, bg_color, 1);
@@ -478,4 +498,5 @@ void VGA::moveOutPic(uint32_t x, uint32_t y, char* center, char* left, char* rig
             place_bmp(x, y+pic_length, pic_width, pic_length, center);
         }
     }
+*/
 }

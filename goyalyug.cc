@@ -468,9 +468,13 @@ void kernelMain(void) {
             thisVGA->new_song = true; 
             thisVGA->elapsed_time.set(0); 
 
+            Debug::printf("File Found: %s\n", thisKB->filename);
+
             // Changes File 
-            currentNode = fileSystem->findName(thisKB->filename, currentNode);
+            currentNode = fileSystem->findName((const char *) thisKB->filename, currentNode);
             currentFile = currentNode->wave_file;
+
+            Debug::printf("Came Back from life\n");
 
             /* VGA Animation */
             thisVGA->spotify(currentNode, true);

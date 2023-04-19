@@ -147,9 +147,11 @@ class Names_List {
     }
 
     Shared<File_Node> findName(const char * name, Shared<File_Node> current) {
+        Debug::printf("Finding Name: %s\n", name);
         Shared<File_Node> temp = current; 
         while(temp->next != current) {
             if(K::streq(name, temp->file_name)) {
+                Debug::printf("YAY found it: %s\n", name);
                 return temp; 
             }
             temp = temp->next; 
