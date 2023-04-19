@@ -371,6 +371,7 @@ void VGA::spotify(const char* name) {
     uint32_t starting_y = length/3 + 36;
     place_bmp(starting_x, starting_y, 70, 70, pixels);
     delete pixels;
+    play_pause();
 }
 
 void VGA::play_pause() {
