@@ -30,6 +30,7 @@ class WaveParser_list {
     uint32_t size_of_the_junk;
     Shared<Node> overallFile; 
     uint32_t size_of_the_whole_file;
+    Atomic<uint32_t> ref_count{0};
 
     uint32_t bit_divsor; 
     uint32_t bit_per_sample; 

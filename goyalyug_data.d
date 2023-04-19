@@ -1,1 +1,1 @@
-goyalyug.data: goyalyug.dir goyalyug.dir/taylor.wav goyalyug.dir/dsotm goyalyug.dir/new romantics
+goyalyug.data: goyalyug.dir goyalyug.dir/taylor.wav goyalyug.dir/new romantics

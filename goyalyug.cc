@@ -291,7 +291,7 @@ bool send_comman_extended(uint32_t codec, uint32_t node, uint32_t command, uint3
     return true; 
 }
 
-void reset(WaveParser_list wave_file) {
+void reset(Shared<WaveParser_list> wave_file) {
 
     char *base = (char *) 0xfebf0000;
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
@@ -301,29 +301,29 @@ void reset(WaveParser_list wave_file) {
 
     // SDnBDL Lower Set Up 
     // Debug::printf("Addy: %x\n",wave_file.b_entries);
-    uint32_t entries = (uint32_t) (wave_file.b_entries + (1 * 16));
+    uint32_t entries = (uint32_t) (wave_file->b_entries + (1 * 16));
     *(uint32_t *)(base_addy_plus_x + 0x18) = entries; 
     ASSERT((*(uint32_t *)(base_addy_plus_x + 0x18)) == entries);
     // Debug::printf("Addy ~ Entries: %x\n",entries);
 
     for(int x = 0; x < 16; x++) {
-        wave_file.rebuildDataZero(x);
+        wave_file->rebuildDataZero(x);
     }
 
     for(int x = 0; x < 16; x++) {
-        wave_file.rebuildData(x);
+        wave_file->rebuildData(x);
     }
-    
+
     *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2);
 }
 
-uint16_t ready_to_play(WaveParser_list file, char * base, WaveParser_list wave_file) {
+uint16_t ready_to_play(Shared<WaveParser_list> file, char * base, Shared<WaveParser_list> wave_file) {
 
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
 
     // SDnBDL Lower Set Up 
-    Debug::printf("Addy: %x\n",wave_file.b_entries);
-    uint32_t entries = (uint32_t) wave_file.b_entries;
+    Debug::printf("Addy: %x\n",wave_file->b_entries);
+    uint32_t entries = (uint32_t) wave_file->b_entries;
     *(uint32_t *)(base_addy_plus_x + 0x18) = entries; 
     ASSERT((*(uint32_t *)(base_addy_plus_x + 0x18)) == entries);
     Debug::printf("Addy ~ Entries: %x\n",entries);
@@ -355,7 +355,7 @@ uint16_t ready_to_play(WaveParser_list file, char * base, WaveParser_list wave_f
     Debug::printf("Current FMT: %x\n", current_FMT);
 
     current_FMT = current_FMT & 0x8080; 
-    current_FMT += (wave_file.bit_divsor + wave_file.bit_per_sample); 
+    current_FMT += (wave_file->bit_divsor + wave_file->bit_per_sample); 
     Debug::printf("After FMT: %x\n", current_FMT);
     *(uint16_t *)(FMT) = current_FMT;
 
@@ -390,6 +390,10 @@ void flipBit() {
         *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2); 
     }
     Debug::printf("In Method SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
+}
+
+void changeFile(Shared<WaveParser_list> file, Shared<WaveParser_list> oldFile) {
+
 }
 
 void kernelMain(void) {
@@ -439,9 +443,9 @@ void kernelMain(void) {
 
     auto hello = fs->find(root,"taylor.wav");
 
-    WaveParser_list wave_file = WaveParser_list(hello);
+    Shared<WaveParser_list> wave_file = Shared<WaveParser_list>::make(hello);
 
-    Debug::printf("Addy: %x\n",wave_file.b_entries);
+    Debug::printf("Addy: %x\n",wave_file->b_entries);
 
     // uint16_t GCAP = * (uint16_t *)base; 
     // Debug::printf("GCAP: %x\n", GCAP);
@@ -484,7 +488,7 @@ void kernelMain(void) {
     // uint64_t offset = 4096;
     uint64_t written = 0; 
     uint32_t index = 0; 
-    uint32_t size = wave_file.size_of_the_whole_file;
+    uint32_t size = wave_file->size_of_the_whole_file;
 
     VGA *thisVGA = new VGA();
     Debug::printf("This VGA: %x\n",thisVGA );
@@ -515,13 +519,13 @@ void kernelMain(void) {
         // Debug::printf("Hardware Offset: %x\n", hardware_offset);
         if (((hardware_offset - written) % 65536) > 4096) {
             // Debug::printf("In Here %d\n", index);
-            wave_file.rebuildData(index++);
+            wave_file->rebuildData(index++);
             written += 4096;
             written %= 65536;
             index %= 16; 
         }
 
-        if(wave_file.offset >= size) {
+        if(wave_file->offset >= size) {
             Debug::shutdown();
         }
 
@@ -536,7 +540,7 @@ void kernelMain(void) {
             thisKB->reset = false; 
             written = 0; 
             index = 0; 
-            wave_file.offset = wave_file.reset_offset;
+            wave_file->offset = wave_file->reset_offset;
             reset(wave_file);
             Debug::printf("Should be Reset\n");
         }
@@ -546,9 +550,9 @@ void kernelMain(void) {
             thisKB->precend = false; 
             written = 0; 
             index = 0; 
-            Debug::printf("Before Offset: %d\n", wave_file.offset);
-            wave_file.offset -= (wave_file.offset - wave_file.reset_offset) > (4096 * 16 * 15) ? (4096 * 16 * 15) : (wave_file.offset - wave_file.reset_offset);
-            Debug::printf("After Offset: %d\n", wave_file.offset);
+            Debug::printf("Before Offset: %d\n", wave_file->offset);
+            wave_file->offset -= (wave_file->offset - wave_file->reset_offset) > (4096 * 16 * 15) ? (4096 * 16 * 15) : (wave_file->offset - wave_file->reset_offset);
+            Debug::printf("After Offset: %d\n", wave_file->offset);
             reset(wave_file);
             Debug::printf("Should be change buffer\n");
         }
@@ -558,12 +562,15 @@ void kernelMain(void) {
             thisKB->skip = false; 
             written = 0; 
             index = 0; 
-            Debug::printf("Before Offset: %d\n", wave_file.offset);
-            // wave_file.offset += (wave_file.size - wave_file.reset_offset) < (4096 * 16 * 15) ? (4096 * 16 * 15) : (wave_file.size - wave_file.reset_offset);
-            wave_file.offset += (4096 * 16 * 15);
-            Debug::printf("After Offset: %d\n", wave_file.offset);
+            // Debug::printf("Before Offset: %d\n", wave_file.offset);
+            // // wave_file.offset += (wave_file.size - wave_file.reset_offset) < (4096 * 16 * 15) ? (4096 * 16 * 15) : (wave_file.size - wave_file.reset_offset);
+            // wave_file.offset += (4096 * 16 * 15);
+            // Debug::printf("After Offset: %d\n", wave_file.offset);
+            // reset(wave_file);
+            // Debug::printf("Should be change buffer\n");
+            auto next = fs->find(root, "taylor.wav");
+            wave_file = Shared<WaveParser_list>::make(next);
             reset(wave_file);
-            Debug::printf("Should be change buffer\n");
         }
 
         
