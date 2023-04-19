@@ -26,6 +26,7 @@ class WaveParser_list {
     char * b_entries; 
     uint64_t offset; 
     uint64_t reset_offset; 
+    uint64_t size; 
     uint32_t size_of_the_junk;
     Shared<Node> overallFile; 
     uint32_t size_of_the_whole_file;
@@ -112,6 +113,7 @@ class WaveParser_list {
     // NumSamples * NumChannels * BitsPerSample/8 - size of the next chunk that will be read
     char * data_size = new char[5];
     file->read_all(size_of_the_junk, 4, data_size);
+    size = *(uint32_t*)data_size; 
     Debug::printf("Size Of junk: %d\n", *(uint32_t*)data_size);
     size_of_the_junk += 4;
     delete data_size;

@@ -70,6 +70,7 @@ class kb {
     bool tapped = false;
     bool reset = false; 
     bool precend = false; 
+    bool skip = false; 
 
     kb(VGA* vga);
 
