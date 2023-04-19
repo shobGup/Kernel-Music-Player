@@ -397,15 +397,15 @@ void VGA::play_pause() {
     uint32_t center_y = 170;
     uint32_t radius = 15;
     if (!playing) {
-        uint32_t color = 49;
-        drawPauseCircle(center_x, center_y, radius, color);
-        drawTriangle(center_x-4, center_y-10, 20, 63, 1);
-        playing = 1;     
-    } else {
         uint8_t color = 25;
         drawPauseCircle(center_x, center_y, radius, color);
         drawRectangle(center_x-8, center_y-8, center_x-3, center_y+8, 63, 1);
         drawRectangle(center_x+3, center_y-8, center_x+8, center_y+8, 63, 1);   
+        playing = 1;     
+    } else {
+        uint32_t color = 49;
+        drawPauseCircle(center_x, center_y, radius, color);
+        drawTriangle(center_x-4, center_y-10, 20, 63, 1);  
         playing = 0;
     }
 }

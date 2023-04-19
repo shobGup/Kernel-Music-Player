@@ -45,7 +45,7 @@ void kb::initializeController() {
         char c = ascii[val];
         if (val == 57 && !start) {
             tapped = 1;
-            vga->play_pause();
+            // vga->play_pause();
         }
         if (val == 0x4D) { // right arrow: 4d
             // go to next song.

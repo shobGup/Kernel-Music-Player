@@ -579,7 +579,7 @@ void kernelMain(void) {
 
             thisVGA->new_song = true; 
             thisVGA->elapsed_time.set(0);
-            
+
             reset(wave_file);
         }
 
