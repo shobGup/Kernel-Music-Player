@@ -391,6 +391,5 @@ void VGA::play_pause() {
         drawCircle(center_x, center_y, radius, color);
         drawTriangle(center_x-4, center_y-10, 20, 63);
     }
-
     playing = !playing;
 }
