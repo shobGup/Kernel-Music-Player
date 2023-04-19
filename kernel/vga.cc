@@ -356,8 +356,13 @@ void VGA::place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t 
     }
 }
 
+void spotify_move(Shared<File_Node> song, bool willPlay, bool skip) {
+    
+}
+
 
 void VGA::spotify(Shared<File_Node> song, bool willPlay) {
+    curr = song;
     playing = 0;
     int l = K::strlen(song->file_name);
     drawLine(110, 140, 210, 140, 63);

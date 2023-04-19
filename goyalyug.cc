@@ -431,12 +431,10 @@ void kernelMain(void) {
 
         // Next Song
         if(thisKB->skip) {
-            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
             thisKB->skip = false; 
 
             // Turn Off Sound 
-
-            /* VGA Animation */
+            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
 
             // Reset Offsets 
             written = 0; 
@@ -450,31 +448,32 @@ void kernelMain(void) {
             currentFile = currentNode->next->wave_file;
             currentNode = currentNode->next; 
 
+            /* VGA Animation */
+            thisVGA->spotify(currentNode, true);
+
             reset(currentFile);
         }
 
         if(thisKB->entered) {
-            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
             thisKB->entered = false; 
+
+            // Turn Off Sound 
+            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+
+            // Reset Offsets 
             written = 0; 
             index = 0; 
-            // Debug::printf("Before Offset: %d\n", currentFile.offset);
-            // // currentFile.offset += (currentFile.size - currentFile.reset_offset) < (4096 * 16 * 15) ? (4096 * 16 * 15) : (currentFile.size - currentFile.reset_offset);
-            // currentFile.offset += (4096 * 16 * 15);
-            // Debug::printf("After Offset: %d\n", currentFile.offset);
-            // reset(currentFile);
-            // Debug::printf("Should be change buffer\n");
-            // Debug::printf("Name: %s\n", thisKB->filename);
-            // auto next = fs->find(fs->roo, (const char *) (thisKB->filename));
-
-            // currentFile = Shared<WaveParser_list>::make(next);
-
-            // currentFile = currentNode->next->wave_file;
-            // currentNode = currentNode->next; 
-            currentNode = fileSystem->findName(thisKB->filename, currentNode);
-            currentFile = currentNode->wave_file; 
+            currentFile->offset = currentFile->reset_offset;
+            currentFile->howMuchRead.set(0);
             thisVGA->new_song = true; 
             thisVGA->elapsed_time.set(0); 
+
+            // Changes File 
+            currentNode = fileSystem->findName(thisKB->filename, currentNode);
+            currentFile = currentNode->wave_file;
+
+            /* VGA Animation */
+            thisVGA->spotify(currentNode, true);
 
             reset(currentFile);
         }

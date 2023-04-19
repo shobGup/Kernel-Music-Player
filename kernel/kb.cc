@@ -62,11 +62,7 @@ void kb::initializeController() {
         if (c == '\n') { // enter
             name[len] = 0;
             start = 0;
-            char * temp= new  char[2];
-            temp[0] = '_';
-            temp[1] = '\0';
             memcpy(filename, name, (len));
-            memcpy((filename + (len)), temp, 2);
             vga->drawRectangle(0, 0, 320, 20, vga->bg_color, true);
             entered = true;
             delete[] name;
