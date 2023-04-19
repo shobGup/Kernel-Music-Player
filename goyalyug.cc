@@ -529,10 +529,11 @@ void kernelMain(void) {
         }
 
         if(thisKB->precend) {
+            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
             thisKB->precend = false; 
             written = 0; 
             index = 0; 
-            wave_file.offset -= (wave_file.offset - wave_file.reset_offset) > 4096 ? 4096 : (wave_file.offset - wave_file.reset_offset);
+            wave_file.offset -= (wave_file.offset - wave_file.reset_offset) > 8192 ? 8192 : (wave_file.offset - wave_file.reset_offset);
             reset(wave_file);
             Debug::printf("Should be change buffer\n");
         }
