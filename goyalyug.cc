@@ -441,7 +441,7 @@ void kernelMain(void) {
    
     auto root = fs->root;
 
-    auto hello = fs->find(root,"swift.wav");
+    auto hello = fs->find(root,"taylor.wav");
 
     Shared<WaveParser_list> wave_file = Shared<WaveParser_list>::make(hello);
 
@@ -488,7 +488,7 @@ void kernelMain(void) {
     // uint64_t offset = 4096;
     uint64_t written = 0; 
     uint32_t index = 0; 
-    uint32_t size = wave_file->size_of_the_whole_file;
+    // uint32_t size = wave_file->size_of_the_whole_file;
 
     VGA *thisVGA = new VGA();
     // Debug::printf("This VGA: %x\n",thisVGA );
@@ -523,9 +523,9 @@ void kernelMain(void) {
             index %= 16; 
         }
 
-        if(wave_file->offset >= size) {
-            Debug::shutdown();
-        }
+        // if(wave_file->offset >= size) {
+        //     Debug::shutdown();
+        // }
 
         if(thisKB->tapped) {
             flipBit();
