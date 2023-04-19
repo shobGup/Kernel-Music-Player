@@ -489,7 +489,9 @@ void kernelMain(void) {
     Shared<kb> thisKB = Shared<kb>::make(thisVGA);
 
     thread([thisVGA] {
-        thisVGA->playingSong();
+        while(true) {
+             thisVGA->playingSong();
+        }
     });
 
     thread([thisKB] {
