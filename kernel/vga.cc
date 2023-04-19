@@ -16,18 +16,23 @@ uint8_t* VGA::getFrameBuffer() {
     return 0;
 }
 
-void VGA::setup(Shared<Ext2> root_fs ) {
+void VGA::setup(Shared<Ext2> root_fs, bool isGraphics) {
     fs = root_fs;
     initializePorts();
-    initializePalette();
-    initializeText();
-    initializeScreen(42);
-    // initTextMode();
-    // const char* str = "DARK SIDE OF THE MOON";
-	// drawString(72, 190, str, 63);
-    const char* str = "RODEO";
-    drawString(140, 190, str, 63);
-    spotify();
+    if (isGraphics) {
+        bg_color = 42;
+        initializePalette();
+        initializeGraphics();
+        initializeScreen(bg_color);
+    } else {
+        initTextMode();
+    }
+    const char* str = "DARK SIDE OF THE MOON";
+	drawString(72, 190, str, 63);
+    // const char* str = "RODEO";
+    // drawString(140, 190, str, 63);
+    spotify("dsotm");
+    // homeScreen("320");
 }
 
 bool VGA::setPortsText(unsigned char* g_90x60_text) {
@@ -118,29 +123,7 @@ void VGA::initializePalette() {
     // }
 }
 
-void VGA::initializeText() {
-    // length = 25;
-    // width = 80;
-    // unsigned char g_80x25_text[] =
-    // {
-    // /* MISC */
-    //     0x67,
-    // /* SEQ */
-    //     0x03, 0x00, 0x03, 0x00, 0x02,
-    // /* CRTC */
-    //     0x5F, 0x4F, 0x50, 0x82, 0x55, 0x81, 0xBF, 0x1F,
-    //     0x00, 0x4F, 0x0D, 0x0E, 0x00, 0x00, 0x00, 0x50,
-    //     0x9C, 0x0E, 0x8F, 0x28, 0x1F, 0x96, 0xB9, 0xA3,
-    //     0xFF,
-    // /* GC */
-    //     0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x0E, 0x00,
-    //     0xFF,
-    // /* AC */
-    //     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x14, 0x07,
-    //     0x38, 0x39, 0x3A, 0x3B, 0x3C, 0x3D, 0x3E, 0x3F,
-    //     0x0C, 0x00, 0x0F, 0x08, 0x00
-    // };
-    // setPortsText(g_80x25_text);
+void VGA::initializeGraphics() {
     length = 200;
     width = 320;
     unsigned char g_320x200x256[] =
@@ -167,37 +150,7 @@ void VGA::initializeText() {
 }
 
 uint8_t VGA::getColor(uint8_t r, uint8_t g, uint8_t b) {
-    // const int COLOR_RANGES[] = {0, 85, 170, 255};
-    // int r_idx = 0, g_idx = 0, b_idx = 0;
-    // for (int i = 1; i < 4; i++) {
-    //     if (r >= COLOR_RANGES[i-1] && r <= COLOR_RANGES[i]) {
-    //         int below_dist = r - COLOR_RANGES[i-1];
-    //         int above_dist = COLOR_RANGES[i] - r;
-    //         r_idx = below_dist < above_dist ? i-1 : i;
-    //     }
-    //     if (g >= COLOR_RANGES[i-1] && g <= COLOR_RANGES[i]) {
-    //         int below_dist = g - COLOR_RANGES[i-1];
-    //         int above_dist = COLOR_RANGES[i] - g;
-    //         g_idx = below_dist < above_dist ? i-1 : i;
-    //     }
-    //     if (b >= COLOR_RANGES[i-1] && b <= COLOR_RANGES[i]) {
-    //         int below_dist = b - COLOR_RANGES[i-1];
-    //         int above_dist = COLOR_RANGES[i] - b;
-    //         b_idx = below_dist < above_dist ? i-1 : i;
-    //     }
-    // }
-    // // Compute the closest 6-bit color value based on the color ranges
-    // uint8_t r_scaled = COLOR_RANGES[r_idx];
-    // uint8_t g_scaled = COLOR_RANGES[g_idx];
-    // uint8_t b_scaled = COLOR_RANGES[b_idx];
-    // for (uint8_t i = 0; i < 64*3; i+=3) {
-    //     if (r_scaled == palette[i] && g_scaled == palette[i+1] && b_scaled == palette[i+2]) 
-    //         return (i/3);
-    //  }
-    // Debug::PANIC("NEVER CATCH ME");
-    // return 1;
 
-    // 256-Color Attempt
     const int COLOR_RANGES[] = {0, 85, 170, 255};
     int r_idx = 0, g_idx = 0, b_idx = 0;
     for (int i = 1; i < 4; i++) {
@@ -270,6 +223,16 @@ void VGA::drawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint
     }
 }
 
+void VGA::drawTriangle(uint16_t x1, uint16_t y1, uint16_t length, uint8_t color) {
+    while (length > 0) {
+        drawLine(x1, y1, x1, y1+length, color);
+        length -=2;
+        x1++;
+        y1++;
+    }
+
+}
+
 void VGA::drawCircle(int centerX, int centerY, int radius, uint8_t color) {
     int x = 0;
     int y = radius;
@@ -296,64 +259,58 @@ void VGA::drawCircle(int centerX, int centerY, int radius, uint8_t color) {
     }
 }
 
+void VGA::useTextMode(char* buf, uint32_t size) {
+    char* text_buf = (char*) 0xB8000;
+    for (uint32_t i = 0; i < size * 2; i += 2) {
+        text_buf[i] = buf[i / 2];
+        text_buf[i + 1] = 0x0F; // just normal white characters
+    }
+}
+
 void VGA::initTextMode() {
-    outb(0x3D4, 0x00); // Miscellaneous Output Register
-    outb(0x3D5, 0x67); // Set bit 7 to enable 9th bit of character cell scan line
+    outb(CRTC_COLOR_INDEX, 0x00); 
+    outb(CRTC_COLOR_WRITE, 0x67); 
 
-    outb(0x3D4, 0x01); // Sequencer Index
-    outb(0x3D5, 0x00); // Reset sequencer registers to default values
-    outb(0x3D5, 0x01); // Enable sequencer registers
+    outb(CRTC_COLOR_INDEX, 0x01);
+    outb(CRTC_COLOR_WRITE, 0x00); 
+    outb(CRTC_COLOR_WRITE, 0x01); 
 
-    outb(0x3D4, 0x03); // Graphics Controller Index
-    outb(0x3D5, 0x00); // Disable graphics mode
+    outb(CRTC_COLOR_INDEX, 0x03); 
+    outb(CRTC_COLOR_WRITE, 0x00); 
 
-    outb(0x3D4, 0x04); // Attribute Controller Index
-    outb(0x3D5, 0x00); // Reset attribute controller registers to default values
-    outb(0x3D5, 0x01); // Enable attribute controller registers
-    outb(0x3D5, 0x02); // Set attribute mode control register to 0x02 (monochrome)
+    outb(CRTC_COLOR_INDEX, 0x04); 
+    outb(CRTC_COLOR_WRITE, 0x00); 
+    outb(CRTC_COLOR_WRITE, 0x01); 
+    outb(CRTC_COLOR_WRITE, 0x02); 
 
-    outb(0x3D4, 0x06); // Miscellaneous Output Register
-    outb(0x3D5, 0x0E); // Enable 80x25 text mode and disable chain-4 mode
+    outb(CRTC_COLOR_INDEX, 0x06);
+    outb(CRTC_COLOR_WRITE, 0x0E);
 
-    outb(0x3D4, 0x0E); // CRT Controller Index
-    outb(0x3D5, 0x05); // Set character cell height to 16 scan lines
+    outb(CRTC_COLOR_INDEX, 0x0E);
+    outb(CRTC_COLOR_WRITE, 0x05);
 
-    outb(0x3D4, 0x0F); // CRT Controller Index
-    outb(0x3D5, 0x00); // Set start address of character cell memory to 0x0000
+    outb(CRTC_COLOR_INDEX, 0x0F);
+    outb(CRTC_COLOR_WRITE, 0x00);
 
-    outb(0x3D4, 0x10); // CRT Controller Index
-    outb(0x3D5, 0x05); // Set end address of character cell memory to 0x0FFF
+    outb(CRTC_COLOR_INDEX, 0x10);
+    outb(CRTC_COLOR_WRITE, 0x05);
 
-    outb(0x3D4, 0x11); // CRT Controller Index
-    outb(0x3D5, 0x00); // Disable interlace and enable word mode
+    outb(CRTC_COLOR_INDEX, 0x11);
+    outb(CRTC_COLOR_WRITE, 0x00);
 
-    outb(0x3D4, 0x14); // CRT Controller Index
-    outb(0x3D5, 0x00); // Set scan line width to 8 pixels
+    outb(CRTC_COLOR_INDEX, 0x14);
+    outb(CRTC_COLOR_WRITE, 0x00);
 
     // Clear screen and reset cursor
-    unsigned char* video_memory = (unsigned char*)0xB8000;
+    unsigned char* video_memory_text = (unsigned char*)0xB8000;
     for (int i = 0; i < 80 * 25 * 2; i += 2) {
-        video_memory[i] = ' ';
-        video_memory[i + 1] = 0x07;
+        video_memory_text[i] = ' ';
+        video_memory_text[i + 1] = 0x07;
     }
-    outb(0x3D4, 0x0F);
-    outb(0x3D5, 0x00);
-    outb(0x3D4, 0x0E);
-    outb(0x3D5, 0x00);
-
-    char* b = (char*) 0xb8000;
-    char* c = new char[10];
-    c[0] = 'h';
-    c[1] = 0x0F;
-    c[3] = 0x0F;
-    c[5] = 0x0F;
-    c[7] = 0x0F;
-    c[2] = 'e';
-    c[4] = 'l';
-    c[6] = 'l';
-    c[8] = 'o';
-	c[9] = 0x0F;
-    memcpy(b, c, 10);
+    outb(CRTC_COLOR_INDEX, 0x0F);
+    outb(CRTC_COLOR_WRITE, 0x00);
+    outb(CRTC_COLOR_INDEX, 0x0E);
+    outb(CRTC_COLOR_WRITE, 0x00);
 }
 
 void VGA::drawChar(int x, int y, char c, uint8_t color) {
@@ -379,10 +336,32 @@ void VGA::drawString(int x, int y, const char* str, uint8_t color) {
     }
 }
 
-void VGA::spotify() {
-    // Shared<Ext22> root_fs = Shared<Ext22>::make(Shared<Ide>::make(1));
+void VGA::homeScreen(const char* name) {
+    Shared<Node> bmp = fs->find(fs->root, "320");
+    char* rgb = bmp->read_bmp(bmp);
+    place_bmp(0, 200, 320, 200, rgb);
+}
+
+void VGA::place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t pic_length, char* rgb_buf) {
+    uint32_t size = pic_length * pic_width * 3;
+    uint32_t start_x = x;
+    uint32_t y = ending_y;
+    for (uint32_t i = 0; i < size; i += 3) {
+        if (i % (pic_width * 3) == 0) {
+            x = start_x;
+            y -= 1;
+        }
+        uint8_t r = rgb_buf[i];
+        uint8_t g = rgb_buf[i+1];
+        uint8_t b = rgb_buf[i+2];
+        uint8_t color = getColor(r, g, b);
+        putPixel(x, y, color);
+        x ++;
+    }
+}
+
+void VGA::spotify(const char* name) {
     drawRectangle(width/2 - 35, length/3 - 35, width/2 + 35, length/3 + 35, BLACK, false);
-    const char* name = "dsotm";
 
     Shared<Node> png = fs->find(fs->root, name);
 
@@ -390,18 +369,27 @@ void VGA::spotify() {
 
     uint32_t starting_x = width/2 - 35;
     uint32_t starting_y = length/3 + 36;
-
-    for (int i = 0; i < 14700; i+=3) {
-        if (i % 210 == 0) {
-            starting_x = width/2 - 35;
-            starting_y -= 1;
-        }
-        uint8_t r = pixels[i];
-        uint8_t g = pixels[i+1];
-        uint8_t b = pixels[i+2];
-        uint8_t color = getColor(r, g, b);
-        putPixel(starting_x, starting_y, color);
-        starting_x++;
-    }
+    place_bmp(starting_x, starting_y, 70, 70, pixels);
     delete pixels;
+}
+
+void VGA::play_pause() {
+    uint32_t center_x = 160;
+    uint32_t center_y = 150;
+    uint32_t radius = 15;
+    uint8_t color = 25;
+    if (!playing) {
+        color = 49;
+        drawCircle(center_x, center_y, radius, color);
+        drawTriangle(center_x-4, center_y-10, 20, bg_color);
+        drawRectangle(center_x - 8, center_y - 9, center_x - 3, center_y + 9, 0, true);
+        drawRectangle(center_x + 3, center_y - 9, center_x + 8, center_y + 9, 0, true);        
+    } else {
+        drawRectangle(center_x + 3, center_y - 9, center_x + 8, center_y + 9, bg_color, true);
+        drawRectangle(center_x - 8, center_y - 9, center_x - 3, center_y + 9, bg_color, true);
+        drawCircle(center_x, center_y, radius, color);
+        drawTriangle(center_x-4, center_y-10, 20, 63);
+    }
+
+    playing = !playing;
 }

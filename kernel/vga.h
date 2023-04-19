@@ -176,10 +176,12 @@ class VGA {
     Port dac_mask_port;
     Port color_pallete_port_write;
     Port color_pallete_port_read;
+    uint8_t bg_color;
 
     uint32_t length;
     uint32_t width;
-
+    bool playing;
+    
     Shared<Ext2> fs;
     
     VGA();
@@ -190,9 +192,9 @@ class VGA {
     void set_graphics_controller_registers();
     void set_attribute_controller_registers();
 
-    void setup(Shared<Ext2> root_fs );
+    void setup(Shared<Ext2> root_fs, bool isGraphics);
 
-    void initializeText();
+    void initializeGraphics();
 
     void initializePalette();
 
@@ -201,6 +203,8 @@ class VGA {
     void initializePorts();
 
     void initializeScreen(uint8_t color);
+
+    void drawTriangle(uint16_t x1, uint16_t y1, uint16_t length, uint8_t color);
 
     void drawCircle(int centerX, int centerY, int radius, uint8_t color);
 
@@ -214,13 +218,22 @@ class VGA {
 
     uint8_t* getFrameBuffer();
 
+    void useTextMode(char* buf, uint32_t size);
+
     void initTextMode();
 
     void drawChar(int x, int y, char c, uint8_t color);
 
     void drawString(int x, int y, const char* str, uint8_t color);
 
-    void spotify();
+    void homeScreen(const char* name);
+
+    void spotify(const char* name);
+
+    void play_pause();
+
+    void place_bmp(uint32_t x, uint32_t y, uint32_t width, uint32_t length, char* rgb_buf);
+
 
     uint8_t vga_font[128][8] = {
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0000 (nul)

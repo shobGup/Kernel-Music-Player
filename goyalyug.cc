@@ -461,7 +461,7 @@ void kernelMain(void) {
 
     VGA *thisVGA = new VGA();
     Debug::printf("This VGA: %x\n",thisVGA );
-    thisVGA->setup(fs);
+    thisVGA->setup(fs, 1);
 
     Shared<kb> thisKB = Shared<kb>::make(thisVGA);
 
@@ -487,8 +487,10 @@ void kernelMain(void) {
         }
 
         if(thisKB->tapped) {
+
             flipBit();
             thisKB->tapped = false; 
+            thisVGA->play_pause();
             // *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2);
         } 
 
