@@ -528,7 +528,7 @@ void kernelMain(void) {
             index %= 16; 
         }
 
-        if(wave_file->offset >= wave_file->size) {
+        if(wave_file->howMuchRead.get() >= wave_file->size) {
             // Debug::shutdown();
             thisKB->reset = false; 
             written = 0; 
