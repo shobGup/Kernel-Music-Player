@@ -441,7 +441,7 @@ void kernelMain(void) {
    
     auto root = fs->root;
 
-    auto hello = fs->find(root,"taylor.wav");
+    auto hello = fs->find(root,"taylor_");
 
     Shared<WaveParser_list> wave_file = Shared<WaveParser_list>::make(hello);
 
