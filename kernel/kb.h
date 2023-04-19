@@ -30,7 +30,7 @@ class kb {
 
     VGA* vga;
     Atomic<uint32_t> ref_count{0};
-    bool tapped;
+    bool tapped = false;
     bool reset = false; 
     bool precend = false; 
     bool skip = false;

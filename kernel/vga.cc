@@ -29,7 +29,7 @@ void VGA::setup(Shared<Ext2> root_fs, bool isGraphics) {
     }
     // const char* str = "RODEO";
     // drawString(140, 190, str, 63);
-    spotify("dark side of the moon");
+    spotify("new romantics");
     // homeScreen("320");
 }
 

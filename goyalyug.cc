@@ -491,7 +491,7 @@ void kernelMain(void) {
     uint32_t size = wave_file->size_of_the_whole_file;
 
     VGA *thisVGA = new VGA();
-    Debug::printf("This VGA: %x\n",thisVGA );
+    // Debug::printf("This VGA: %x\n",thisVGA );
     thisVGA->setup(fs, 1);
 
     Shared<kb> thisKB = Shared<kb>::make(thisVGA);
