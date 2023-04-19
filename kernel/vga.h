@@ -178,6 +178,9 @@ class VGA {
     Port color_pallete_port_read;
     uint8_t bg_color;
 
+    uint32_t elapsed_time;
+    uint32_t last_jif;
+
     uint32_t length;
     uint32_t width;
     bool playing = 0;
@@ -209,6 +212,10 @@ class VGA {
     void drawCircle(int centerX, int centerY, int radius, uint8_t color);
 
     uint8_t getColor(uint8_t r, uint8_t g, uint8_t b);
+    
+    void progressBarInit();
+
+    void playingSong();
 
     void putPixel(uint16_t x, uint16_t y, uint8_t color);
 

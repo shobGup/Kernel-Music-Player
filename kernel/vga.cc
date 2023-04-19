@@ -182,6 +182,32 @@ uint8_t VGA::getColor(uint8_t r, uint8_t g, uint8_t b) {
      return 1;
 }
 
+void VGA::progressBarInit() {
+    drawLine(110, 140, 210, 140, 63);
+}
+
+
+void VGA::playingSong() {
+    while (playing) {
+        if ((Pit::jiffies - last_jif) / 1000 > 0) {
+            last_jif = Pit::jiffies;
+            elapsed_time ++;
+            uint32_t min = elapsed_time / 60;
+            uint32_t sec = elapsed_time % 60;
+            char* str = new char[4];
+            str[0] = min + 48;
+            str[1] = ':';
+            str[2] = sec / 10 + 48;
+            str[3] = sec % 10 + 48;
+            drawString(78, 136, (const char*) str, 63);
+            delete[] str;
+            if (elapsed_time % 2 == 0) {
+                putPixel(110 + (elapsed_time / 2), 140, 0);
+            }
+        }
+    }
+}
+
 void VGA::initializeScreen(uint8_t color) {
     for (uint32_t i = 0; i < width * length; i ++) {
         vga_buf[i] = color;
