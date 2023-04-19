@@ -195,15 +195,15 @@ void VGA::playingSong() {
             uint32_t min = elapsed_time / 60;
             uint32_t sec = elapsed_time % 60;
             char* str = new char[4];
-            drawRectangle(78, 136, 86, 144, bg_color, true);
-            str[0] = (char) (min + ((uint8_t) 48));
+            drawRectangle(78, 111, 86, 119, bg_color, true);
+            str[0] = (char) (min + ((uint8_t) '0'));
             str[1] = ':';
-            str[2] = (char) (sec / 10 + ((uint8_t) 48));
-            str[3] = (char) (sec % 10 + ((uint8_t) 48));
+            str[2] = (char) (sec / 10 + ((uint8_t) '0'));
+            str[3] = (char) (sec % 10 + ((uint8_t) '0'));
             drawString(78, 136, (const char*) str, 63);
             delete[] str;
             if (elapsed_time % 2 == 0) {
-                drawLine(110 + (elapsed_time / 2), 140, 110 + (elapsed_time / 2) + 1, 140, 0);
+                drawLine(110 + (elapsed_time / 2), 115, 110 + (elapsed_time / 2) + 1, 115, 0);
             }
         }
     }

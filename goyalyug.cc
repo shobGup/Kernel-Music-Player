@@ -307,9 +307,13 @@ void reset(WaveParser_list wave_file) {
     // Debug::printf("Addy ~ Entries: %x\n",entries);
 
     for(int x = 0; x < 16; x++) {
-        wave_file.rebuildData(x);
+        wave_file.rebuildDataZero(x);
     }
 
+    for(int x = 0; x < 16; x++) {
+        wave_file.rebuildData(x);
+    }
+    
     *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2);
 }
 
