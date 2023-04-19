@@ -301,7 +301,7 @@ void reset(WaveParser_list wave_file) {
 
     // SDnBDL Lower Set Up 
     // Debug::printf("Addy: %x\n",wave_file.b_entries);
-    uint32_t entries = (uint32_t) wave_file.b_entries;
+    uint32_t entries = (uint32_t) (wave_file.b_entries + (1 * 16));
     *(uint32_t *)(base_addy_plus_x + 0x18) = entries; 
     ASSERT((*(uint32_t *)(base_addy_plus_x + 0x18)) == entries);
     // Debug::printf("Addy ~ Entries: %x\n",entries);
@@ -492,6 +492,8 @@ void kernelMain(void) {
         thisVGA->progressBarInit();
         while(true) {
              thisVGA->playingSong();
+
+             
         }
     });
 
