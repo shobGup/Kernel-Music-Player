@@ -571,6 +571,24 @@ void kernelMain(void) {
             reset(wave_file);
         }
 
+        if(thisKB->entered) {
+            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+            thisKB->entered = false; 
+            written = 0; 
+            index = 0; 
+            // Debug::printf("Before Offset: %d\n", wave_file.offset);
+            // // wave_file.offset += (wave_file.size - wave_file.reset_offset) < (4096 * 16 * 15) ? (4096 * 16 * 15) : (wave_file.size - wave_file.reset_offset);
+            // wave_file.offset += (4096 * 16 * 15);
+            // Debug::printf("After Offset: %d\n", wave_file.offset);
+            // reset(wave_file);
+            // Debug::printf("Should be change buffer\n");
+            Debug::printf("Name: %s\n", thisKB->filename);
+            auto next = fs->find(root, (const char *) (thisKB->filename));
+
+            wave_file = Shared<WaveParser_list>::make(next);
+            reset(wave_file);
+        }
+
         
         // Debug::printf("DEBUG\n");
     //    if(*(volatile uint32_t *)(base_addy_plus_x + 0x4) > offset) {
