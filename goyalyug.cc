@@ -527,7 +527,7 @@ void kernelMain(void) {
                 reset(currentFile);
             } else {
                 thisVGA->drawRectangle(70, 9, 250, 19, 63, 1); // text box
-                thisVGA->drawString(70, 10, (const char*)"NOT A VALID SONG", 47); // enter spotify
+                thisVGA->drawString(96, 10, (const char*)"NOT A VALID SONG", 48); // enter spotify
             }
 
         }

@@ -31,6 +31,8 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
     while (inb(STATUS_REG) & 0x2);
     outb(CMD_REG, 0xAE); // enable first port?
 
+    restart:
+
     vga->drawString(134, 71, (const char*)"PentOS", 63); // show PentOS
     vga->drawRectangle(87, 95, 232, 105, 63, 1); // text box
     vga->drawString(88, 96, (const char*)"Type program name:", vga->bg_color); // enter spotify
@@ -101,7 +103,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         }
     }
 
-    if (K::streq(program, (const char*)"spotify")) {
+    if (K::streq(program, (const char*)"pentos records")) {
         delete[] program;
         vga->bootup(logo);
         spot->up();
@@ -122,10 +124,8 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         while (1) {
             uint32_t counter = 0; 
             while ((inb(STATUS_REG) & 0x1) == 0) {
-                    // Debug::printf("Yo WTF\n");
                     if(startCursor) {
                         if(counter > 42949) {
-                        // Debug::printf("Counter: %d, Name: %s\n", counter, name);
                         cursor = !cursor;
                         counter = 0; 
                         vga->drawRectangle(70, 9, 250, 19, 63, 1);
@@ -146,6 +146,16 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
             }
             int val = inb(DATA_PORT);
             char c = ascii[val];
+            if (c == 27) {
+                if (start) {
+                    vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
+                    vga->drawString(70, 10, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
+                    start = 0;
+                    startCursor = false;
+                } else {
+                    shutdown = 1;
+                }
+            }
             if (val == 0xF) { // tab, start reading for input to string
                 vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                 len = 0;
@@ -153,8 +163,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                 cursor = true; 
                 size = 100;
                 start = 1;
-                startCursor = true; 
-                // printing = true; 
+                startCursor = true;
             }
             if (c == '\n') { // enter
                 if (name) {
@@ -239,26 +248,27 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     printing = false; 
                     vga->drawString(70, 10, name, vga->bg_color);
                 }
-
-                // cursor = !cursor; 
-
-                // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
-                // if (len > 22) {
-                //     // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
-                //     vga->drawString(88, 96, (const char*)((*name) + (len-22)), vga->bg_color);
-                // } else {
-                //     // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
-                //     vga->drawString(88, 96, name, vga->bg_color);
-                // }
             }
             if(val == 208) reset = true;
             if(val == 203) precend = true;
             if(val == 205) skip = true;
             if (val == 57 && !start) tapped = 1;
-            // Debug::printf("I Typed: %d\n", val);
-            if (val == 31 && !start) shutdown = 1; 
-
-            // cursor = !cursor; 
+            if (val == 31 && !start) shutdown = 1;
+        }
+    } else {
+        vga->initializeScreen(vga->bg_color);
+        vga->drawString(80, 93, (const char*)"Not a valid program,", 48);
+        vga->drawString(64, 102, (const char*)"press enter to try again.", 48);
+        vga->drawString(72, 111, (const char*)"press ESC to shut down.", 48);
+        while (1) {
+            while ((inb(STATUS_REG) & 0x1) == 0) {} // poll for first key press.
+            int val = inb(DATA_PORT);
+            char c = ascii[val];
+            if (c == '\n') {
+                vga->initializeScreen(vga->bg_color);
+                goto restart;
+            }
+            if (c == 27) shutdown = 1;
         }
     }
 }

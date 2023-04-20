@@ -79,14 +79,13 @@ void wait(int unit, Shared<Node> item) {
 }
 
 void VGA::shut_off() {
-    // Debug::printf("Shut Down\n");
     initializeScreen(bg_color);
     drawString(90, 100, "System Turned OFF", 63);
 }
 
 void VGA::bootup(Shared<Node> logo) {
-    Debug::printf("in bootup\n");
     initializeScreen(bg_color);
+    drawString(97, 192, (const char*)"Powered by PentOS", 8);
     
     char* pixels = logo->read_bmp();
     place_bmp(132, 90, 55, 55, pixels);
@@ -154,8 +153,25 @@ void VGA::initializePalette() {
     dac_mask_port.write(0xFF);
     uint8_t num_colors = 64;
     outb(0x3C8, 0);
+    uint8_t r = 0x00;
+    uint8_t g = 0x00;
+    uint8_t b = 0x00;
+    const uint8_t incrememt = 0x55;
     for (uint16_t i = 0; i < num_colors*3; i++) {
-        outb(0x03C9, palette[i] << 2); // only lower 6 bits used
+        // outb(0x03C9, palette[i] << 2); // only lower 6 bits used
+        outb(0x03C9, r << 2);
+        outb(0x03C9, g << 2);
+        outb(0x03C9, b << 2);
+        if (g == 0xFF && b == 0xFF) { // both full, reset increment r
+            r += incrememt;
+            g = 0x00;
+            b = 0x00;
+        } else if (b == 0xFF) {
+            g += incrememt;
+            b = 0x00;
+        } else {
+            b += incrememt;  
+        }     
     }
 }
 
@@ -232,15 +248,16 @@ uint8_t VGA::getColor(uint8_t r, uint8_t g, uint8_t b) {
         }
     }
     // Compute the closest 6-bit color value based on the color ranges
-    uint8_t r_scaled = COLOR_RANGES[r_idx];
-    uint8_t g_scaled = COLOR_RANGES[g_idx];
-    uint8_t b_scaled = COLOR_RANGES[b_idx];
-    for (uint8_t i = 0; i < 64*3; i+=3) {
-        if (r_scaled == palette[i] && g_scaled == palette[i+1] && b_scaled == palette[i+2]) 
-            return (i/3);
-     }
-     Debug::PANIC("NEVER CATCH ME!");
-     return 1;
+    uint8_t r_scaled = COLOR_RANGES[r_idx] / 0x55;
+    uint8_t g_scaled = COLOR_RANGES[g_idx] / 0x55;
+    uint8_t b_scaled = COLOR_RANGES[b_idx] / 0x55;
+    return (r_scaled * 16) + (g_scaled * 4) + b_scaled;
+    // for (uint8_t i = 0; i < 64*3; i+=3) {
+    //     if (r_scaled == palette[i] && g_scaled == palette[i+1] && b_scaled == palette[i+2]) 
+    //         return (i/3);
+    //  }
+    //  Debug::PANIC("NEVER CATCH ME!");
+    //  return 1;
 }
 
 void VGA::initializeScreen(uint8_t color) {
