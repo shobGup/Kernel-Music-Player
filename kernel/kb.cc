@@ -119,19 +119,45 @@ void kb::initializeController() {
             if (len > 0) {
                 len--;
                 name[len] = 0;
-                int x = (320/2) - (len/2)*8;
-                vga->drawRectangle(0, 0, 320, 20, vga->bg_color, true);
-                vga->drawString(x, 11, name, 63);
+                vga->drawRectangle(10, 9, 310, 19, 63, 1); // text box
+                if (len > 18) {
+                    char* tempname = new char[18];
+                    for (int i = 0; i < 18; i++) {
+                        tempname[i] = name[len - 18 + i];
+                    }
+                    vga->drawRectangle(10, 9, 310, 19, 63, 1); // text box
+                    vga->drawString(10, 10, tempname, vga->bg_color);
+                    delete[] tempname;
+                } else {
+                    vga->drawString(10, 10, name, vga->bg_color);
+                }
             }
         }
         // if numbers 0-9 || 16 - 25 || 30 - 38 || 44 - 50
         if (((val >= 2 && val <= 13) || (val >= 16 && val <= 25) || (val >= 30 && val <=38) || (val >= 44 && val <= 50) || val==0x39) && start) { // add char to string
             name[len++] = c;
             name[len] = 0;
-            int x = (320/2) - (len/2)*8;
-            vga->drawRectangle(151, 10, 232, 20, 63, 1); // text box
-            // if (len > )
-            vga->drawString(x, 10, name, 63);
+            vga->drawRectangle(10, 9, 310, 19, 63, 1); // text box
+            if (len > 18) {
+                char* tempname = new char[18];
+                for (int i = 0; i < 18; i++) {
+                    tempname[i] = name[len - 18 + i];
+                }
+                vga->drawRectangle(10, 9, 310, 19, 63, 1); // text box
+                vga->drawString(10, 10, tempname, vga->bg_color);
+                delete[] tempname;
+            } else {
+                vga->drawString(10, 10, name, vga->bg_color);
+            }
+
+            // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
+            // if (len > 18) {
+            //     // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
+            //     vga->drawString(88, 96, (const char*)((*program) + (len-17)), vga->bg_color);
+            // } else {
+            //     // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
+            //     vga->drawString(88, 96, program, vga->bg_color);
+            // }
         }
         if(val == 208) { // Reset Song
             reset = true; 
