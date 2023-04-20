@@ -336,7 +336,11 @@ void kernelMain(void) {
 
     Shared<WaveParser_list>* my_wave = &(currentFile);
 
+    Debug::printf("Calling Down\n");
+
     startSpot->down();
+
+    Debug::printf("After down\n");
 
     thread([thisVGA, my_wave] {
         // thisVGA->progressBarInit();

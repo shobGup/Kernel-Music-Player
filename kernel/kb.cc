@@ -105,7 +105,13 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
 
     if (K::streq(program, (const char*)"spotify")) {
         vga->bootup(logo);
+
+        Debug::printf("atta calling up\n");
+
         spot->up();
+
+        Debug::printf("after atta calling up\n");
+
         vga->initializeScreen(vga->bg_color);
 
         vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box

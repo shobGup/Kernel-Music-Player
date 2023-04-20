@@ -43,6 +43,7 @@ class Tct {
     void checkWin() {
         for (int i = 0; i < 8; i ++) {
             inBounds(cursor[0], cursor[1], i);
+            char cur = board[cursor[0]][cursor[1]];
             
         }
     }
