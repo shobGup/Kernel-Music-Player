@@ -42,8 +42,6 @@ class kb {
     kb(VGA* vga);
 
     void kbInit(Shared<Node> logo, Shared<Semaphore> spot);
-    void setupKB();
-    char* setupScreen();
 };
 
 #endif
