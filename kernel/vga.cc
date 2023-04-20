@@ -374,20 +374,34 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     const char* str = "0:00";
     drawString(75, 136, (const char*) str, 63);
 
+    
+    // center album
     Shared<Node> centerpiece = song->big;
     char* pixels = centerpiece->read_bmp(centerpiece);
-    
-    Shared<Node> left_small = song->prev->small;
-    Shared<Node> right_small = song->next->small;
-    
-    // char* left_p = left_small->read_bmp(left_small);
-    
-
     uint32_t starting_x = width/2 - 35;
     uint32_t starting_y = length/3 + 35;
     place_bmp(starting_x, starting_y, 70, 70, pixels);
     delete[] pixels;
+    
+    Shared<Node> left_small = song->prev->small;
+    // upcoming album
+    if (K::streq(song->prev->file_name, "")) {
+        left_small = song->prev->prev->small;
+    }
+    char* left_p = left_small->read_bmp(left_small);
+    uint32_t left_x = 20; 
+    uint32_t left_y = 51;
+    place_bmp(left_x, left_y, 40, 40, left_p);
+    // delete left_p;
 
+    // last played album
+    Shared<Node> right_small = song->next->small;
+    char* right_p = right_small->read_bmp(right_small);
+    uint32_t right_x = 260; 
+    uint32_t right_y = 51;
+    place_bmp(right_x, right_y, 40, 40, right_p);
+    // delete right_p;
+    
 
     uint32_t center_x = 160;
     uint32_t center_y = 170;
@@ -397,7 +411,6 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
     playing = !willPlay;
     play_pause();
-    // moveOutPic(starting_x, starting_y-70, pixels, 70, 70, 0);
 }
 
 /*
@@ -470,15 +483,29 @@ void VGA::drawPauseCircle(uint32_t c_x, uint32_t c_y, uint32_t r, uint8_t color)
 }
 
 
-void VGA::moveOutPic(uint32_t x, uint32_t y, Shared<File_Node> fn, uint32_t pic_width, uint32_t pic_length, bool isLeft) {
+void VGA::moveOutPic(Shared<File_Node> fn, uint32_t pic_width, uint32_t pic_length, bool isLeft) {
 /*
     char* curr_left = fn->prev->small;
     char* curr_center = fn->big;
     char* curr_right = fn->next->small;
     if (isLeft) { // skip
+        uint16_t rx = 260;
+        uint16_t ry = 51;
+        while (curr_right < 280 || curr_center < 245 || curr_left < 140) {
+            if (curr_right < 200) {
+                drawRectangle()
+            }
+            if (curr_center < 245) {
+
+            }
+            if (curr_left < 140) {
+
+            }
+        }
         char* new_left = fn->prev->prev->small;
         char* new_center = fn->prev->big;
         char* new_right = fn->small;
+        
     } else {
         char* new_left = fn->small;
         char* new_center = fn->next->big;

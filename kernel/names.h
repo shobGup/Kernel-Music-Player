@@ -111,6 +111,8 @@ class Names_List {
         setPrev(fourth, third);
         setNext(fourth, dummy);
 
+        printList(dummy);
+
         Debug::printf("End on contructor\n");
     }
 
@@ -140,9 +142,10 @@ class Names_List {
 
     void printList(Shared<File_Node> current) {
         Shared<File_Node> temp = current; 
-
-        while(temp->next != current) {
+        temp = temp->next;
+        while(temp != current) {
             Debug::printf("Node Name: %s\n", temp->file_name);
+            temp = temp->next;
         }
     }
 
