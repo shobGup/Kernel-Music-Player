@@ -117,28 +117,31 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         size = 100;
         bool cursor = false; 
         bool printing = false; 
+        bool startCursor = false; 
         // start polling/interrupts
         while (1) {
             uint32_t counter = 0; 
             while ((inb(STATUS_REG) & 0x1) == 0) {
                     // Debug::printf("Yo WTF\n");
-                    if(counter > 42949) {
+                    if(startCursor) {
+                        if(counter > 42949) {
                         Debug::printf("Counter: %d, Name: %s\n", counter, name);
                         cursor = !cursor;
                         counter = 0; 
                         vga->drawRectangle(70, 9, 250, 19, 63, 1);
-                    }
-                    if(printing) {
-                        temp[21] = cursor ? '_' : '\0';
-                        temp[22] = '\0';
-                    }
-                    name[len] = cursor ? '_' : '\0';
-                    name[len + 1] = '\0';
-                    counter++; 
-                    if(!printing) {
-                        vga->drawString(70, 10, name, vga->bg_color);
-                    } else {
-                        vga->drawString(70, 10, temp, vga->bg_color);
+                        }
+                        if(printing) {
+                            temp[21] = cursor ? '_' : '\0';
+                            temp[22] = '\0';
+                        }
+                        name[len] = cursor ? '_' : '\0';
+                        name[len + 1] = '\0';
+                        counter++; 
+                        if(!printing) {
+                            vga->drawString(70, 10, name, vga->bg_color);
+                        } else {
+                            vga->drawString(70, 10, temp, vga->bg_color);
+                        }
                     }
             }
             int val = inb(DATA_PORT);
@@ -150,6 +153,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                 cursor = true; 
                 size = 100;
                 start = 1;
+                startCursor = true; 
                 // printing = true; 
             }
             if (c == '\n') { // enter
@@ -163,8 +167,10 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     entered = true;
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     printing = false; 
+                    len = 0; 
                     name[0] = '\0';
                     vga->drawString(70, 10, name, vga->bg_color);
+                    startCursor = false; 
                 }
             }
             if (val == 0xE) { // backspace
