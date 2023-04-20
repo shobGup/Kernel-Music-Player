@@ -534,6 +534,12 @@ void kernelMain(void) {
 
         // Shutoff Screen 
         if(thisKB->shutdown) {
+            // Turn Off Sound 
+            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+
+            /* TODO: change music to shutdown music */
+
+            thisKB->shutdown = false; 
             isItDown = true; 
             thisVGA->shut_off();
         }
