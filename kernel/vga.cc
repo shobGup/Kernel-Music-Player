@@ -87,7 +87,7 @@ void VGA::bootup(Shared<Node> logo) {
     delete[] pixels;
     drawRectangle(10, 100, 310, 110, 63, true);
     drawRectangle(12, 102, 32, 108, 45, true);
-    int wait_time = 30;
+    const int wait_time = 60;
     for (int i = 0; i < 80; i ++) {
         wait(wait_time, logo);
     }

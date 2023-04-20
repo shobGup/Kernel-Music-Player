@@ -3,75 +3,7 @@
 kb::kb(VGA* vga): vga(vga) {}
 
 void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
-    vga->drawString(134, 71, (const char*)"PentOS", 63); // show PentOS
-    vga->drawRectangle(87, 95, 232, 105, 63, 1); // text box
-    vga->drawString(88, 96, (const char*)"Type program name:", vga->bg_color); // enter spotify
-
-    char* program = new char[8];
-    int len = 0;
-    bool start = 0;
-    int size = 8;
-    program[7] = 0;
-    while (1) {
-        while ((inb(STATUS_REG) & 0x1) == 0) {} // poll for first key press.
-        int val = inb(DATA_PORT);
-        char c = ascii[val];
-        if (val == 0xF) { // tab, start reading for input to string
-            vga->drawRectangle(87, 95, 232, 104, 63, 1); // text box
-            program = new char[8];
-            start = 1;
-        }
-        if (c == '\n') { // enter
-            if (program) {
-                program[len] = 0;
-                break;
-            }
-        }
-        if (val == 0xE) { // backspace
-            if (len > 0) {
-                len--;
-                program[len] = 0;
-                vga->drawRectangle(87, 95, 232, 104, 63, 1); // text box
-                if (len > 22) {
-                    char* tempname = new char[22];
-                    for (int i = 0; i < 22; i++) {
-                        tempname[i] = program[len - 22 + i];
-                    }
-                    vga->drawRectangle(87, 95, 232, 104, 63, 1); // text box
-                    vga->drawString(88, 96, program, vga->bg_color);
-                    delete[] tempname;
-                } else {
-                    vga->drawString(88, 96, program, vga->bg_color);
-                }
-            }
-        }
-        // if numbers 0-9 || 16 - 25 || 30 - 38 || 44 - 50
-        if (((val >= 2 && val <= 13) || (val >= 16 && val <= 25) || (val >= 30 && val <=38) || (val >= 44 && val <= 50) || val==0x39) && start) { // add char to string
-            program[len++] = c;
-            program[len] = 0;
-            if (len > size) {
-                char* temp = new char[len * 2 + 10];
-                size = len * 2 + 10;
-                memcpy(temp, program, len);
-                delete[] program;
-                program = new char[len * 2 + 10];
-                memcpy(program, temp, len);
-                delete[] temp;
-            }
-            vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
-            if (len > 22) {
-                char* tempname = new char[22];
-                for (int i = 0; i < 22; i++) {
-                    tempname[i] = program[len - 22 + i];
-                }
-                vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
-                vga->drawString(88, 96, program, vga->bg_color);
-                delete[] tempname;
-            } else {
-                vga->drawString(88, 96, program, vga->bg_color);
-            }
-        }
-    }
+    char* program = setupScreen();
 
     if (K::streq(program, (const char*)"spotify")) {
         delete[] program;
@@ -85,7 +17,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         char* name = new char[40];
         int len = 0;
         bool start = 0;
-        size = 40;
+        int size = 40;
         // start polling/interrupts
         while (1) {
             while ((inb(STATUS_REG) & 0x1) == 0) {}
@@ -196,4 +128,77 @@ void kb::setupKB() {
     // enable device
     while (inb(STATUS_REG) & 0x2);
     outb(CMD_REG, 0xAE); // enable first port?
+}
+
+char* kb::setupScreen() {
+    vga->drawString(134, 71, (const char*)"PentOS", 63); // show PentOS
+    vga->drawRectangle(87, 95, 232, 105, 63, 1); // text box
+    vga->drawString(88, 96, (const char*)"Type program name:", vga->bg_color); // enter spotify
+
+    char* program = new char[8];
+    int len = 0;
+    bool start = 0;
+    int size = 8;
+    program[7] = 0;
+    while (1) {
+        while ((inb(STATUS_REG) & 0x1) == 0) {} // poll for first key press.
+        int val = inb(DATA_PORT);
+        char c = ascii[val];
+        if (val == 0xF) { // tab, start reading for input to string
+            vga->drawRectangle(87, 95, 232, 104, 63, 1); // text box
+            program = new char[8];
+            start = 1;
+        }
+        if (c == '\n') { // enter
+            if (program) {
+                program[len] = 0;
+                break;
+            }
+        }
+        if (val == 0xE) { // backspace
+            if (len > 0) {
+                len--;
+                program[len] = 0;
+                vga->drawRectangle(87, 95, 232, 104, 63, 1); // text box
+                if (len > 22) {
+                    char* tempname = new char[22];
+                    for (int i = 0; i < 22; i++) {
+                        tempname[i] = program[len - 22 + i];
+                    }
+                    vga->drawRectangle(87, 95, 232, 104, 63, 1); // text box
+                    vga->drawString(88, 96, program, vga->bg_color);
+                    delete[] tempname;
+                } else {
+                    vga->drawString(88, 96, program, vga->bg_color);
+                }
+            }
+        }
+        // if numbers 0-9 || 16 - 25 || 30 - 38 || 44 - 50
+        if (((val >= 2 && val <= 13) || (val >= 16 && val <= 25) || (val >= 30 && val <=38) || (val >= 44 && val <= 50) || val==0x39) && start) { // add char to string
+            program[len++] = c;
+            program[len] = 0;
+            if (len > size) {
+                char* temp = new char[len * 2 + 10];
+                size = len * 2 + 10;
+                memcpy(temp, program, len);
+                delete[] program;
+                program = new char[len * 2 + 10];
+                memcpy(program, temp, len);
+                delete[] temp;
+            }
+            vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
+            if (len > 22) {
+                char* tempname = new char[22];
+                for (int i = 0; i < 22; i++) {
+                    tempname[i] = program[len - 22 + i];
+                }
+                vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
+                vga->drawString(88, 96, program, vga->bg_color);
+                delete[] tempname;
+            } else {
+                vga->drawString(88, 96, program, vga->bg_color);
+            }
+        }
+    }
+    return program;
 }
