@@ -391,8 +391,9 @@ void VGA::spotify_move(Shared<File_Node> song, bool willPlay, bool skip) {
     int l = K::strlen(curr->file_name);
     drawLine(110, 140, 210, 140, 63);
     int center_w = width / 2;
-    drawRectangle(0, 107, 320, 135, bg_color, true);
-    drawString(center_w - ((l/2)*8), length/3 + 45, song->file_name, 63);
+    // drawRectangle(0, 107, 320, 135, bg_color, true);
+    drawRectangle(0, length/3 + 41, 320, 135, bg_color, 1);
+    drawString(center_w - ((l/2)*8), length/3 + 45, curr->file_name, 63);
     drawRectangle(75, 136, 108, 144, bg_color, true);
     const char* str = "0:00";
     drawString(75, 136, (const char*) str, 63);
@@ -441,7 +442,7 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     uint32_t left_x = 20; 
     uint32_t left_y = 62;
     place_bmp(left_x, left_y, 40, 40, left_p);
-    delete left_p;
+    delete[] left_p;
 
     // last played album
     Shared<Node> right_small = song->next->small;
@@ -452,7 +453,7 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     uint32_t right_x = 260; 
     uint32_t right_y = 62;
     place_bmp(right_x, right_y, 40, 40, right_p);
-    delete right_p;
+    delete[] right_p;
     
 
     uint32_t center_x = 160;
@@ -546,7 +547,7 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
     }
     char* curr_left = (prev_n->small)->read_bmp();
     char* curr_center = (fn->small)->read_bmp();
-    // char* curr_right = (next_n->small)->read_bmp(next_n->small);
+    char* curr_right = (next_n->small)->read_bmp();
     drawRectangle(125, 31, 195, 101, bg_color, true);
     uint16_t cx = 140;
     uint16_t cy = 86;
@@ -560,41 +561,57 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
             drawRectangle(cx, cy-1, cx+40, cy, bg_color, true);
             cx += 5;
             cy -= 1;
+            delete[] curr_center;
             curr_center = (fn->small)->read_bmp();
             place_bmp(cx, cy, 40, 40, curr_center);
             drawRectangle(lx, ly-40, lx+5, ly, bg_color, true);
             drawRectangle(lx, ly-40, lx+40, ly-39, bg_color, true);
             lx += 5;
             ly += 1;
+            delete[] curr_left;
             curr_left = (prev_n->small)->read_bmp();
             place_bmp(lx, ly, 40, 40, curr_left);
         }
         char* new_center = (prev_n->big)->read_bmp();
         place_bmp(125, 101, 70, 70, new_center);
+        delete[] new_center;
         Shared<File_Node> prev_prev_n = prev_n->prev; 
         if (K::streq(prev_prev_n->file_name, "")) {
              prev_prev_n = prev_prev_n->prev;
         }
         char* new_left = (prev_prev_n->small)->read_bmp();
         place_bmp(20, 62, 40, 40, new_left);
+        delete[] new_left;
     } 
-    // else {
-    //     char* new_left = fn->small;
-    //     char* new_center = fn->next->big;
-    //     char* new_right = fn->next->next->small;
-        
-    // }
-    // if (isLeft) {
-    //     while (x > 20) {
-    //         drawRectangle(x+pic_width-5, y, x+pic_width, y+pic_length, bg_color, 1);
-    //         x-=5;
-    //         place_bmp(x, y+pic_length, pic_width, pic_length, center);
-    //     } 
-    // } else {
-    //     while (x < 230) {
-    //         drawRectangle(x, y, x+5, y+pic_length, bg_color, 1);
-    //         x+=5;
-    //         place_bmp(x, y+pic_length, pic_width, pic_length, center);
-    //     }
-    // }
+    else {
+        drawRectangle(20, 22, 20, 62, bg_color, true);
+        uint16_t rx = 260;
+        uint16_t ry = 62;
+        while (cx > 20) {
+            drawRectangle(cx+35, cy-40, cx+40, cy, bg_color, true);
+            drawRectangle(cx, cy-1, cx+40, cy, bg_color, true);
+            cx -= 5;
+            cy -= 1;
+            delete[] curr_center;
+            curr_center = (fn->small)->read_bmp();
+            place_bmp(cx, cy, 40, 40, curr_center);
+            drawRectangle(rx+35, ry-40, rx+40, ry, bg_color, true);
+            drawRectangle(rx, ry-39, rx+40, ry-40, bg_color, true);
+            rx -= 5;
+            ry += 1;
+            delete[] curr_right;
+            curr_right = (next_n->small)->read_bmp();
+            place_bmp(rx, ry, 40, 40, curr_right);
+        }
+        char* new_center = (next_n->big)->read_bmp();
+        place_bmp(125, 101, 70, 70, new_center);
+        delete[] new_center;
+        Shared<File_Node> next_next_n = next_n->next; 
+        if (K::streq(next_next_n->file_name, "")) {
+             next_next_n = next_next_n->next;
+        }
+        char* new_right = (next_next_n->small)->read_bmp();
+        place_bmp(260, 62, 40, 40, new_right);
+        delete[] new_right;
+    }
 }

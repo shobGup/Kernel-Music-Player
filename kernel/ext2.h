@@ -341,6 +341,9 @@ public:
             ret_shob[rIdx + 1] = buf[i + 1]; // green
             ret_shob[rIdx + 2] = buf[i]; // blue
         }
+        delete[] buf; 
+        delete[] file_header;
+        delete[] info_header;
         return ret_shob;
     }
 
