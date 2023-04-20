@@ -384,9 +384,16 @@ void VGA::place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t 
 
 void VGA::spotify_move(Shared<File_Node> song, bool willPlay, bool skip) {
     playing = 0;
-    curr = song->prev;
-    if (K::streq(song->prev->file_name, "")) {
-        curr = song->prev->prev;
+    if (skip) {
+        curr = song->prev;
+        if (K::streq(song->prev->file_name, "")) {
+            curr = song->prev->prev;
+        }
+    } else {
+        curr = song->next;
+        if (K::streq(curr->file_name, "")) {
+            curr = song->next->next;
+        }
     }
     int l = K::strlen(curr->file_name);
     drawLine(110, 140, 210, 140, 63);
@@ -584,7 +591,7 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
         delete[] new_left;
     } 
     else {
-        drawRectangle(20, 22, 20, 62, bg_color, true);
+        drawRectangle(20, 22, 60, 62, bg_color, true);
         uint16_t rx = 260;
         uint16_t ry = 62;
         while (cx > 20) {
