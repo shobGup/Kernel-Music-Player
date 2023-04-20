@@ -384,7 +384,22 @@ void VGA::place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t 
 
 void VGA::spotify_move(Shared<File_Node> song, bool willPlay, bool skip) {
     playing = 0;
+    int l = K::strlen(song->file_name);
+    drawLine(110, 140, 210, 140, 63);
+    int center_w = width / 2;
+    drawString(center_w - ((l/2)*8), length/3 + 45, song->file_name, 63);
+    drawRectangle(75, 136, 108, 144, bg_color, true);
+    const char* str = "0:00";
+    drawString(75, 136, (const char*) str, 63);
     moveOutPic(song, skip);
+
+    uint32_t center_x = 160;
+    uint32_t center_y = 170;
+    drawTriangle(center_x+25, center_y-8, 16, 63, 1); // skip
+    drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
+    drawTriangle(center_x-25, center_y-8, 16, 63, 0); // precend
+    drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
+
     playing = !willPlay;
     play_pause();
 }
@@ -536,13 +551,13 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
         uint16_t lx = 20;
         uint16_t ly = 62;
         while (cx < 260) {
-            drawRectangle(cx, cy, cx+5, cy+40, bg_color, true);
-            drawRectangle(cx, cy+39, cx+40, cy+40, bg_color, true);
+            drawRectangle(cx, cy, cx+5, cy+40, 56, 56);
+            drawRectangle(cx, cy+39, cx+40, cy+40, 63, true);
             cx += 5;
             cy -= 1;
             place_bmp(cx, cy, 40, 40, curr_center);
-            drawRectangle(lx, ly, lx+5, ly+40, bg_color, true);
-            drawRectangle(lx, ly+39, lx+40, ly+40, bg_color, true);
+            drawRectangle(lx, ly, lx+5, ly+40, 56, true);
+            drawRectangle(lx, ly, lx+40, ly+1, 56, true);
             lx += 5;
             ly += 1;
             place_bmp(lx, ly, 40, 40, curr_left);
