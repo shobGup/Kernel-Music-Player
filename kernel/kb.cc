@@ -111,6 +111,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
         vga->drawString(70, 10, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
         char* name = new char[100];
+        char* temp = new char[100];
         int len = 0;
         bool start = 0;
         size = 100;
@@ -125,13 +126,17 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                         Debug::printf("Counter: %d, Name: %s\n", counter, name);
                         cursor = !cursor;
                         counter = 0; 
-                        vga->drawRectangle(70, 9, 250, 19, 63, 1);
+                        // if(!printing) {
+                            vga->drawRectangle(70, 9, 250, 19, 63, 1);
+                        // }
                     }
                     name[len] = cursor ? '_' : '\0';
                     name[len + 1] = '\0';
                     counter++; 
                     if(!printing) {
                         vga->drawString(70, 10, name, vga->bg_color);
+                    } else {
+                        vga->drawString(70, 10, temp, vga->bg_color);
                     }
             }
             int val = inb(DATA_PORT);
@@ -172,6 +177,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                         // tempname[22] = '\0'; 
                         vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                         vga->drawString(70, 10, tempname, vga->bg_color);
+                        temp = tempname; 
                         delete[] tempname;
                     } else {
                         // name[len] = cursor ? '_' : '\0';
@@ -204,6 +210,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     printing = true; 
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     vga->drawString(70, 10, tempname, vga->bg_color);
+                    temp = tempname; 
                     delete[] tempname;
                 } else {
                     name[len] = cursor ? '_' : '\0';
