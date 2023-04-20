@@ -115,6 +115,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         bool start = 0;
         size = 100;
         bool cursor = false; 
+        bool printing = false; 
         // start polling/interrupts
         while (1) {
             uint32_t counter = 0; 
@@ -129,7 +130,9 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     name[len] = cursor ? '_' : '\0';
                     name[len + 1] = '\0';
                     counter++; 
-                    vga->drawString(70, 10, name, vga->bg_color);
+                    if(!printing) {
+                        vga->drawString(70, 10, name, vga->bg_color);
+                    }
             }
             int val = inb(DATA_PORT);
             char c = ascii[val];
@@ -140,6 +143,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                 cursor = true; 
                 size = 100;
                 start = 1;
+                // printing = true; 
             }
             if (c == '\n') { // enter
                 if (name) {
@@ -151,6 +155,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     filename[len] = '\0';
                     entered = true;
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
+                    printing = false; 
                 }
             }
             if (val == 0xE) { // backspace
@@ -194,18 +199,19 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     for (int i = 0; i < 21; i++) {
                         tempname[i] = name[len - 21 + i];
                     }
-                    // tempname[21] = cursor ? '_' : '\0'; 
-                    // tempname[22] = '\0'; 
+                    tempname[21] = cursor ? '_' : '\0'; 
+                    tempname[22] = '\0'; 
+                    printing = true; 
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     vga->drawString(70, 10, tempname, vga->bg_color);
                     delete[] tempname;
                 } else {
-                    // name[len] = cursor ? '_' : '\0';
-                    // name[len + 1] = '\0';
+                    name[len] = cursor ? '_' : '\0';
+                    name[len + 1] = '\0';
                     vga->drawString(70, 10, name, vga->bg_color);
                 }
 
-                // cursor = !cursor; 
+                cursor = !cursor; 
 
                 // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
                 // if (len > 22) {
