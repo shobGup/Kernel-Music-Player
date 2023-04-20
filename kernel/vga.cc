@@ -71,6 +71,10 @@ bool VGA::setPortsText(unsigned char* g_90x60_text) {
     return true;
 }
 
+// void wait(int time, Shared<Node> item) {
+//     for ()
+// }
+
 void VGA::bootup(Shared<Node> logo) {
     initializeScreen(bg_color);
     
@@ -79,21 +83,21 @@ void VGA::bootup(Shared<Node> logo) {
     delete[] pixels;
     drawRectangle(10, 100, 310, 110, 63, true);
     drawRectangle(12, 102, 32, 108, 45, true);
-    for (int i = 0; i < 7; i ++) {
+    for (int i = 0; i < 80; i ++) {
         pixels = logo->read_bmp();
         delete[] pixels;
     }
     for (int i = 32; i < 108; i ++) {
         drawRectangle(12, 102, i, 108, 45, true);
     }
-    for (int i = 0; i < 13; i ++) {
+    for (int i = 0; i < 60; i ++) {
         pixels = logo->read_bmp();
         delete[] pixels;
     }
     for (int i = 108; i < 208; i ++) {
         drawRectangle(12, 102, i, 108, 45, true);
     }
-    for (int i = 0; i < 5; i ++) {
+    for (int i = 0; i < 70; i ++) {
         pixels = logo->read_bmp();
         delete[] pixels;
     }

@@ -122,7 +122,10 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
             if (val == 0xF) { // tab, start reading for input to string
                 vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                 len = 0;
+                Debug::printf("tab making name\n");
                 name = new char[40];
+                size = 40;
+                Debug::printf("tab made name\n");
                 start = 1;
             }
             if (c == '\n') { // enter
@@ -130,6 +133,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     name[len] = 0;
                     start = 0;
                     memcpy(filename, name, (len));
+                    delete[] name;
                     filename[len] = '\0';
                     entered = true;
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
