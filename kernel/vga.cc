@@ -71,6 +71,32 @@ bool VGA::setPortsText(unsigned char* g_90x60_text) {
     return true;
 }
 
+void VGA::bootup(Shared<Node> logo) {
+    initializeScreen(bg_color);
+    
+    char* pixels = logo->read_bmp();
+    place_bmp(132, 90, 55, 55, pixels);
+    drawRectangle(10, 100, 310, 110, 63, true);
+    drawRectangle(12, 102, 32, 108, 45, true);
+    for (int i = 0; i < 400; i ++) {
+
+    }
+    for (int i = 32; i < 108; i ++) {
+        drawRectangle(12, 102, i, 108, 45, true);
+    }
+    for (int i = 0; i < 100000000; i ++) {
+
+    }
+    for (int i = 108; i < 208; i ++) {
+        drawRectangle(12, 102, i, 108, 45, true);
+    }
+    for (int i = 0; i < 10000000; i ++) {
+    }
+    for (int i = 208; i < 308; i ++) {
+        drawRectangle(12, 102, i, 108, 45, true);
+    }
+}
+
 void VGA::initializePorts() {
     attribute_port.index_port = ATTRIBUTE_INDEX_WRITE;
     attribute_port.write_port = ATTRIBUTE_INDEX_WRITE;
@@ -334,7 +360,7 @@ void VGA::drawString(int x, int y, const char* str, uint8_t color) {
 void VGA::homeScreen(const char* name) {
     // Shared<Ext2> root_fs = Shared<Ext2>::make(Shared<Ide>::make(1));
     Shared<Node> bmp = curr->big;
-    char* rgb = bmp->read_bmp(bmp);
+    char* rgb = bmp->read_bmp();
     place_bmp(0, 200, 320, 200, rgb);
 }
 
@@ -356,8 +382,11 @@ void VGA::place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t 
     }
 }
 
-void spotify_move(Shared<File_Node> song, bool willPlay, bool skip) {
-    
+void VGA::spotify_move(Shared<File_Node> song, bool willPlay, bool skip) {
+    playing = 0;
+    moveOutPic(song, skip);
+    playing = !willPlay;
+    play_pause();
 }
 
 
@@ -377,7 +406,7 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     
     // center album
     Shared<Node> centerpiece = song->big;
-    char* pixels = centerpiece->read_bmp(centerpiece);
+    char* pixels = centerpiece->read_bmp();
     uint32_t starting_x = width/2 - 35;
     uint32_t starting_y = length/3 + 35;
     place_bmp(starting_x, starting_y, 70, 70, pixels);
@@ -388,7 +417,7 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     if (K::streq(song->prev->file_name, "")) {
         left_small = song->prev->prev->small;
     }
-    char* left_p = left_small->read_bmp(left_small);
+    char* left_p = left_small->read_bmp();
     uint32_t left_x = 20; 
     uint32_t left_y = 60;
     place_bmp(left_x, left_y, 40, 40, left_p);
@@ -399,7 +428,7 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     if (K::streq(song->next->file_name, "")) {
         right_small = song->next->next->small;
     }
-    char* right_p = right_small->read_bmp(right_small);
+    char* right_p = right_small->read_bmp();
     uint32_t right_x = 260; 
     uint32_t right_y = 60;
     place_bmp(right_x, right_y, 40, 40, right_p);
@@ -486,47 +515,64 @@ void VGA::drawPauseCircle(uint32_t c_x, uint32_t c_y, uint32_t r, uint8_t color)
 }
 
 
-void VGA::moveOutPic(Shared<File_Node> fn, uint32_t pic_width, uint32_t pic_length, bool isLeft) {
-/*
-    char* curr_left = fn->prev->small;
-    char* curr_center = fn->big;
-    char* curr_right = fn->next->small;
-    if (isLeft) { // skip
-        uint16_t rx = 260;
-        uint16_t ry = 51;
-        while (curr_right < 280 || curr_center < 245 || curr_left < 140) {
-            if (curr_right < 200) {
-                drawRectangle()
-            }
-            if (curr_center < 245) {
-
-            }
-            if (curr_left < 140) {
-
-            }
-        }
-        char* new_left = fn->prev->prev->small;
-        char* new_center = fn->prev->big;
-        char* new_right = fn->small;
-        
-    } else {
-        char* new_left = fn->small;
-        char* new_center = fn->next->big;
-        char* new_right = fn->next->next->small;
-        
+void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
+    Shared<File_Node> prev_n = fn->prev;
+    Shared<File_Node> next_n = fn->next;
+    if (K::streq(prev_n->file_name, "")) {
+        prev_n = prev_n->prev;
     }
-    if (isLeft) {
-        while (x > 20) {
-            drawRectangle(x+pic_width-5, y, x+pic_width, y+pic_length, bg_color, 1);
-            x-=5;
-            place_bmp(x, y+pic_length, pic_width, pic_length, center);
-        } 
-    } else {
-        while (x < 230) {
-            drawRectangle(x, y, x+5, y+pic_length, bg_color, 1);
-            x+=5;
-            place_bmp(x, y+pic_length, pic_width, pic_length, center);
-        }
+    if (K::streq(next_n->file_name, "")) {
+        next_n = next_n->next;
     }
-*/
+    char* curr_left = (prev_n->small)->read_bmp();
+    char* curr_center = (fn->small)->read_bmp();
+    // char* curr_right = (next_n->small)->read_bmp(next_n->small);
+    drawRectangle(125, 31, 195, 101, bg_color, true);
+    uint16_t cx = 140;
+    uint16_t cy = 86;
+    place_bmp(cx, cy, 40, 40, curr_center);
+    if (skip) { // skip
+        drawRectangle(260, 22, 300, 62, bg_color, true);
+        uint16_t lx = 20;
+        uint16_t ly = 62;
+        while (cx < 260) {
+            drawRectangle(cx, cy, cx+5, cy+40, bg_color, true);
+            drawRectangle(cx, cy+39, cx+40, cy+40, bg_color, true);
+            cx += 5;
+            cy -= 1;
+            place_bmp(cx, cy, 40, 40, curr_center);
+            drawRectangle(lx, ly, lx+5, ly+40, bg_color, true);
+            drawRectangle(lx, ly+39, lx+40, ly+40, bg_color, true);
+            lx += 5;
+            ly += 1;
+            place_bmp(lx, ly, 40, 40, curr_left);
+        }
+        char* new_center = (prev_n->big)->read_bmp();
+        place_bmp(125, 101, 70, 70, new_center);
+        Shared<File_Node> prev_prev_n = prev_n->prev; 
+        if (K::streq(prev_prev_n->file_name, "")) {
+             prev_prev_n = prev_prev_n->prev;
+        }
+        char* new_left = (prev_prev_n->small)->read_bmp();
+        place_bmp(20, 62, 40, 40, new_left);
+    } 
+    // else {
+    //     char* new_left = fn->small;
+    //     char* new_center = fn->next->big;
+    //     char* new_right = fn->next->next->small;
+        
+    // }
+    // if (isLeft) {
+    //     while (x > 20) {
+    //         drawRectangle(x+pic_width-5, y, x+pic_width, y+pic_length, bg_color, 1);
+    //         x-=5;
+    //         place_bmp(x, y+pic_length, pic_width, pic_length, center);
+    //     } 
+    // } else {
+    //     while (x < 230) {
+    //         drawRectangle(x, y, x+5, y+pic_length, bg_color, 1);
+    //         x+=5;
+    //         place_bmp(x, y+pic_length, pic_width, pic_length, center);
+    //     }
+    // }
 }

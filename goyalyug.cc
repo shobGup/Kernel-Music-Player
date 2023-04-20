@@ -471,7 +471,7 @@ void kernelMain(void) {
             currentFile = currentNode->wave_file;
 
             /* VGA Animation */
-            thisVGA->spotify(currentNode, true);
+            thisVGA->spotify_move(currentNode, true, true);
 
             reset(currentFile);
         }

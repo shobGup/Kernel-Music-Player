@@ -305,11 +305,11 @@ public:
 
     virtual ~Node() {}
 
-    char* read_bmp(Shared<Node> bmp) {
+    char* read_bmp() {
         char* file_header = new char[14];
         char* info_header = new char[40];
-        bmp->read_all(0, 14, (char*) file_header);
-        bmp->read_all(14, 40, (char*) info_header);
+        this->read_all(0, 14, (char*) file_header);
+        this->read_all(14, 40, (char*) info_header);
 
         // uint32_t off = *((uint32_t*) (file_header + 10));
         // uint32_t off = 138;
@@ -332,7 +332,7 @@ public:
         // uint32_t height = 70;
         
         uint8_t* buf = new uint8_t[19738-138];
-        bmp->read_all(138, 19738-138, (char*) buf);
+        this->read_all(138, 19738-138, (char*) buf);
 
         char* ret_shob = new char[((19600) / 4) * 3];
 
