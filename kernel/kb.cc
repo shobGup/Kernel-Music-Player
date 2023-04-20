@@ -73,7 +73,7 @@ void kb::kbInit(Shared<Node> logo) {
     // vga->initializeScreen(vga->bg_color);
     // char* pixels = logo->read_bmp();
 
-    // vga->drawRectangle(151, 10, 232, 20, 63, 1); // text box
+    vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
     vga->drawString(70, 10, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
     char* name = new char[40];
     int len = 0;
