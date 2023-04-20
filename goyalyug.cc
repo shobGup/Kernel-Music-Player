@@ -480,13 +480,15 @@ void kernelMain(void) {
         if(thisKB->entered) {
             thisKB->entered = false; 
 
-            // Turn Off Sound 
-            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+        
 
             // Changes File 
             auto temp = fileSystem->findName((const char *) thisKB->filename, currentNode);
 
             if(!K::streq(temp->file_name, "")) {
+
+                // Turn Off Sound 
+                *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
 
                 currentNode = temp; 
                 currentFile = currentNode->wave_file;
