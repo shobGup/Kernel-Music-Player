@@ -192,7 +192,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     vga->drawString(70, 10, name, vga->bg_color);
                 }
 
-                // cursor = !cursor; 
+                cursor = !cursor; 
 
                 // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
                 // if (len > 22) {
@@ -208,7 +208,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
             if(val == 205) skip = true;
             if (val == 57 && !start) tapped = 1;
 
-            cursor = !cursor; 
+            // cursor = !cursor; 
         }
     }
 }
