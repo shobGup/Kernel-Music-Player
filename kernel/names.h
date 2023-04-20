@@ -41,13 +41,13 @@ class Names_List {
 
         // First Song 
         Shared<File_Node> first = Shared<File_Node>::make();
-        const char * first_name = "breathe";
+        const char * first_name = "breathe in the air";
         first->file_name = new char[K::strlen(first_name) + 1];
         memcpy(first->file_name, first_name, K::strlen(first_name));
         first->file_name[K::strlen(first_name)] = '\0';
-        setWaveFile(first, "breathe_", fs); 
-        setSmallFile(first, "breathe_s", fs);
-        setBigFile(first, "breathe" , fs);
+        setWaveFile(first, "breathe in the air_", fs); 
+        setSmallFile(first, "breathe in the air_s", fs);
+        setBigFile(first, "breathe in the air" , fs);
 
          Debug::printf("First on contructor\n");
         
@@ -124,8 +124,20 @@ class Names_List {
 
         Debug::printf("Seventh on contructor\n");
 
+        // Eight Song
+        Shared<File_Node> eight = Shared<File_Node>::make();
+        const char * eight_name = "vamp anthem";
+        eight->file_name = new char[K::strlen(eight_name) + 1];
+        memcpy(eight->file_name,eight_name, K::strlen(eight_name));
+        eight->file_name[K::strlen(eight_name)] = '\0';
+        setWaveFile(eight, "vamp anthem_", fs); 
+        setSmallFile(eight, "vamp anthem_s", fs);
+        setBigFile(eight, "vamp anthem" , fs);
+
+        Debug::printf("Eight on contructor\n");
+
         // Setup Dummy:
-        setPrev(dummy, fourth);
+        setPrev(dummy, eight);
         setNext(dummy, first);
 
 
@@ -157,7 +169,11 @@ class Names_List {
 
         // Setup seventh: 
         setPrev(seventh, sixth);
-        setNext(seventh, dummy);
+        setNext(seventh, eight);
+
+        // Setup eight: 
+        setPrev(eight, seventh);
+        setNext(eight, dummy);
 
         printList(dummy);
 
