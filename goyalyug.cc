@@ -476,32 +476,37 @@ void kernelMain(void) {
             reset(currentFile);
         }
 
+        // Enter ~ search song 
         if(thisKB->entered) {
             thisKB->entered = false; 
 
             // Turn Off Sound 
             *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
 
-            // Reset Offsets 
-            written = 0; 
-            index = 0; 
-            currentFile->offset = currentFile->reset_offset;
-            currentFile->howMuchRead.set(0);
-            thisVGA->new_song = true; 
-            thisVGA->elapsed_time.set(0); 
-
-            Debug::printf("File Found: %s\n", thisKB->filename);
-
             // Changes File 
-            currentNode = fileSystem->findName((const char *) thisKB->filename, currentNode);
-            currentFile = currentNode->wave_file;
+            auto temp = fileSystem->findName((const char *) thisKB->filename, currentNode);
 
-            Debug::printf("Came Back from life\n");
+            if(!K::streq(temp->file_name, "")) {
 
-            /* VGA Animation */
-            thisVGA->spotify(currentNode, true);
+                currentNode = temp; 
+                currentFile = currentNode->wave_file;
 
-            reset(currentFile);
+
+                // Reset Offsets 
+                written = 0; 
+                index = 0; 
+                currentFile->offset = currentFile->reset_offset;
+                currentFile->howMuchRead.set(0);
+                thisVGA->new_song = true; 
+                thisVGA->elapsed_time.set(0); 
+
+
+
+                /* VGA Animation */
+                thisVGA->spotify(currentNode, true);
+
+                reset(currentFile);
+            }
         }
 
    }

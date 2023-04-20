@@ -382,7 +382,7 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     uint32_t starting_y = length/3 + 35;
     place_bmp(starting_x, starting_y, 70, 70, pixels);
     delete[] pixels;
-    
+     
     Shared<Node> left_small = song->prev->small;
     // upcoming album
     if (K::streq(song->prev->file_name, "")) {
@@ -390,7 +390,7 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     }
     char* left_p = left_small->read_bmp(left_small);
     uint32_t left_x = 20; 
-    uint32_t left_y = 51;
+    uint32_t left_y = 60;
     place_bmp(left_x, left_y, 40, 40, left_p);
     // delete left_p;
 
@@ -401,7 +401,7 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     }
     char* right_p = right_small->read_bmp(right_small);
     uint32_t right_x = 260; 
-    uint32_t right_y = 51;
+    uint32_t right_y = 60;
     place_bmp(right_x, right_y, 40, 40, right_p);
     // delete right_p;
     
