@@ -120,7 +120,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
             uint32_t counter = 0; 
             while ((inb(STATUS_REG) & 0x1) == 0) {
                     // Debug::printf("Yo WTF\n");
-                    if(counter > 429496) {
+                    if(counter > 42949) {
                         Debug::printf("Counter: %d, Name: %s\n", counter, name);
                         cursor = !cursor;
                         counter = 0; 
