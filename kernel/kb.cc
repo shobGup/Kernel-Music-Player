@@ -121,6 +121,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     Debug::printf("Yo WTF\n");
                     name[len] = cursor ? '_' : '\0';
                     name[len + 1] = '\0';
+                    cursor = !cursor;
                     vga->drawString(70, 10, name, vga->bg_color);
             }
             int val = inb(DATA_PORT);
