@@ -128,6 +128,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                         counter = 0; 
                     }
                     counter++; 
+                    vga->drawRectangle(70, 9, 250, 19, 63, 1);
                     vga->drawString(70, 10, name, vga->bg_color);
             }
             int val = inb(DATA_PORT);
