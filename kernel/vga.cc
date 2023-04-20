@@ -384,7 +384,11 @@ void VGA::place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t 
 
 void VGA::spotify_move(Shared<File_Node> song, bool willPlay, bool skip) {
     playing = 0;
-    int l = K::strlen(song->file_name);
+    curr = song->prev;
+    if (K::streq(song->prev->file_name, "")) {
+        curr = song->prev->prev;
+    }
+    int l = K::strlen(curr->file_name);
     drawLine(110, 140, 210, 140, 63);
     int center_w = width / 2;
     drawRectangle(0, 107, 320, 135, bg_color, true);
@@ -556,11 +560,13 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
             drawRectangle(cx, cy-1, cx+40, cy, bg_color, true);
             cx += 5;
             cy -= 1;
+            curr_center = (fn->small)->read_bmp();
             place_bmp(cx, cy, 40, 40, curr_center);
             drawRectangle(lx, ly-40, lx+5, ly, bg_color, true);
             drawRectangle(lx, ly-40, lx+40, ly-39, bg_color, true);
             lx += 5;
             ly += 1;
+            curr_left = (prev_n->small)->read_bmp();
             place_bmp(lx, ly, 40, 40, curr_left);
         }
         char* new_center = (prev_n->big)->read_bmp();
