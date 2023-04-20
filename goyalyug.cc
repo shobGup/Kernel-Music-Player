@@ -418,15 +418,28 @@ void kernelMain(void) {
 
         // Previous Song
         if(thisKB->precend) {
-            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
             thisKB->precend = false; 
+
+            // Turn Off Sound 
+            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+
+            // Reset Offsets 
             written = 0; 
             index = 0; 
-            Debug::printf("Before Offset: %d\n", currentFile->offset);
-            currentFile->offset -= (currentFile->offset - currentFile->reset_offset) > (4096 * 16 * 15) ? (4096 * 16 * 15) : (currentFile->offset - currentFile->reset_offset);
-            Debug::printf("After Offset: %d\n", currentFile->offset);
+            currentFile->offset = currentFile->reset_offset;
+            currentFile->howMuchRead.set(0);
+            thisVGA->new_song = true; 
+            thisVGA->elapsed_time.set(0); 
+
+            // Changes File 
+            currentFile = currentNode->next->wave_file;
+            currentNode = currentNode->next; 
+
+            /* VGA Animation */
+            thisVGA->spotify(currentNode, true);
+
             reset(currentFile);
-            Debug::printf("Should be change buffer\n");
+
         }
 
         // Next Song
@@ -445,8 +458,8 @@ void kernelMain(void) {
             thisVGA->elapsed_time.set(0); 
 
             // Changes File 
-            currentFile = currentNode->next->wave_file;
-            currentNode = currentNode->next; 
+            currentFile = currentNode->prev->wave_file;
+            currentNode = currentNode->prev; 
 
             /* VGA Animation */
             thisVGA->spotify(currentNode, true);

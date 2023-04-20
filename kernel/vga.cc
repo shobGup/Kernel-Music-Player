@@ -396,6 +396,9 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
 
     // last played album
     Shared<Node> right_small = song->next->small;
+    if (K::streq(song->next->file_name, "")) {
+        right_small = song->next->next->small;
+    }
     char* right_p = right_small->read_bmp(right_small);
     uint32_t right_x = 260; 
     uint32_t right_y = 51;
