@@ -156,14 +156,14 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                         for (int i = 0; i < 21; i++) {
                             tempname[i] = name[len - 21 + i];
                         }
-                        tempname[21] = cursor ? '_' : '\0'; 
-                        tempname[22] = '\0'; 
+                        // tempname[21] = cursor ? '_' : '\0'; 
+                        // tempname[22] = '\0'; 
                         vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                         vga->drawString(70, 10, tempname, vga->bg_color);
                         delete[] tempname;
                     } else {
-                        name[len] = cursor ? '_' : '\0';
-                        name[len + 1] = '\0';
+                        // name[len] = cursor ? '_' : '\0';
+                        // name[len + 1] = '\0';
                         vga->drawString(70, 10, name, vga->bg_color);
                     }
                 }
@@ -187,18 +187,18 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     for (int i = 0; i < 21; i++) {
                         tempname[i] = name[len - 21 + i];
                     }
-                    tempname[21] = cursor ? '_' : '\0'; 
-                    tempname[22] = '\0'; 
+                    // tempname[21] = cursor ? '_' : '\0'; 
+                    // tempname[22] = '\0'; 
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     vga->drawString(70, 10, tempname, vga->bg_color);
                     delete[] tempname;
                 } else {
-                    name[len] = cursor ? '_' : '\0';
-                    name[len + 1] = '\0';
+                    // name[len] = cursor ? '_' : '\0';
+                    // name[len + 1] = '\0';
                     vga->drawString(70, 10, name, vga->bg_color);
                 }
 
-                cursor = !cursor; 
+                // cursor = !cursor; 
 
                 // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
                 // if (len > 22) {
