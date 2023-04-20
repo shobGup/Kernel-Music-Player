@@ -78,6 +78,7 @@ void kb::kbInit(Shared<Node> logo) {
     char* name = new char[40];
     int len = 0;
     bool start = 0;
+    int size = 0;
     // start polling/interrupts
     while (1) {
         while ((inb(STATUS_REG) & 0x1) == 0) {}
@@ -121,8 +122,9 @@ void kb::kbInit(Shared<Node> logo) {
         if (((val >= 2 && val <= 13) || (val >= 16 && val <= 25) || (val >= 30 && val <=38) || (val >= 44 && val <= 50) || val==0x39) && start) { // add char to string
             name[len++] = c;
             name[len] = 0;
-            if (len > 40) {
+            if (len > size) {
                 char* temp = new char[len * 2 + 10];
+                size = len * 2 + 10;
                 memcpy(temp, name, len);
                 delete[] name;
                 name = new char[len * 2 + 10];

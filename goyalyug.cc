@@ -366,13 +366,13 @@ void kernelMain(void) {
             thisVGA->elapsed_time.set(0); 
             
             /* VGA Animation */
-            thisVGA->spotify_move(currentNode, true, true);
+            thisVGA->spotify_move(currentNode, true, false);
 
             // Changes File 
-            currentNode = currentNode->prev; 
+            currentNode = currentNode->next; 
 
             if(K::streq(currentNode->file_name, "")) {
-                currentNode = currentNode->prev;
+                currentNode = currentNode->next;
             }
             currentFile = currentNode->wave_file;
 
@@ -429,13 +429,13 @@ void kernelMain(void) {
             thisVGA->elapsed_time.set(0); 
 
             /* VGA Animation */
-            thisVGA->spotify_move(currentNode, true, false);
+            thisVGA->spotify_move(currentNode, true, true);
 
             // Changes File 
-            currentNode = currentNode->next; 
+            currentNode = currentNode->prev; 
 
             if(K::streq(currentNode->file_name, "")) {
-                currentNode = currentNode->next;
+                currentNode = currentNode->prev;
             }
 
             currentFile = currentNode->wave_file;
@@ -460,13 +460,13 @@ void kernelMain(void) {
             thisVGA->elapsed_time.set(0); 
 
             /* VGA Animation */
-            thisVGA->spotify_move(currentNode, true, true);
+            thisVGA->spotify_move(currentNode, true, false);
 
             // Changes File 
-            currentNode = currentNode->prev; 
+            currentNode = currentNode->next; 
 
             if(K::streq(currentNode->file_name, "")) {
-                currentNode = currentNode->prev;
+                currentNode = currentNode->next;
             }
             currentFile = currentNode->wave_file;
 
