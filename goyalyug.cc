@@ -506,6 +506,9 @@ void kernelMain(void) {
                 thisVGA->spotify(currentNode, true);
 
                 reset(currentFile);
+            } else {
+                thisVGA->drawRectangle(70, 9, 250, 19, 63, 1); // text box
+                thisVGA->drawString(70, 10, (const char*)"NOT A VALID SONG", 47); // enter spotify
             }
         }
 
