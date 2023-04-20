@@ -183,7 +183,6 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                         vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                         vga->drawString(70, 10, tempname, vga->bg_color);
                     
-                        // temp = tempname; 
                         delete[] tempname;
                     } else {
                         // name[len] = cursor ? '_' : '\0';
@@ -221,7 +220,6 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
 
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     vga->drawString(70, 10, tempname, vga->bg_color);
-                    temp = tempname; 
                     delete[] tempname;
                 } else {
                     name[len] = cursor ? '_' : '\0';
