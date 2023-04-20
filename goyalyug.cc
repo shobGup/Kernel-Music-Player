@@ -344,11 +344,15 @@ void kernelMain(void) {
 
 
     thisVGA->new_song = true; 
+    
+    bool isItDown = false; 
 
-    thread([thisVGA, my_wave] {
+    bool * keepGoing = &isItDown; 
+
+    thread([thisVGA, my_wave, keepGoing] {
         // thisVGA->progressBarInit();
         thisVGA->last_jif = Pit::jiffies;
-        while(true) {
+        while(!(*keepGoing)) {
             uint32_t percentage = ((*my_wave)->howMuchRead.get() * 100) / (*my_wave)->size;
             // Debug::printf("percentage: %d, read in: %d, size: %d\n", percentage, (*my_wave)->howMuchRead.get(), (*my_wave)->size);
             thisVGA->playingSong(percentage);
@@ -530,6 +534,7 @@ void kernelMain(void) {
 
         // Shutoff Screen 
         if(thisKB->shutdown) {
+            isItDown = true; 
             thisVGA->shut_off();
         }
 
