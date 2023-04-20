@@ -75,7 +75,7 @@ void kb::kbInit(Shared<Node> logo) {
 
     // vga->drawRectangle(151, 10, 232, 20, 63, 1); // text box
     vga->drawString(70, 10, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
-    char* name = new char[25];
+    char* name = new char[40];
     int len = 0;
     bool start = 0;
     // start polling/interrupts
@@ -83,20 +83,10 @@ void kb::kbInit(Shared<Node> logo) {
         while ((inb(STATUS_REG) & 0x1) == 0) {}
         int val = inb(DATA_PORT);
         char c = ascii[val];
-        if (val == 57 && !start) {
-            tapped = 1;
-            // vga->play_pause();
-        }
-        if (val == 0x4D) { // right arrow: 4d
-            // go to next song.
-        }
-        if (val == 0x4B) { // left arrow: 4b
-            // go to previous song?
-        }
         if (val == 0xF) { // tab, start reading for input to string
             vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
             len = 0;
-            name = new char[25];
+            name = new char[40];
             start = 1;
         }
         if (c == '\n') { // enter
@@ -131,6 +121,14 @@ void kb::kbInit(Shared<Node> logo) {
         if (((val >= 2 && val <= 13) || (val >= 16 && val <= 25) || (val >= 30 && val <=38) || (val >= 44 && val <= 50) || val==0x39) && start) { // add char to string
             name[len++] = c;
             name[len] = 0;
+            if (len > 40) {
+                char* temp = new char[len * 2 + 10];
+                memcpy(temp, name, len);
+                delete[] name;
+                name = new char[len * 2 + 10];
+                memcpy(name, temp, len);
+                delete[] temp;
+            }
             vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
             if (len > 22) {
                 char* tempname = new char[22];
@@ -147,10 +145,10 @@ void kb::kbInit(Shared<Node> logo) {
             // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
             // if (len > 22) {
             //     // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
-            //     vga->drawString(88, 96, (const char*)((*program) + (len-17)), vga->bg_color);
+            //     vga->drawString(88, 96, (const char*)((*name) + (len-22)), vga->bg_color);
             // } else {
             //     // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
-            //     vga->drawString(88, 96, program, vga->bg_color);
+            //     vga->drawString(88, 96, name, vga->bg_color);
             // }
         }
         if(val == 208) { // Reset Song
@@ -161,6 +159,16 @@ void kb::kbInit(Shared<Node> logo) {
         }
         if(val == 205) {
             skip = true;
+        }
+        if (val == 57 && !start) {
+            tapped = 1;
+            // vga->play_pause();
+        }
+        if (val == 0x4D) { // right arrow: 4d
+            // go to next song.
+        }
+        if (val == 0x4B) { // left arrow: 4b
+            // go to previous song?
         }
     }
 }
