@@ -7,7 +7,8 @@ class Tct {
     uint32_t turnNum;
     const uint8_t BLACK = 0;
     uint8_t cursor[2];
-    const int DIRECTIONS [8][2] = { {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1} };
+    // const int DIRECTIONS [8][2] = { {1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1} };
+    const int DIRECTIONS [4][2] = { {1, 0}, {1, 1}, {0, 1}, {-1, 1} };
     
     Tct(VGA* v) : vga(v) {
         for (int i = 0; i < 3; i ++) {
@@ -41,7 +42,7 @@ class Tct {
     void playCircle();
 
     void checkWin() {
-        for (int i = 0; i < 8; i ++) {
+        for (int i = 0; i < 4; i ++) {
             inBounds(cursor[0], cursor[1], i);
             char cur = board[cursor[0]][cursor[1]];
             
