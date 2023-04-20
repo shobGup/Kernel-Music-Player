@@ -582,9 +582,12 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
     drawString(24, 65, (const char*) "PREV", bg_color);
     drawString(264, 65, (const char*) "NEXT", bg_color);
     if (skip) { // skip
-        drawTriangle(center_x+25, center_y-8, 16, 42, 1); // skip
-        drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 42, 1);
-        drawRectangle(260, 22, 300, 62, bg_color, true);
+        // drawTriangle(center_x+25, center_y-8, 16, 42, 1); // skip
+        // drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 42, 1);
+        drawTriangle(center_x-25, center_y-8, 16, 42, 0); // prev
+        drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 42, 1);
+        drawRectangle(20, 22, 60, 62, bg_color, true);
+        // drawRectangle(260, 22, 300, 62, bg_color, true);
         uint16_t lx = 20;
         uint16_t ly = 62;
         while (cx < 260) {
@@ -613,13 +616,18 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
         char* new_left = (prev_prev_n->small)->read_bmp();
         place_bmp(20, 62, 40, 40, new_left);
         delete[] new_left;
-        drawTriangle(center_x+25, center_y-8, 16, 63, 1); // skip
-        drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
+        // drawTriangle(center_x+25, center_y-8, 16, 63, 1); // skip
+        drawTriangle(center_x-25, center_y-8, 16, 63, 0); // precend
+        drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
+        // drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
     } 
     else {
-        drawTriangle(center_x-25, center_y-8, 16, 42, 0); // prev
-        drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 42, 1);
-        drawRectangle(20, 22, 60, 62, bg_color, true);
+        // drawTriangle(center_x-25, center_y-8, 16, 42, 0); // prev
+        // drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 42, 1);
+        drawTriangle(center_x+25, center_y-8, 16, 42, 1); // skip
+        drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 42, 1);
+        drawRectangle(260, 22, 300, 62, bg_color, true);
+        // drawRectangle(20, 22, 60, 62, bg_color, true);
         uint16_t rx = 260;
         uint16_t ry = 62;
         while (cx > 20) {
@@ -648,8 +656,11 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
         char* new_right = (next_next_n->small)->read_bmp();
         place_bmp(260, 62, 40, 40, new_right);
         delete[] new_right;
-        drawTriangle(center_x-25, center_y-8, 16, 63, 0); // precend
-        drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
+        drawTriangle(center_x+25, center_y-8, 16, 63, 1); // skip
+        // drawTriangle(center_x-25, center_y-8, 16, 63, 0); // precend
+        // drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
+        drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
+
 
     }
     drawString(24, 65, (const char*) "PREV", 63);
