@@ -435,7 +435,7 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     }
     char* left_p = left_small->read_bmp();
     uint32_t left_x = 20; 
-    uint32_t left_y = 60;
+    uint32_t left_y = 62;
     place_bmp(left_x, left_y, 40, 40, left_p);
     delete left_p;
 
@@ -446,7 +446,7 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     }
     char* right_p = right_small->read_bmp();
     uint32_t right_x = 260; 
-    uint32_t right_y = 60;
+    uint32_t right_y = 62;
     place_bmp(right_x, right_y, 40, 40, right_p);
     delete right_p;
     
