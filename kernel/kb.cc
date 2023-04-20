@@ -126,11 +126,9 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                         Debug::printf("Counter: %d, Name: %s\n", counter, name);
                         cursor = !cursor;
                         counter = 0; 
-                        // if(!printing) {
-                            vga->drawRectangle(70, 9, 250, 19, 63, 1);
-                        // }
+                        vga->drawRectangle(70, 9, 250, 19, 63, 1);
                     }
-                    if(!printing) {
+                    if(printing) {
                         temp[21] = cursor ? '_' : '\0';
                         temp[22] = '\0';
                     }
