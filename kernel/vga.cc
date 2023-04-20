@@ -81,6 +81,8 @@ void wait(int unit, Shared<Node> item) {
 void VGA::shut_off() {
     initializeScreen(bg_color);
     drawString(90, 100, "System Turned OFF", 63);
+    wait(50, curr->small);
+    Debug::shutdown();
 }
 
 void VGA::bootup(Shared<Node> logo) {
