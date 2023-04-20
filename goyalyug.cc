@@ -342,6 +342,11 @@ void kernelMain(void) {
 
     Debug::printf("After down\n");
 
+    thisVGA->spotify(currentNode, false);
+
+
+    thisVGA->new_song = true; 
+
     thread([thisVGA, my_wave] {
         // thisVGA->progressBarInit();
         thisVGA->last_jif = Pit::jiffies;
@@ -351,8 +356,6 @@ void kernelMain(void) {
             thisVGA->playingSong(percentage);
         }
     });
-
-    thisVGA->spotify(currentNode, false);
 
 
     while(thisKB->tapped) {

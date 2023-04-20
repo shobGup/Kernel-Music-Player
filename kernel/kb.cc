@@ -3,34 +3,6 @@
 kb::kb(VGA* vga): vga(vga) {}
 
 void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
-    tapped = false;
-    // disable interrupts:
-    // cli();
-
-    // disable devices
-    while (inb(STATUS_REG) & 0x2);
-    outb(CMD_REG, 0xAD);
-    while (inb(STATUS_REG) & 0x2);
-    outb(CMD_REG, 0xA7);
-
-    // flushing the output buffer
-    inb(DATA_PORT);
-
-    // set configuration byte to enable keyboard port.
-    while (inb(STATUS_REG) & 0x2);
-    outb(CMD_REG, 0x20); // tell device I want to read Controller config byte.
-    uint8_t configByte = inb(DATA_PORT) | 0x37; // and it with what I need to be set
-
-    while ((inb(STATUS_REG) & 0x2));
-    // now we can write the config byte
-    outb(CMD_REG, 0x60); // tell device I want to write config byte
-    while (inb(STATUS_REG) & 0x2);
-    outb(CMD_REG, configByte); // write config byte
-
-    // enable device
-    while (inb(STATUS_REG) & 0x2);
-    outb(CMD_REG, 0xAE); // enable first port?
-
     vga->drawString(134, 71, (const char*)"PentOS", 63); // show PentOS
     vga->drawRectangle(87, 95, 232, 105, 63, 1); // text box
     vga->drawString(88, 96, (const char*)"Type program name:", vga->bg_color); // enter spotify
@@ -196,4 +168,32 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
             if (val == 57 && !start) tapped = 1;
         }
     }
+}
+
+void kb::setupKB() {
+    tapped = false;
+
+    // disable devices
+    while (inb(STATUS_REG) & 0x2);
+    outb(CMD_REG, 0xAD);
+    while (inb(STATUS_REG) & 0x2);
+    outb(CMD_REG, 0xA7);
+
+    // flushing the output buffer
+    inb(DATA_PORT);
+
+    // set configuration byte to enable keyboard port.
+    while (inb(STATUS_REG) & 0x2);
+    outb(CMD_REG, 0x20); // tell device I want to read Controller config byte.
+    uint8_t configByte = inb(DATA_PORT) | 0x37; // and it with what I need to be set
+
+    while ((inb(STATUS_REG) & 0x2));
+    // now we can write the config byte
+    outb(CMD_REG, 0x60); // tell device I want to write config byte
+    while (inb(STATUS_REG) & 0x2);
+    outb(CMD_REG, configByte); // write config byte
+
+    // enable device
+    while (inb(STATUS_REG) & 0x2);
+    outb(CMD_REG, 0xAE); // enable first port?
 }

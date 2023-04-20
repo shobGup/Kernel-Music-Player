@@ -87,20 +87,21 @@ void VGA::bootup(Shared<Node> logo) {
     delete[] pixels;
     drawRectangle(10, 100, 310, 110, 63, true);
     drawRectangle(12, 102, 32, 108, 45, true);
+    int wait_time = 30;
     for (int i = 0; i < 80; i ++) {
-        wait(10, logo);
+        wait(wait_time, logo);
     }
     for (int i = 32; i < 108; i ++) {
         drawRectangle(12, 102, i, 108, 45, true);
     }
     for (int i = 0; i < 60; i ++) {
-        wait(10, logo);
+        wait(wait_time, logo);
     }
     for (int i = 108; i < 208; i ++) {
         drawRectangle(12, 102, i, 108, 45, true);
     }
     for (int i = 0; i < 70; i ++) {
-        wait(10, logo);
+        wait(wait_time, logo);
     }
     for (int i = 208; i < 308; i ++) {
         drawRectangle(12, 102, i, 108, 45, true);
@@ -152,7 +153,7 @@ void VGA::playingSong(uint32_t percentage) {
     if (new_song) {
         drawLine(110, 140, 210, 140, 63);
         new_song = false;
-        Debug::printf("perc: %d", percentage);
+        // Debug::printf("perc: %d", percentage);
     } else {
         drawLine(110, 140, 110 + percentage, 140, 0);
         if (playing && (Pit::jiffies - last_jif) / 1000 > 0) {
@@ -431,6 +432,8 @@ void VGA::spotify_move(Shared<File_Node> song, bool willPlay, bool skip) {
 
 
 void VGA::spotify(Shared<File_Node> song, bool willPlay) {
+    drawString(24, 65, (const char*) "PREV", 63);
+    drawString(264, 65, (const char*) "NEXT", 63);
     curr = song;
     playing = 0;
     int l = K::strlen(song->file_name);
