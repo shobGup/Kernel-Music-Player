@@ -551,13 +551,13 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
         uint16_t lx = 20;
         uint16_t ly = 62;
         while (cx < 260) {
-            drawRectangle(cx, cy, cx+5, cy+40, 56, 56);
-            drawRectangle(cx, cy+39, cx+40, cy+40, 63, true);
+            drawRectangle(cx, cy-40, cx+5, cy, 56, true);
+            drawRectangle(cx, cy-1, cx+40, cy, 56, true);
             cx += 5;
             cy -= 1;
             place_bmp(cx, cy, 40, 40, curr_center);
-            drawRectangle(lx, ly, lx+5, ly+40, 56, true);
-            drawRectangle(lx, ly, lx+40, ly+1, 56, true);
+            drawRectangle(lx, ly-40, lx+5, ly, 56, true);
+            drawRectangle(lx, ly-40, lx+40, ly-39, 56, true);
             lx += 5;
             ly += 1;
             place_bmp(lx, ly, 40, 40, curr_left);
