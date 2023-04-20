@@ -96,9 +96,8 @@ void kb::kbInit(Shared<Node> logo) {
             memcpy(filename, name, (len));
             filename[len] = '\0';
             entered = true;
-            delete[] name;
+            if (name) delete[] name;
             vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
-            vga->drawString(70, 10, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
         }
         if (val == 0xE) { // backspace
             if (len > 0) {
