@@ -116,7 +116,6 @@ void VGA::bootup(Shared<Node> logo) {
     }
 }
 
-
 void VGA::initializePorts() {
     attribute_port.index_port = ATTRIBUTE_INDEX_WRITE;
     attribute_port.write_port = ATTRIBUTE_INDEX_WRITE;

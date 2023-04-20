@@ -41,52 +41,88 @@ class Names_List {
 
         // First Song 
         Shared<File_Node> first = Shared<File_Node>::make();
-        const char * first_name = "swift";
+        const char * first_name = "breathe";
         first->file_name = new char[K::strlen(first_name) + 1];
         memcpy(first->file_name, first_name, K::strlen(first_name));
         first->file_name[K::strlen(first_name)] = '\0';
-        setWaveFile(first, "swift_", fs); 
-        setSmallFile(first, "swift_s", fs);
-        setBigFile(first, "swift" , fs);
+        setWaveFile(first, "breathe_", fs); 
+        setSmallFile(first, "breathe_s", fs);
+        setBigFile(first, "breathe" , fs);
 
-         Debug::printf("F on contructor\n");
+         Debug::printf("First on contructor\n");
         
 
         // Second Song
         Shared<File_Node> second = Shared<File_Node>::make();
-        const char * second_name = "travis";
+        const char * second_name = "new romantics";
         second->file_name = new char[K::strlen(second_name) + 1];
         memcpy(second->file_name, second_name, K::strlen(second_name));
         second->file_name[K::strlen(second_name)] = '\0';
-        setWaveFile(second, "travis_", fs); 
-        setSmallFile(second, "travis_s", fs);
-        setBigFile(second, "travis" , fs);
+        setWaveFile(second, "new romantics_", fs); 
+        setSmallFile(second, "new romantics_s", fs);
+        setBigFile(second, "new romantics" , fs);
 
-         Debug::printf("S on contructor\n");
+         Debug::printf("Second on contructor\n");
 
         // Third Song
         Shared<File_Node> third = Shared<File_Node>::make();
-        const char * third_name = "red";
+        const char * third_name = "feel this moment";
         third->file_name = new char[K::strlen(third_name) + 1];
         memcpy(third->file_name, third_name, K::strlen(third_name));
         third->file_name[K::strlen(third_name)] = '\0';
-        setWaveFile(third, "red_", fs); 
-        setSmallFile(third, "red_s", fs);
-        setBigFile(third, "red" , fs);
+        setWaveFile(third, "feel this moment_", fs); 
+        setSmallFile(third, "feel this moment_s", fs);
+        setBigFile(third, "feel this moment" , fs);
 
-         Debug::printf("T on contructor\n");
+         Debug::printf("Third on contructor\n");
 
         // Fourth Song
         Shared<File_Node> fourth = Shared<File_Node>::make();
-        const char * fourth_name = "dark side of the moon";
+        const char * fourth_name = "heart-shaped box";
         fourth->file_name = new char[K::strlen(fourth_name) + 1];
         memcpy(fourth->file_name, fourth_name, K::strlen(fourth_name));
         fourth->file_name[K::strlen(fourth_name)] = '\0';
-        setWaveFile(fourth, "dark side of the moon_", fs); 
-        setSmallFile(fourth, "dark side of the moon_s", fs);
-        setBigFile(fourth, "dark side of the moon" , fs);
+        setWaveFile(fourth, "heart-shaped box_", fs); 
+        setSmallFile(fourth, "heart-shaped box_s", fs);
+        setBigFile(fourth, "heart-shaped box" , fs);
 
-        Debug::printf("F on contructor\n");
+        Debug::printf("Fourth on contructor\n");
+
+        // Fifth Song
+        Shared<File_Node> fifth = Shared<File_Node>::make();
+        const char * fifth_name = "dream on";
+        fifth->file_name = new char[K::strlen(fifth_name) + 1];
+        memcpy(fifth->file_name, fifth_name, K::strlen(fifth_name));
+        fifth->file_name[K::strlen(fifth_name)] = '\0';
+        setWaveFile(fifth, "dream on_", fs); 
+        setSmallFile(fifth, "dream on_s", fs);
+        setBigFile(fifth, "dream on" , fs);
+
+        Debug::printf("Fifth on contructor\n");
+
+        // Sixth Song
+        Shared<File_Node> sixth = Shared<File_Node>::make();
+        const char * sixth_name = "just the way you are";
+        sixth->file_name = new char[K::strlen(sixth_name) + 1];
+        memcpy(sixth->file_name, sixth_name, K::strlen(sixth_name));
+        sixth->file_name[K::strlen(sixth_name)] = '\0';
+        setWaveFile(sixth, "just the way you are_", fs); 
+        setSmallFile(sixth, "just the way you are_s", fs);
+        setBigFile(sixth, "just the way you are" , fs);
+
+        Debug::printf("Sixth on contructor\n");
+
+        // Seventh Song
+        Shared<File_Node> seventh = Shared<File_Node>::make();
+        const char * seventh_name = "cant tell me nothing";
+        seventh->file_name = new char[K::strlen(seventh_name) + 1];
+        memcpy(seventh->file_name,seventh_name, K::strlen(seventh_name));
+        seventh->file_name[K::strlen(seventh_name)] = '\0';
+        setWaveFile(seventh, "cant tell me nothing_", fs); 
+        setSmallFile(seventh, "cant tell me nothing_s", fs);
+        setBigFile(seventh, "cant tell me nothing" , fs);
+
+        Debug::printf("Seventh on contructor\n");
 
         // Setup Dummy:
         setPrev(dummy, fourth);
@@ -109,7 +145,19 @@ class Names_List {
 
         // Setup fourth: 
         setPrev(fourth, third);
-        setNext(fourth, dummy);
+        setNext(fourth, fifth);
+
+        // Setup fifth: 
+        setPrev(fifth, fourth);
+        setNext(fifth, sixth);
+
+        // Setup sixth: 
+        setPrev(sixth, fifth);
+        setNext(sixth, seventh);
+
+        // Setup seventh: 
+        setPrev(seventh, sixth);
+        setNext(seventh, dummy);
 
         printList(dummy);
 
