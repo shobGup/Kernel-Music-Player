@@ -100,7 +100,7 @@ void kb::initializeController() {
             // go to previous song?
         }
         if (val == 0xF) { // tab, start reading for input to string
-            vga->drawRectangle(151, 10, 232, 20, 63, 1); // text box
+            vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
             len = 0;
             name = new char[25];
             start = 1;
@@ -112,20 +112,20 @@ void kb::initializeController() {
             filename[len] = '\0';
             entered = true;
             delete[] name;
-            vga->drawRectangle(151, 10, 232, 20, 63, 1); // text box
+            vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
             vga->drawString(88, 96, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
         }
         if (val == 0xE) { // backspace
             if (len > 0) {
                 len--;
                 name[len] = 0;
-                vga->drawRectangle(10, 9, 310, 19, 63, 1); // text box
+                vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                 if (len > 18) {
                     char* tempname = new char[18];
                     for (int i = 0; i < 18; i++) {
                         tempname[i] = name[len - 18 + i];
                     }
-                    vga->drawRectangle(10, 9, 310, 19, 63, 1); // text box
+                    vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     vga->drawString(10, 10, tempname, vga->bg_color);
                     delete[] tempname;
                 } else {
@@ -137,13 +137,13 @@ void kb::initializeController() {
         if (((val >= 2 && val <= 13) || (val >= 16 && val <= 25) || (val >= 30 && val <=38) || (val >= 44 && val <= 50) || val==0x39) && start) { // add char to string
             name[len++] = c;
             name[len] = 0;
-            vga->drawRectangle(10, 9, 310, 19, 63, 1); // text box
+            vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
             if (len > 18) {
                 char* tempname = new char[18];
                 for (int i = 0; i < 18; i++) {
                     tempname[i] = name[len - 18 + i];
                 }
-                vga->drawRectangle(10, 9, 310, 19, 63, 1); // text box
+                vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                 vga->drawString(10, 10, tempname, vga->bg_color);
                 delete[] tempname;
             } else {
