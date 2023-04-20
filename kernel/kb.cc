@@ -117,7 +117,12 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         bool cursor = false; 
         // start polling/interrupts
         while (1) {
-            while ((inb(STATUS_REG) & 0x1) == 0) {}
+            while ((inb(STATUS_REG) & 0x1) == 0) {
+                    Debug::printf("Yo WTF\n");
+                    name[len] = cursor ? '_' : '\0';
+                    name[len + 1] = '\0';
+                    vga->drawString(70, 10, name, vga->bg_color);
+            }
             int val = inb(DATA_PORT);
             char c = ascii[val];
             if (val == 0xF) { // tab, start reading for input to string
