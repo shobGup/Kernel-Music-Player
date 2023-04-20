@@ -110,10 +110,10 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
 
         vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
         vga->drawString(70, 10, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
-        char* name = new char[40];
+        char* name = new char[100];
         int len = 0;
         bool start = 0;
-        size = 40;
+        size = 100;
         // start polling/interrupts
         while (1) {
             while ((inb(STATUS_REG) & 0x1) == 0) {}
@@ -122,8 +122,8 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
             if (val == 0xF) { // tab, start reading for input to string
                 vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                 len = 0;
-                name = new char[40];
-                size = 40;
+                name = new char[100];
+                size = 100;
                 start = 1;
             }
             if (c == '\n') { // enter
