@@ -267,7 +267,7 @@ void kernelMain(void) {
 
     Shared<Semaphore> startSpot = Shared<Semaphore>::make(0);
 
-    auto currentNode = fileSystem->findName("swift",fileSystem->dummy);
+    auto currentNode = fileSystem->findName("breathe in the air",fileSystem->dummy);
     auto currentFile = currentNode->wave_file;
 
     VGA *thisVGA = new VGA();

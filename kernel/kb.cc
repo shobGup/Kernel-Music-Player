@@ -107,8 +107,11 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         delete[] program;
         vga->bootup(logo);
         spot->up();
+        Debug::printf("called up\n");
 
         vga->initializeScreen(vga->bg_color);
+
+        Debug::printf("initialized screen\n");
 
         vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
         vga->drawString(70, 10, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
