@@ -7,6 +7,7 @@
 #include "debug.h"
 #include "vga.h"
 #include "ext2.h"
+#include "semaphore.h"
 
 // 0x60	Read/Write	Data Port
 // 0x64	Read	Status Register
@@ -40,7 +41,7 @@ class kb {
 
     kb(VGA* vga);
 
-    void kbInit(Shared<Node> logo);
+    void kbInit(Shared<Node> logo, Shared<Semaphore> spot);
 };
 
 #endif

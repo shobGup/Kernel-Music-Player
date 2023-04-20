@@ -22,11 +22,11 @@ void VGA::setup(Shared<Names_List> root_fs, Shared<File_Node> curr, bool isGraph
         bg_color = 21;
         initializePalette();
         initializeGraphics();
-        initializeScreen(bg_color);
+        // initializeScreen(bg_color);
     } else {
         initTextMode();
     }
-    spotify(curr, false);
+    // spotify(curr, false);
     // homeScreen("320");
 }
 

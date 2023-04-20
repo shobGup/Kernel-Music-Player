@@ -265,11 +265,33 @@ void kernelMain(void) {
 
     Debug::printf("After flipping bit: GCAP: %x\n", *base_u);
 
-    // Esuring the Device is being Turned On 
-    turnOnDevice(base_u);
+    Shared<Semaphore> startSpot = Shared<Semaphore>::make(0);
 
     auto currentNode = fileSystem->findName("swift",fileSystem->dummy);
     auto currentFile = currentNode->wave_file;
+
+    VGA *thisVGA = new VGA();
+    // Debug::printf("This VGA: %x\n",thisVGA );
+    thisVGA->setup(fileSystem, currentNode ,1);
+
+    Shared<kb> thisKB = Shared<kb>::make(thisVGA);
+    thread([thisKB, startSpot] {
+        auto ide = Shared<Ide>::make(1);
+        // We expect to find an ext2 file system there
+        auto fs = Shared<Ext2>::make(ide);
+        auto root = fs->root;
+        auto logo = fs->find(root,"logo");
+
+        thisKB->kbInit(logo, startSpot);
+    });
+
+    
+
+    
+
+
+    // Esuring the Device is being Turned On 
+    turnOnDevice(base_u);
 
     uint16_t fmt = ready_to_play(base, currentFile);
 
@@ -310,12 +332,11 @@ void kernelMain(void) {
     uint32_t index = 0; 
     // uint32_t size = currentFile->size_of_the_whole_file;
 
-    VGA *thisVGA = new VGA();
-    // Debug::printf("This VGA: %x\n",thisVGA );
-    thisVGA->setup(fileSystem, currentNode ,1);
+   
 
-    Shared<kb> thisKB = Shared<kb>::make(thisVGA);
     Shared<WaveParser_list>* my_wave = &(currentFile);
+
+    startSpot->down();
 
     thread([thisVGA, my_wave] {
         // thisVGA->progressBarInit();
@@ -327,15 +348,8 @@ void kernelMain(void) {
         }
     });
 
-    thread([thisKB] {
-        auto ide = Shared<Ide>::make(1);
-        // We expect to find an ext2 file system there
-        auto fs = Shared<Ext2>::make(ide);
-        auto root = fs->root;
-        auto logo = fs->find(root,"logo");
+    thisVGA->spotify(currentNode, false);
 
-        thisKB->kbInit(logo);
-    });
 
     while(thisKB->tapped) {
         Debug::printf("WTF Man\n");
