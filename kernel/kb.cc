@@ -163,6 +163,8 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     entered = true;
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     printing = false; 
+                    name[0] = '\0';
+                    vga->drawString(70, 10, name, vga->bg_color);
                 }
             }
             if (val == 0xE) { // backspace
