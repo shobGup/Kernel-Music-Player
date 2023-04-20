@@ -123,7 +123,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     name[len] = cursor ? '_' : '\0';
                     name[len + 1] = '\0';
                     if(counter > 429496) {
-                        Debug::printf("Counter: %d\n", counter);
+                        Debug::printf("Counter: %d, Name: %s\n", counter, name);
                         cursor = !cursor;
                         counter = 0; 
                     }
