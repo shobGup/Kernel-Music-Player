@@ -2,12 +2,7 @@
 
 kb::kb(VGA* vga): vga(vga) {}
 
-void kb::kbInit() {
-    // legacy is already disabled?
-    initializeController();
-}
-
-void kb::initializeController() {
+void kb::kbInit(Shared<Node> logo) {
     tapped = false;
     // disable interrupts:
     // cli();
@@ -76,11 +71,10 @@ void kb::initializeController() {
     // }
 
     // vga->initializeScreen(vga->bg_color);
-    // char* pixels = 
-    // vga->place_bmp(132, 85, 55, 55, );
+    // char* pixels = logo->read_bmp();
 
     // vga->drawRectangle(151, 10, 232, 20, 63, 1); // text box
-    vga->drawString(88, 96, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
+    vga->drawString(70, 10, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
     char* name = new char[25];
     int len = 0;
     bool start = 0;
@@ -113,17 +107,17 @@ void kb::initializeController() {
             entered = true;
             delete[] name;
             vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
-            vga->drawString(88, 96, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
+            vga->drawString(70, 10, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
         }
         if (val == 0xE) { // backspace
             if (len > 0) {
                 len--;
                 name[len] = 0;
                 vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
-                if (len > 18) {
-                    char* tempname = new char[18];
-                    for (int i = 0; i < 18; i++) {
-                        tempname[i] = name[len - 18 + i];
+                if (len > 22) {
+                    char* tempname = new char[22];
+                    for (int i = 0; i < 22; i++) {
+                        tempname[i] = name[len - 22 + i];
                     }
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     vga->drawString(70, 10, tempname, vga->bg_color);
@@ -138,10 +132,10 @@ void kb::initializeController() {
             name[len++] = c;
             name[len] = 0;
             vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
-            if (len > 18) {
-                char* tempname = new char[18];
-                for (int i = 0; i < 18; i++) {
-                    tempname[i] = name[len - 18 + i];
+            if (len > 22) {
+                char* tempname = new char[22];
+                for (int i = 0; i < 22; i++) {
+                    tempname[i] = name[len - 22 + i];
                 }
                 vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                 vga->drawString(70, 10, tempname, vga->bg_color);
@@ -151,7 +145,7 @@ void kb::initializeController() {
             }
 
             // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
-            // if (len > 18) {
+            // if (len > 22) {
             //     // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
             //     vga->drawString(88, 96, (const char*)((*program) + (len-17)), vga->bg_color);
             // } else {

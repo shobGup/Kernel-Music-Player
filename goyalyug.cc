@@ -268,31 +268,8 @@ void kernelMain(void) {
     // Esuring the Device is being Turned On 
     turnOnDevice(base_u);
 
-    // auto ide = Shared<Ide>::make(1);
-    
-    // // We expect to find an ext2 file system there
-    // auto fs = Shared<Ext2>::make(ide);
-
-    // // VGA *thisVGA = new VGA();
-    // // thisVGA->setup(fs);
-
-    // Debug::printf("*** block size is %d\n",fs->get_block_size());
-    // Debug::printf("*** inode size is %d\n",fs->get_inode_size());
-   
-    // auto root = fs->root;
-
-    // auto hello = fs->find(root,"swift_");
-
-    // Shared<WaveParser_list> currentFile = Shared<WaveParser_list>::make(hello);
-
-    // Debug::printf("Addy: %x\n",currentFile->b_entries);
-
-    // uint16_t GCAP = * (uint16_t *)base; 
-    // Debug::printf("GCAP: %x\n", GCAP);
-    // Debug::printf("Value ISS:%d\n", (GCAP >> 8) & 0xF); // 4
-
     auto currentNode = fileSystem->findName("swift",fileSystem->dummy);
-    auto currentFile = currentNode->wave_file; 
+    auto currentFile = currentNode->wave_file;
 
     uint16_t fmt = ready_to_play(base, currentFile);
 
@@ -351,7 +328,13 @@ void kernelMain(void) {
     });
 
     thread([thisKB] {
-        thisKB->kbInit();
+        auto ide = Shared<Ide>::make(1);
+        // We expect to find an ext2 file system there
+        auto fs = Shared<Ext2>::make(ide);
+        auto root = fs->root;
+        auto logo = fs->find(root,"logo");
+
+        thisKB->kbInit(logo);
     });
 
     while(thisKB->tapped) {
@@ -370,17 +353,30 @@ void kernelMain(void) {
 
         // Done with the song
         if(currentFile->howMuchRead.get() >= currentFile->size) {
-            
-            // Reset Sound 
+        
+            // Turn Off Sound 
+            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+
+            // Reset Offsets 
             written = 0; 
             index = 0; 
             currentFile->offset = currentFile->reset_offset;
-            reset(currentFile);
-
-            // Reset VGA
             currentFile->howMuchRead.set(0);
             thisVGA->new_song = true; 
             thisVGA->elapsed_time.set(0); 
+
+            // Changes File 
+            currentNode = currentNode->prev; 
+
+            if(K::streq(currentNode->file_name, "")) {
+                currentNode = currentNode->prev;
+            }
+            currentFile = currentNode->wave_file;
+
+            /* VGA Animation */
+            thisVGA->spotify_move(currentNode, true, true);
+
+            reset(currentFile);
 
             Debug::printf("Should be Reset\n");
         }

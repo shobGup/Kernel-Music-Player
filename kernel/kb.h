@@ -6,6 +6,7 @@
 #include "machine.h"
 #include "debug.h"
 #include "vga.h"
+#include "ext2.h"
 
 // 0x60	Read/Write	Data Port
 // 0x64	Read	Status Register
@@ -39,9 +40,7 @@ class kb {
 
     kb(VGA* vga);
 
-    void kbInit();
-
-    void initializeController();
+    void kbInit(Shared<Node> logo);
 };
 
 #endif

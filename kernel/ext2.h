@@ -314,7 +314,7 @@ public:
         // uint32_t off = *((uint32_t*) (file_header + 10));
         // uint32_t off = 138;
         // uint16_t bit_count = *((uint16_t*) (info_header + 14));
-        // uint32_t size = *((uint32_t*) (file_header + 2));
+        uint32_t size = *((uint32_t*) (file_header + 2));
         // Debug::printf("type: %c", file_header[0]);
         // Debug::printf("%c\n", file_header[1]);
         // Debug::printf("size: %d\n", size);
@@ -331,12 +331,12 @@ public:
         // uint32_t width = 70;
         // uint32_t height = 70;
         
-        uint8_t* buf = new uint8_t[19738-138];
-        this->read_all(138, 19738-138, (char*) buf);
+        uint8_t* buf = new uint8_t[size-138];
+        this->read_all(138, size-138, (char*) buf);
 
-        char* ret_shob = new char[((19600) / 4) * 3];
+        char* ret_shob = new char[((size-138) / 4) * 3];
 
-        for (int i = 0, rIdx = 0; i < 19600; i += 4, rIdx += 3) {
+        for (uint32_t i = 0, rIdx = 0; i < size-138; i += 4, rIdx += 3) {
             ret_shob[rIdx] = buf[i + 2]; // red
             ret_shob[rIdx + 1] = buf[i + 1]; // green
             ret_shob[rIdx + 2] = buf[i]; // blue
