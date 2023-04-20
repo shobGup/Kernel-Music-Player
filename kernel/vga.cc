@@ -602,9 +602,8 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
             delete[] curr_center;
             curr_center = (fn->small)->read_bmp();
             place_bmp(cx, cy, 40, 40, curr_center);
-            // drawRectangle(rx+35, ry-40, rx+40, ry, 56, true);
-            // drawRectangle(rx, ry-39, rx+40, ry-40, 56, true);
-            drawRectangle(rx, ry, rx-40, ry-40, bg_color, true);
+            drawRectangle(rx+35, ry-40, rx+40, ry, bg_color, true);
+            drawRectangle(rx, ry-40, rx+40, ry-39, bg_color, true);
             rx -= 5;
             ry += 1;
             delete[] curr_right;
