@@ -52,7 +52,6 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         if (c == '\n') { // enter
             if (program) {
                 program[len] = 0;
-                delete[] program;
                 break;
             }
         }
@@ -102,15 +101,10 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         }
     }
 
-
     if (K::streq(program, (const char*)"spotify")) {
+        delete[] program;
         vga->bootup(logo);
-
-        Debug::printf("atta calling up\n");
-
         spot->up();
-
-        Debug::printf("after atta calling up\n");
 
         vga->initializeScreen(vga->bg_color);
 
