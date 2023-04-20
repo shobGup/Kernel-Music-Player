@@ -120,14 +120,14 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
             uint32_t counter = 0; 
             while ((inb(STATUS_REG) & 0x1) == 0) {
                     // Debug::printf("Yo WTF\n");
-                    name[len] = cursor ? '_' : '\0';
-                    name[len + 1] = '\0';
                     if(counter > 429496) {
                         Debug::printf("Counter: %d, Name: %s\n", counter, name);
                         cursor = !cursor;
                         counter = 0; 
                         vga->drawRectangle(70, 9, 250, 19, 63, 1);
                     }
+                    name[len] = cursor ? '_' : '\0';
+                    name[len + 1] = '\0';
                     counter++; 
                     vga->drawString(70, 10, name, vga->bg_color);
             }
