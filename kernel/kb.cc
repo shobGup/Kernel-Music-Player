@@ -131,7 +131,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     name[len] = 0;
                     start = 0;
                     memcpy(filename, name, (len));
-                    delete[] name;
+                    // delete[] name;
                     filename[len] = '\0';
                     entered = true;
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
@@ -163,7 +163,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     char* temp = new char[len * 2 + 10];
                     size = len * 2 + 10;
                     memcpy(temp, name, len);
-                    delete[] name;
+                    // delete[] name;
                     name = new char[len * 2 + 10];
                     memcpy(name, temp, len);
                     delete[] temp;
