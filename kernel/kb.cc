@@ -114,6 +114,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         int len = 0;
         bool start = 0;
         size = 100;
+        bool cursor = false; 
         // start polling/interrupts
         while (1) {
             while ((inb(STATUS_REG) & 0x1) == 0) {}
@@ -123,11 +124,13 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                 vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                 len = 0;
                 name = new char[100];
+                cursor = true; 
                 size = 100;
                 start = 1;
             }
             if (c == '\n') { // enter
                 if (name) {
+                    cursor = false; 
                     name[len] = 0;
                     start = 0;
                     memcpy(filename, name, (len));
@@ -169,17 +172,21 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     delete[] temp;
                 }
                 vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
-                if (len > 22) {
+                if (len > 21) {
                     char* tempname = new char[22];
-                    for (int i = 0; i < 22; i++) {
-                        tempname[i] = name[len - 22 + i];
+                    for (int i = 0; i < 21; i++) {
+                        tempname[i] = name[len - 21 + i];
                     }
+                    tempname[21] = cursor ? '_' : '\0'; 
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     vga->drawString(70, 10, tempname, vga->bg_color);
                     delete[] tempname;
                 } else {
+                    name[len] = cursor ? '_' : '\0';
                     vga->drawString(70, 10, name, vga->bg_color);
                 }
+
+                cursor = !cursor; 
 
                 // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
                 // if (len > 22) {

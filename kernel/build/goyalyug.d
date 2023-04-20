@@ -1,5 +1,4 @@
-build/goyalyug.o: \
- /u/krathod/439/final_project/Audio-Output-Final/goyalyug.cc ide.h \
+build/goyalyug.o: /u/goyalyug/OS429/Audio-Output-Final/goyalyug.cc ide.h \
  stdint.h block_io.h debug.h \
  /u/gheith/public/gcc-11.2.0/lib/gcc/x86_64-linux-gnu/11.2.0/include/stdarg.h \
  io.h atomic.h machine.h init.h loop.h ext2.h ide.h shared.h smp.h \
