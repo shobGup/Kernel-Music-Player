@@ -79,7 +79,7 @@ void kb::initializeController() {
     // char* pixels = 
     // vga->place_bmp(132, 85, 55, 55, );
 
-    vga->drawRectangle(151, 10, 232, 20, 63, 1); // text box
+    // vga->drawRectangle(151, 10, 232, 20, 63, 1); // text box
     vga->drawString(88, 96, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
     char* name = new char[25];
     int len = 0;
@@ -126,10 +126,10 @@ void kb::initializeController() {
                         tempname[i] = name[len - 18 + i];
                     }
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
-                    vga->drawString(10, 10, tempname, vga->bg_color);
+                    vga->drawString(70, 10, tempname, vga->bg_color);
                     delete[] tempname;
                 } else {
-                    vga->drawString(10, 10, name, vga->bg_color);
+                    vga->drawString(70, 10, name, vga->bg_color);
                 }
             }
         }
@@ -144,10 +144,10 @@ void kb::initializeController() {
                     tempname[i] = name[len - 18 + i];
                 }
                 vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
-                vga->drawString(10, 10, tempname, vga->bg_color);
+                vga->drawString(70, 10, tempname, vga->bg_color);
                 delete[] tempname;
             } else {
-                vga->drawString(10, 10, name, vga->bg_color);
+                vga->drawString(70, 10, name, vga->bg_color);
             }
 
             // vga->drawRectangle(151, 96, 232, 104, 63, 1); // text box
