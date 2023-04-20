@@ -78,6 +78,12 @@ void wait(int unit, Shared<Node> item) {
     }
 }
 
+void VGA::shut_off() {
+    Debug::printf("Shut Down\n");
+    initializeScreen(bg_color);
+    drawString(100, 150, "System Turned OFF", 63);
+}
+
 void VGA::bootup(Shared<Node> logo) {
     Debug::printf("in bootup\n");
     initializeScreen(bg_color);
@@ -110,6 +116,7 @@ void VGA::bootup(Shared<Node> logo) {
         drawRectangle(12, 102, i, 108, 45, true);
     }
 }
+
 
 void VGA::initializePorts() {
     attribute_port.index_port = ATTRIBUTE_INDEX_WRITE;

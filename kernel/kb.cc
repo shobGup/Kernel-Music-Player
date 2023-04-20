@@ -255,6 +255,8 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
             if(val == 203) precend = true;
             if(val == 205) skip = true;
             if (val == 57 && !start) tapped = 1;
+            Debug::printf("I Typed: %d\n", val);
+            // if (val == 57 && !start) shutdown = 1; 
 
             // cursor = !cursor; 
         }

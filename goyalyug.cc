@@ -332,8 +332,6 @@ void kernelMain(void) {
     uint32_t index = 0; 
     // uint32_t size = currentFile->size_of_the_whole_file;
 
-   
-
     Shared<WaveParser_list>* my_wave = &(currentFile);
 
     Debug::printf("Calling Down\n");
@@ -499,8 +497,6 @@ void kernelMain(void) {
         if(thisKB->entered) {
             thisKB->entered = false; 
 
-        
-
             // Changes File 
             auto temp = fileSystem->findName((const char *) thisKB->filename, currentNode);
 
@@ -521,8 +517,6 @@ void kernelMain(void) {
                 thisVGA->new_song = true; 
                 thisVGA->elapsed_time.set(0); 
 
-
-
                 /* VGA Animation */
                 thisVGA->spotify(currentNode, true);
 
@@ -531,6 +525,12 @@ void kernelMain(void) {
                 thisVGA->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                 thisVGA->drawString(70, 10, (const char*)"NOT A VALID SONG", 47); // enter spotify
             }
+
+        }
+
+        // Shutoff Screen 
+        if(thisKB->shutdown) {
+            thisVGA->shut_off();
         }
 
    }

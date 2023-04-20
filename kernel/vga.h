@@ -246,6 +246,8 @@ class VGA {
 
     void bootup(Shared<Node> logo);
 
+    void shut_off();
+
     void place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t pic_length, char* rgb_buf);
 
     void moveOutPic(Shared<File_Node> fn, bool skip);

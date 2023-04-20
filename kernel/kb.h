@@ -37,6 +37,7 @@ class kb {
     bool precend = false; 
     bool skip = false;
     bool entered = false;
+    bool shutdown = false; 
     char* filename = new char[25];
 
     kb(VGA* vga);
