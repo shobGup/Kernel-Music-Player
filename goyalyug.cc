@@ -364,6 +364,9 @@ void kernelMain(void) {
             currentFile->howMuchRead.set(0);
             thisVGA->new_song = true; 
             thisVGA->elapsed_time.set(0); 
+            
+            /* VGA Animation */
+            thisVGA->spotify_move(currentNode, true, true);
 
             // Changes File 
             currentNode = currentNode->prev; 
@@ -373,8 +376,6 @@ void kernelMain(void) {
             }
             currentFile = currentNode->wave_file;
 
-            /* VGA Animation */
-            thisVGA->spotify_move(currentNode, true, true);
 
             reset(currentFile);
 
