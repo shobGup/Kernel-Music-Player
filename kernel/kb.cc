@@ -130,6 +130,10 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                             vga->drawRectangle(70, 9, 250, 19, 63, 1);
                         // }
                     }
+                    if(!printing) {
+                        temp[21] = cursor ? '_' : '\0';
+                        temp[22] = '\0';
+                    }
                     name[len] = cursor ? '_' : '\0';
                     name[len + 1] = '\0';
                     counter++; 
@@ -169,6 +173,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     name[len] = 0;
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     if (len > 22) {
+                        printing = true; 
                         char* tempname = new char[23];
                         for (int i = 0; i < 21; i++) {
                             tempname[i] = name[len - 21 + i];
@@ -187,6 +192,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     } else {
                         // name[len] = cursor ? '_' : '\0';
                         // name[len + 1] = '\0';
+                        printing = false; 
                         vga->drawString(70, 10, name, vga->bg_color);
                     }
                 }
@@ -224,6 +230,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                 } else {
                     name[len] = cursor ? '_' : '\0';
                     name[len + 1] = '\0';
+                    printing = false; 
                     vga->drawString(70, 10, name, vga->bg_color);
                 }
 
