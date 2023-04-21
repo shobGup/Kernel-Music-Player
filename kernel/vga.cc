@@ -371,7 +371,6 @@ void VGA::drawChar(int x, int y, char c, uint8_t color) {
     }
 }
 
-// Define a function to render a string at a given position
 void VGA::drawString(int x, int y, const char* str, uint8_t color) {
     int offset = 0;
     while (*str) {
@@ -442,7 +441,6 @@ void VGA::spotify_move(Shared<File_Node> song, bool willPlay, bool skip) {
     playing = !willPlay;
     play_pause();
 }
-
 
 void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     drawString(24, 65, (const char*) "PREV", 63);
@@ -569,7 +567,6 @@ void VGA::drawPauseCircle(uint32_t c_x, uint32_t c_y, uint32_t r, uint8_t color)
         }
     }
 }
-
 
 void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
     Shared<File_Node> prev_n = fn->prev;

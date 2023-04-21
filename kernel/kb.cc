@@ -32,7 +32,8 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
     outb(CMD_REG, 0xAE); // enable first port?
 
     restart:
-
+    // start up screen
+    vga->initializeScreen(vga->bg_color);
     vga->drawString(134, 71, (const char*)"PentOS", 63); // show PentOS
     vga->drawRectangle(87, 95, 232, 105, 63, 1); // text box
     vga->drawString(88, 96, (const char*)"Type program name:", vga->bg_color); // enter spotify
@@ -74,6 +75,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                     vga->drawString(88, 96, program, vga->bg_color);
                 }
             }
+            if (c == 27) shutdown = 1;
         }
         // if numbers 0-9 || 16 - 25 || 30 - 38 || 44 - 50
         if (((val >= 2 && val <= 13) || (val >= 16 && val <= 25) || (val >= 30 && val <=38) || (val >= 44 && val <= 50) || val==0x39) && start) { // add char to string
@@ -131,10 +133,10 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                         vga->drawRectangle(70, 9, 250, 19, 63, 1);
                         }
                         if(printing) {
-                            temp[21] = cursor ? '|' : '\0';
+                            temp[21] = cursor ? '_' : '\0';
                             temp[22] = '\0';
                         }
-                        name[len] = cursor ? '|' : '\0';
+                        name[len] = cursor ? '_' : '\0';
                         name[len + 1] = '\0';
                         counter++; 
                         if(!printing) {
@@ -146,14 +148,12 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
             }
             int val = inb(DATA_PORT);
             char c = ascii[val];
-            if (c == 27) {
+            if (c == 27) { // esc
                 if (start) {
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     vga->drawString(70, 10, (const char*)"Press tab to search...", vga->bg_color); // enter spotify
                     start = 0;
                     startCursor = false;
-                } else {
-                    shutdown = 1;
                 }
             }
             if (val == 0xF) { // tab, start reading for input to string
@@ -194,10 +194,10 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                             tempname[i] = name[len - 21 + i];
                             temp[i] = name[len - 21 + i]; 
                         }
-                        tempname[21] = cursor ? '|' : '\0'; 
+                        tempname[21] = cursor ? '_' : '\0'; 
                         tempname[22] = '\0'; 
 
-                        temp[21] = cursor ? '|' : '\0'; 
+                        temp[21] = cursor ? '_' : '\0'; 
                         temp[22] = '\0'; 
 
                         vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
@@ -232,18 +232,18 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                         tempname[i] = name[len - 21 + i];
                         temp[i] = name[len - 21 + i];
                     }
-                    tempname[21] = cursor ? '|' : '\0'; 
+                    tempname[21] = cursor ? '_' : '\0'; 
                     tempname[22] = '\0'; 
                     printing = true; 
 
-                    temp[21] = cursor ? '|' : '\0'; 
+                    temp[21] = cursor ? '_' : '\0'; 
                     temp[22] = '\0'; 
 
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     vga->drawString(70, 10, tempname, vga->bg_color);
                     delete[] tempname;
                 } else {
-                    name[len] = cursor ? '|' : '\0';
+                    name[len] = cursor ? '_' : '\0';
                     name[len + 1] = '\0';
                     printing = false; 
                     vga->drawString(70, 10, name, vga->bg_color);
@@ -268,7 +268,10 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                 vga->initializeScreen(vga->bg_color);
                 goto restart;
             }
-            if (c == 27) shutdown = 1;
+            if (c == 27) {
+                shutdown = 1;
+                vga->shut_off();
+            }
         }
     }
 }
