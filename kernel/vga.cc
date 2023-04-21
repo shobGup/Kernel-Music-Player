@@ -71,7 +71,7 @@ void VGA::shut_off() {
 }
 
 void VGA::bootup(Shared<Node> logo) {
-    initializeScreen(bg_color);
+    initializeScreen(42);
     drawString(97, 192, (const char*)"Powered by PentOS", 8);
     
     char* pixels = logo->read_bmp();
