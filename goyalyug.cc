@@ -542,6 +542,7 @@ void kernelMain(void) {
             thisKB->shutdown = false; 
             isItDown = true; 
             thisVGA->shut_off();
+            
         }
 
    }

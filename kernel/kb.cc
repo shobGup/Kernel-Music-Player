@@ -4,8 +4,6 @@ kb::kb(VGA* vga): vga(vga) {}
 
 void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
     tapped = false;
-    // disable interrupts:
-    // cli();
 
     // disable devices
     while (inb(STATUS_REG) & 0x2);
@@ -18,11 +16,13 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
 
     // set configuration byte to enable keyboard port.
     while (inb(STATUS_REG) & 0x2);
-    outb(CMD_REG, 0x20); // tell device I want to read Controller config byte.
-    uint8_t configByte = inb(DATA_PORT) | 0x37; // and it with what I need to be set
 
-    while ((inb(STATUS_REG) & 0x2));
+    // tell device I want to read Controller config byte.
+    outb(CMD_REG, 0x20); 
+    // & it with what I need to be set
+    uint8_t configByte = inb(DATA_PORT) | 0x37;
     // now we can write the config byte
+    while ((inb(STATUS_REG) & 0x2));
     outb(CMD_REG, 0x60); // tell device I want to write config byte
     while (inb(STATUS_REG) & 0x2);
     outb(CMD_REG, configByte); // write config byte
@@ -103,7 +103,7 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
         }
     }
 
-    if (K::streq(program, (const char*)"pentos records")) {
+    if (K::streq(program, (const char*)"pentos player")) {
         delete[] program;
         vga->bootup(logo);
         spot->up();
@@ -131,10 +131,10 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                         vga->drawRectangle(70, 9, 250, 19, 63, 1);
                         }
                         if(printing) {
-                            temp[21] = cursor ? '_' : '\0';
+                            temp[21] = cursor ? '|' : '\0';
                             temp[22] = '\0';
                         }
-                        name[len] = cursor ? '_' : '\0';
+                        name[len] = cursor ? '|' : '\0';
                         name[len + 1] = '\0';
                         counter++; 
                         if(!printing) {
@@ -194,10 +194,10 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                             tempname[i] = name[len - 21 + i];
                             temp[i] = name[len - 21 + i]; 
                         }
-                        tempname[21] = cursor ? '_' : '\0'; 
+                        tempname[21] = cursor ? '|' : '\0'; 
                         tempname[22] = '\0'; 
 
-                        temp[21] = cursor ? '_' : '\0'; 
+                        temp[21] = cursor ? '|' : '\0'; 
                         temp[22] = '\0'; 
 
                         vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
@@ -232,18 +232,18 @@ void kb::kbInit(Shared<Node> logo, Shared<Semaphore> spot) {
                         tempname[i] = name[len - 21 + i];
                         temp[i] = name[len - 21 + i];
                     }
-                    tempname[21] = cursor ? '_' : '\0'; 
+                    tempname[21] = cursor ? '|' : '\0'; 
                     tempname[22] = '\0'; 
                     printing = true; 
 
-                    temp[21] = cursor ? '_' : '\0'; 
+                    temp[21] = cursor ? '|' : '\0'; 
                     temp[22] = '\0'; 
 
                     vga->drawRectangle(70, 9, 250, 19, 63, 1); // text box
                     vga->drawString(70, 10, tempname, vga->bg_color);
                     delete[] tempname;
                 } else {
-                    name[len] = cursor ? '_' : '\0';
+                    name[len] = cursor ? '|' : '\0';
                     name[len + 1] = '\0';
                     printing = false; 
                     vga->drawString(70, 10, name, vga->bg_color);

@@ -2,19 +2,7 @@
 
 static uint8_t* vga_buf = (uint8_t*) 0xA0000;
 
-uint8_t* VGA::getFrameBuffer() {
-    uint8_t seg = (graphics_ctrl.readWithIndex(6)) & (3 << 2);
-    if (seg == 0 << 2) return 0;
-    if (seg == 1 << 2) return (uint8_t*) 0xA0000;
-    if (seg == 2 << 2) return (uint8_t*) 0xB0000;
-    if (seg == 3 << 2) return (uint8_t*) 0xB8000;
-    Debug::panic("*** should never be here\n");
-    return 0;
-}
-
-// void VGA::setup(Shared<Ext2> root_fs, bool isGraphics) {
 void VGA::setup(Shared<Names_List> root_fs, Shared<File_Node> curr, bool isGraphics) {
-    // it should be this and not shared<ext2> Shared<File_Node>
     fs = root_fs;
     this->curr = curr;
     initializePorts();
@@ -22,12 +10,9 @@ void VGA::setup(Shared<Names_List> root_fs, Shared<File_Node> curr, bool isGraph
         bg_color = 21;
         initializePalette();
         initializeGraphics();
-        // initializeScreen(bg_color);
     } else {
         initTextMode();
     }
-    // spotify(curr, false);
-    // homeScreen("320");
 }
 
 bool VGA::setPortsText(unsigned char* g_90x60_text) {
