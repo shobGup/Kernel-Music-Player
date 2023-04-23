@@ -266,7 +266,9 @@ void turnOnDevice(uint32_t *base_u) {
 }
 
 /*
-    
+    This function is used to flip the bit of SDnCTL register which technically means 
+    if the stream is running or not
+    (used to pause and play the song)
 */
 void flipBit() {
     char *base = (char *) 0xfebf0000;
@@ -280,14 +282,13 @@ void flipBit() {
     Debug::printf("In Method SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
 }
 
-void changeFile(Shared<WaveParser_list> file, Shared<WaveParser_list> oldFile) {
-
-}
+/*
+    Magic happens here
+*/
 
 void kernelMain(void) {
 
     Shared<Names_List> fileSystem = Shared<Names_List>::make();
-    // 0x8000200
 
     // PCI controll register -> command register -> outl (addy we want to read) -> inl to read what it responds
     outl(0xCF8, 0x80002004);
@@ -315,11 +316,12 @@ void kernelMain(void) {
 
     Shared<Semaphore> startSpot = Shared<Semaphore>::make(0);
 
+    // the first song that plays when we start the program
     auto currentNode = fileSystem->findName("breathe in the air",fileSystem->dummy);
     auto currentFile = currentNode->wave_file;
 
+    // setting up the graphics
     VGA *thisVGA = new VGA();
-    // Debug::printf("This VGA: %x\n",thisVGA );
     thisVGA->setup(fileSystem, currentNode ,1);
 
     Shared<kb> thisKB = Shared<kb>::make(thisVGA);
@@ -341,6 +343,7 @@ void kernelMain(void) {
     // Esuring the Device is being Turned On 
     turnOnDevice(base_u);
 
+    // ready to play returns the format which will be used later for commands
     uint16_t fmt = ready_to_play(base, currentFile);
 
 
@@ -413,6 +416,9 @@ void kernelMain(void) {
     }
     
     while(true) {
+        /* 
+            makes sure the hardware and software are in sync and there are no race condition
+        */
         volatile uint32_t hardware_offset = *(volatile uint32_t*) (base_addy_plus_x + 0x4);
         if (((hardware_offset - written) % 65536) > 4096) {
             currentFile->howMuchRead.fetch_add(4096); 
@@ -442,12 +448,13 @@ void kernelMain(void) {
             // Changes File 
             currentNode = currentNode->next; 
 
+            // skip the dummy node
             if(K::streq(currentNode->file_name, "")) {
                 currentNode = currentNode->next;
             }
             currentFile = currentNode->wave_file;
 
-
+            // after the song is done playing it restarts the song again
             reset(currentFile);
 
             Debug::printf("Should be Reset\n");
@@ -456,7 +463,7 @@ void kernelMain(void) {
         // Space Bar
         if(thisKB->tapped) {
 
-            // Change playing mode 
+            // Change playing mode if playing then pause and if paused then plays
             flipBit();
             thisKB->tapped = false; 
 
@@ -505,6 +512,7 @@ void kernelMain(void) {
             // Changes File 
             currentNode = currentNode->prev; 
 
+            // skip the dummy node
             if(K::streq(currentNode->file_name, "")) {
                 currentNode = currentNode->prev;
             }
@@ -536,6 +544,7 @@ void kernelMain(void) {
             // Changes File 
             currentNode = currentNode->next; 
 
+            // skip the dummy node
             if(K::streq(currentNode->file_name, "")) {
                 currentNode = currentNode->next;
             }
@@ -584,8 +593,6 @@ void kernelMain(void) {
         if(thisKB->shutdown) {
             // Turn Off Sound 
             *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
-
-            /* TODO: change music to shutdown music */
 
             thisKB->shutdown = false; 
             isItDown = true; 

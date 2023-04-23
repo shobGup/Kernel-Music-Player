@@ -7,6 +7,9 @@
 #include "pit.h"
 #include "wave.h"
 
+/*
+    Credit to OS dev
+*/
 
 uint16_t vendorID;
 uint8_t headerType;

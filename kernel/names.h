@@ -8,6 +8,11 @@
 #include "physmem.h"
 #include "list_wave.h"
 
+/*
+    A linked list which contains information  about the prev and next node
+    With it it also has the information about the current song from the
+    WAVParser_list and the small and big nodes (essentially if the image is small or big)
+*/
 struct File_Node {
     Atomic<uint32_t> ref_count{0};
     Shared<File_Node> prev;
