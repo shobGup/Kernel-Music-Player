@@ -138,26 +138,12 @@ class WaveParser_list {
         file->read_all(size_of_the_junk+ (4096 * i), 4096, (char*) (uint64_t*)current_addy);
         offset = size_of_the_junk + (4096 * i) + 4096; 
         reset_offset = size_of_the_junk + (4096 * i) + 4096; 
-        // Debug::printf("Offset: %d\n", offset);
     }
 
     char * first_few = new char[10];
     file->read_all(size_of_the_junk, 8, (char*) (uint32_t*)first_few);
-    // Debug::printf("First few bytes from the wav file: %x\n", *(uint32_t *)first_few);
-    // Debug::printf("First few bytes from the wav file ~ 2: %x\n", *((uint32_t *)first_few + 1));
     delete first_few; 
 
-    // for(int x = 0; x < 100; x++) {
-    //     char * current_entry = (b_entries);
-    //     // Debug::printf("%x\n", *(((uint32_t *)(*((uint64_t *) current_entry))) + x));
-    // }
-
-
-    // Set the Addy 
-
-    // Set Registers with the right values (, bit_channels, )
-
-    // make RUN into 1 
 
 }
 
@@ -166,20 +152,8 @@ class WaveParser_list {
         char * current_entry = (b_entries + (index * 16));
         uint64_t current_addy = *(uint64_t *) current_entry; 
 
-        // char * first_few = new char[10];
-        // overallFile->read_all(offset, 8, (char*) (uint32_t*)first_few);
-        // Debug::printf("First few bytes from the wav file: %x\n", *(uint32_t *)first_few);
-        // Debug::printf("First few bytes from the wav file ~ 2: %x\n", *((uint32_t *)first_few + 1));
-        // delete first_few; 
-
         overallFile->read_all(offset, 4096, (char*) (uint64_t*)current_addy);
         offset+=4096; 
-        // howMuchRead.add_fetch(4096);
-
-        // for(int x = 0; x < 5; x++) {
-        //     char * current_entry = (b_entries + (index * 16));
-        //     Debug::printf("%x\n", *(((uint32_t *)(*((uint64_t *) current_entry))) + x));
-        // }
 
     }
 
@@ -188,22 +162,8 @@ class WaveParser_list {
         char * current_entry = (b_entries + (index * 16));
         uint64_t current_addy = *(uint64_t *) current_entry; 
 
-        // char * first_few = new char[10];
-        // overallFile->read_all(offset, 8, (char*) (uint32_t*)first_few);
-        // Debug::printf("First few bytes from the wav file: %x\n", *(uint32_t *)first_few);
-        // Debug::printf("First few bytes from the wav file ~ 2: %x\n", *((uint32_t *)first_few + 1));
-        // delete first_few; 
-
         bzero((void*)(uint64_t*)current_addy,4096);
         howMuchRead.set(0);
-        
-        // overallFile->read_all(offset, 4096, (char*) (uint64_t*)current_addy);
-        // offset+=4096; 
-
-        // for(int x = 0; x < 5; x++) {
-        //     char * current_entry = (b_entries + (index * 16));
-        //     Debug::printf("%x\n", *(((uint32_t *)(*((uint64_t *) current_entry))) + x));
-        // }
 
     }
 

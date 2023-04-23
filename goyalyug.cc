@@ -10,6 +10,9 @@
 #include "kb.h"
 // #include "names.h"
 
+
+// this function is used to get the response from the register after givinf it all the information in the set command 
+// function
 uint32_t get_response(char *base) {
 
     while((((*(uint32_t *) (base + 0x68)) & 0x2) >> 1) != 1) {
@@ -28,6 +31,14 @@ uint32_t get_response(char *base) {
 
 }
 
+/*
+    in this function we pass the codec address, the node number, the command which we want the info about
+    and the data to send in information about the things we want the codec to do
+    Sometimes we use this function to set the speaker, turn the speaker on (mute/gain function)
+    set the stream channel, set the pin widget control and various things
+    we make a final command using all the parameters and then send that command to a particular
+    register (base + 60h) which is a Immediate Command Output Interface register so that the device knows what we want
+*/
 bool send_command(uint32_t codec, uint32_t node, uint32_t command, uint32_t data, char *base) {
 
     Debug::printf("Send Command\n");
@@ -80,6 +91,12 @@ bool send_command(uint32_t codec, uint32_t node, uint32_t command, uint32_t data
 }
 
 
+/*
+    This funtion serves similar to the send command function above but in this function
+    the number of bits for the command and data are different as mentioned in the 
+    Intel HDA documentation. Otherwise it serves the same purpose as before
+
+*/
 bool send_comman_extended(uint32_t codec, uint32_t node, uint32_t command, uint32_t data, char *base) {
 
     Debug::printf("Send Command\n");
@@ -131,6 +148,13 @@ bool send_comman_extended(uint32_t codec, uint32_t node, uint32_t command, uint3
     return true; 
 }
 
+
+/*
+    In this function we are passed the current node (song) which want to restart
+    We are zeroing out all the 16 bubffers and rebuilding the data all over again
+    In simple words we are restarting the song
+
+*/
 void reset(Shared<WaveParser_list> currentFile) {
 
     char *base = (char *) 0xfebf0000;
@@ -157,6 +181,23 @@ void reset(Shared<WaveParser_list> currentFile) {
     *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2);
 }
 
+/*
+    This is one of the important functions which makes sure that we are ready to play the song
+    First we are supposed to set the set the SDnBDL register which contains the address of 
+    where the bbuffer descriptor table is
+
+    Then we set the LVI which is the last valid index which will be 15 for us since 
+    we are dealing with 16 buffers
+
+    Then we set the SDnCBL register which contains the Cyclic Buffer Length which
+    is going to be 16 * 4096 for us
+
+    Next we set the SDnFMT register which will contains a 32 bits integer which is put together
+    after finding the Sample Base Rate, Sample Base Rate Multiple, Sample Base Rate Divisor,
+    Bits per Sample, Number of Channels. All of these information are extracted from the WAV file
+    (in the list_wave.h class)
+
+*/
 uint16_t ready_to_play(char * base, Shared<WaveParser_list> currentFile) {
 
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
@@ -205,6 +246,10 @@ uint16_t ready_to_play(char * base, Shared<WaveParser_list> currentFile) {
     // ASSERT(*(uint16_t *)((base_addy_plus_x + 0x12)) == (1280));
 }
 
+/*
+    After traversing the memory to find the device we use the base address + 0x8
+    to find the GCTL register and turn on the CRST bit to turn on the device
+*/
 void turnOnDevice(uint32_t *base_u) {
     
     while(*(base_u + 2) == 0) {
@@ -220,6 +265,9 @@ void turnOnDevice(uint32_t *base_u) {
     }
 }
 
+/*
+    
+*/
 void flipBit() {
     char *base = (char *) 0xfebf0000;
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
@@ -349,7 +397,7 @@ void kernelMain(void) {
 
     bool * keepGoing = &isItDown; 
 
-    thread([thisVGA, my_wave, keepGoing] {
+    thread([thisVGA, my_wave, keepGoing] { // purpose of this thread is to keep giving the percentage of the song to the vga to draw
         // thisVGA->progressBarInit();
         thisVGA->last_jif = Pit::jiffies;
         while(!(*keepGoing)) {

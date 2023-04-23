@@ -99,6 +99,7 @@ To read DAC entries:
 #define COLOR_PALETTE_DATA_RW 0x3C9
 
 // colors
+// enum for all of the colors if you do not initialize the color pallete
 enum vga_colors {
     BLACK,          // (0, 0, 0)
     NAVY_BLUE,           // (0, 0, 255)      
@@ -199,59 +200,92 @@ class VGA {
     void set_attribute_controller_registers();
     void setup(Shared<Names_List> root_fs, Shared<File_Node> curr, bool isGraphics);
 
+    // initializes graphics mode
     void initializeGraphics();
 
+    // initializes the color pallete with a set standard of 63 colors that we chose
     void initializePalette();
 
-    bool setPortsText(unsigned char*);
+    // sets the ports up for graphics mode 320x200x256
+    bool setPortsGraphics(unsigned char*);
 
+    // sets our port class variables
     void initializePorts();
 
+    // initializes the screen with the color of choosing
     void initializeScreen(uint8_t color);
 
+    // draws an unfilled circle
     void drawCircle(int centerX, int centerY, int radius, uint8_t color);
 
+    // draws a fill circle. Idk who named this but it wasn't Shobhit. Or Atta.
     void drawPauseCircle(uint32_t c_x, uint32_t c_y, uint32_t r, uint8_t color);
 
+    // given an r, g, and b, gets the closest matching color from our
+    // 64 color pallete
     uint8_t getColor(uint8_t r, uint8_t g, uint8_t b);
 
+    // puts a pixel at the desired position on the screen
     void putPixel(uint16_t x, uint16_t y, uint8_t color);
 
+    // draws a vertical or horizontal line depending oon your values 
     void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t color);
 
+    // takes in the percentage complete of the song and draws the progress bar and elapsed
+    // time in the song appropriately 
     void playingSong(uint32_t);
 
+    // draws a rectangle
     void drawRectangle(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t color, bool fill);
 
+    // draws a triangle
     void drawTriangle(uint16_t x1, uint16_t y1, uint16_t length, uint8_t color, bool flip);
     
+    // useless
     uint8_t* getFrameBuffer();
 
+    // puts the text given onto the screen in text mode with standard white 
+    // characters and no background highlighting
     void useTextMode(char* buf, uint32_t size);
 
+    // iinitializes text mode with the given ports
     void initTextMode();
 
+    // draws an 8x8 char in graphics mode at the given position
     void drawChar(int x, int y, char c, uint8_t color);
 
+    // draws a string at the starting x, y with 8x8 pixel chars 
     void drawString(int x, int y, const char* str, uint8_t color);
 
+    // whatever the current image is, it takes the current picture 
+    // and displays it across the page (assumes that it is a 320x200 photo)
     void homeScreen(const char* name);
 
-    // void spotify(const char* name, bool willPlay);
+    // given a file node and whether it is playing, it initializes the gui setup
+    // of the prev, current, and next song. The main function to call everytime 
+    // a new song is playing
     void spotify(Shared<File_Node> song, bool willPlay);
 
+    // a version of spotify that gets called when an arrow key is clicked in order to 
+    // set an animation
     void spotify_move(Shared<File_Node> song, bool willPlay, bool skip);
 
+    // flips whether the song is in play mode or pause mode on the graphics side
     void play_pause();
 
+    // creates a loading screen with the given logo for the desired app
     void bootup(Shared<Node> logo);
 
+    // draws the shutdown screen.
     void shut_off();
 
+    // places the bmp image that was read in if it given a rgb ordered array of pixels
     void place_bmp(uint32_t x, uint32_t ending_y, uint32_t pic_width, uint32_t pic_length, char* rgb_buf);
 
+    // moves the bmps in an animation style when the left or right arrow keys are clicked
     void moveOutPic(Shared<File_Node> fn, bool skip);
 
+    // the buffer that lets drawChar choose whether to color a pixel for a row or not
     uint8_t vga_font[128][8] = {
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0000 (nul)
         { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0001

@@ -2,12 +2,13 @@
 
 static uint8_t* vga_buf = (uint8_t*) 0xA0000;
 
+// sets up the vga for desired mode
 void VGA::setup(Shared<Names_List> root_fs, Shared<File_Node> curr, bool isGraphics) {
     fs = root_fs;
     this->curr = curr;
     initializePorts();
     if (isGraphics) {
-        bg_color = 21;
+        bg_color = 21; // light gray
         initializePalette();
         initializeGraphics();
     } else {
@@ -15,7 +16,8 @@ void VGA::setup(Shared<Names_List> root_fs, Shared<File_Node> curr, bool isGraph
     }
 }
 
-bool VGA::setPortsText(unsigned char* g_90x60_text) {
+// sets the ports for graphics mode in a 320x200x256 setup
+bool VGA::setPortsGraphics(unsigned char* g_90x60_text) {
 
     // MISC PORT
     misc_port.write(g_90x60_text[0]);
@@ -208,26 +210,27 @@ void VGA::initializeGraphics() {
         0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
         0x41, 0x00, 0x0F, 0x00,	0x00
     };
-    setPortsText(g_320x200x256);
+    setPortsGraphics(g_320x200x256);
 
 }
 
+// consult presentation slides if this function is hard to understand
 uint8_t VGA::getColor(uint8_t r, uint8_t g, uint8_t b) {
     // 256-Color Attempt
-    const int COLOR_RANGES[] = {0, 85, 170, 255};
+    const int COLOR_RANGES[] = {0, 85, 170, 255}; // setup bins
     int r_idx = 0, g_idx = 0, b_idx = 0;
     for (int i = 1; i < 4; i++) {
-        if (r >= COLOR_RANGES[i-1] && r <= COLOR_RANGES[i]) {
+        if (r >= COLOR_RANGES[i-1] && r <= COLOR_RANGES[i]) { // if r is in this bin, choose the desired color
             int below_dist = r - COLOR_RANGES[i-1];
             int above_dist = COLOR_RANGES[i] - r;
             r_idx = below_dist < above_dist ? i-1 : i;
         }
-        if (g >= COLOR_RANGES[i-1] && g <= COLOR_RANGES[i]) {
+        if (g >= COLOR_RANGES[i-1] && g <= COLOR_RANGES[i]) { // if g is in this bin, choose the desired color
             int below_dist = g - COLOR_RANGES[i-1];
             int above_dist = COLOR_RANGES[i] - g;
             g_idx = below_dist < above_dist ? i-1 : i;
         }
-        if (b >= COLOR_RANGES[i-1] && b <= COLOR_RANGES[i]) {
+        if (b >= COLOR_RANGES[i-1] && b <= COLOR_RANGES[i]) { // if b is in this bin, choose the desired color
             int below_dist = b - COLOR_RANGES[i-1];
             int above_dist = COLOR_RANGES[i] - b;
             b_idx = below_dist < above_dist ? i-1 : i;
@@ -238,12 +241,6 @@ uint8_t VGA::getColor(uint8_t r, uint8_t g, uint8_t b) {
     uint8_t g_scaled = COLOR_RANGES[g_idx] / 0x55;
     uint8_t b_scaled = COLOR_RANGES[b_idx] / 0x55;
     return (r_scaled * 16) + (g_scaled * 4) + b_scaled;
-    // for (uint8_t i = 0; i < 64*3; i+=3) {
-    //     if (r_scaled == palette[i] && g_scaled == palette[i+1] && b_scaled == palette[i+2]) 
-    //         return (i/3);
-    //  }
-    //  Debug::PANIC("NEVER CATCH ME!");
-    //  return 1;
 }
 
 void VGA::initializeScreen(uint8_t color) {
@@ -251,9 +248,9 @@ void VGA::initializeScreen(uint8_t color) {
 }
 
 void VGA::putPixel(uint16_t x, uint16_t y, uint8_t color) {
-    uint32_t index = (y<<8) + (y<<6) + x;
+    uint32_t index = (y<<8) + (y<<6) + x; // uses bitshifting instead of multiplying by 320 to make it faster to place the y value
     char* col = (char*) &color;
-    memcpy((char*) (index + vga_buf), col, 1);    
+    memcpy((char*) (index + vga_buf), col, 1); 
 }
 
 void VGA::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint8_t color) {
@@ -293,7 +290,7 @@ void VGA::drawCircle(int centerX, int centerY, int radius, uint8_t color) {
     int x = 0;
     int y = radius;
     int d = 5 - 4 * radius;
-    while (x <= y) {
+    while (x <= y) { // creates 8 pinwheels essentially that color the circle outline
         putPixel(centerX + x, centerY + y, color);
         putPixel(centerX + y, centerY + x, color);
         putPixel(centerX - x, centerY + y, color);
@@ -311,12 +308,13 @@ void VGA::drawCircle(int centerX, int centerY, int radius, uint8_t color) {
 void VGA::useTextMode(char* buf, uint32_t size) {
     char* text_buf = (char*) 0xB8000;
     for (uint32_t i = 0; i < size * 2; i += 2) {
-        text_buf[i] = buf[i / 2];
-        text_buf[i + 1] = 0x0F; // just normal white characters
+        text_buf[i] = buf[i / 2]; // puts in the char
+        text_buf[i + 1] = 0x0F; // puts in the backround color to be nothing and white as the font color
     }
 }
 
 void VGA::initTextMode() {
+    // port values just found off the internet (osdev)
     outb(CRTC_COLOR_INDEX, 0x00); 
     outb(CRTC_COLOR_WRITE, 0x67); 
 
@@ -363,11 +361,11 @@ void VGA::initTextMode() {
 }
 
 void VGA::drawChar(int x, int y, char c, uint8_t color) {
-    unsigned char* bitmap = vga_font[(int) c];
+    unsigned char* bitmap = vga_font[(int) c]; // gets the bitmap for this char
     for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
-            if (bitmap[row] & (1 << col)) putPixel(x + col, y + row, color);
-        }
+            if (bitmap[row] & (1 << col)) putPixel(x + col, y + row, color); // if the value for this pixel in the bitmap[row] is one, draw a pixel for the char
+        } // better explanation for this in the slides of our project. Information mixed from chatGPT and online source where the array came from
     }
 }
 
@@ -381,7 +379,6 @@ void VGA::drawString(int x, int y, const char* str, uint8_t color) {
 }
 
 void VGA::homeScreen(const char* name) {
-    // Shared<Ext2> root_fs = Shared<Ext2>::make(Shared<Ide>::make(1));
     Shared<Node> bmp = curr->big;
     char* rgb = bmp->read_bmp();
     place_bmp(0, 200, 320, 200, rgb);
@@ -423,7 +420,6 @@ void VGA::spotify_move(Shared<File_Node> song, bool willPlay, bool skip) {
     int l = K::strlen(curr->file_name);
     drawLine(110, 140, 210, 140, 63);
     int center_w = width / 2;
-    // drawRectangle(0, 107, 320, 135, bg_color, true);
     drawRectangle(0, length/3 + 41, 320, 135, bg_color, 1);
     drawString(center_w - ((l/2)*8), length/3 + 45, curr->file_name, 63);
     drawRectangle(75, 136, 108, 144, bg_color, true);
@@ -499,42 +495,6 @@ void VGA::spotify(Shared<File_Node> song, bool willPlay) {
     play_pause();
 }
 
-/*
-void VGA::spotify(const char* name, bool willPlay) {
-    int l = K::strlen(name);
-    playing = 0;
-    drawLine(110, 140, 210, 140, 63);
-    int center_w = width / 2;
-    drawRectangle(0, length/3 + 41, 320, 135, bg_color, 1);
-	drawString(center_w - ((l/2)*8), length/3 + 45, name, 63);
-
-    drawRectangle(75, 136, 108, 144, bg_color, true);
-    const char* str = "0:00";
-    drawString(75, 136, (const char*) str, 63);
-    // delete str;
-
-
-    Shared<Node> png = fs->find(fs->root, name);
-
-    char* pixels = png->read_bmp(png);
-
-    uint32_t starting_x = width/2 - 35;
-    uint32_t starting_y = length/3 + 35;
-    place_bmp(starting_x, starting_y, 70, 70, pixels);
-    delete[] pixels;
-
-    uint32_t center_x = 160;
-    uint32_t center_y = 170;
-    drawTriangle(center_x+25, center_y-8, 16, 63, 1); // skip
-    drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
-    drawTriangle(center_x-25, center_y-8, 16, 63, 0); // precend
-    drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
-    playing = !willPlay;
-    play_pause();
-    // moveOutPic(starting_x, starting_y-70, pixels, 70, 70, 0);
-}
-*/
-
 void VGA::play_pause() {
     uint32_t center_x = 160;
     uint32_t center_y = 170;
@@ -588,13 +548,10 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
     uint32_t center_y = 170;
     drawString(24, 65, (const char*) "PREV", bg_color);
     drawString(264, 65, (const char*) "NEXT", bg_color);
-    if (skip) { // skip
-        // drawTriangle(center_x+25, center_y-8, 16, 42, 1); // skip
-        // drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 42, 1);
+    if (skip) { // if skipping the song
         drawTriangle(center_x-25, center_y-8, 16, 42, 0); // prev
         drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 42, 1);
         drawRectangle(20, 22, 60, 62, bg_color, true);
-        // drawRectangle(260, 22, 300, 62, bg_color, true);
         uint16_t lx = 20;
         uint16_t ly = 62;
         while (cx < 260) {
@@ -623,18 +580,13 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
         char* new_left = (prev_prev_n->small)->read_bmp();
         place_bmp(20, 62, 40, 40, new_left);
         delete[] new_left;
-        // drawTriangle(center_x+25, center_y-8, 16, 63, 1); // skip
         drawTriangle(center_x-25, center_y-8, 16, 63, 0); // precend
         drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
-        // drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
     } 
-    else {
-        // drawTriangle(center_x-25, center_y-8, 16, 42, 0); // prev
-        // drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 42, 1);
+    else { // if going back to prev song
         drawTriangle(center_x+25, center_y-8, 16, 42, 1); // skip
         drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 42, 1);
         drawRectangle(260, 22, 300, 62, bg_color, true);
-        // drawRectangle(20, 22, 60, 62, bg_color, true);
         uint16_t rx = 260;
         uint16_t ry = 62;
         while (cx > 20) {
@@ -664,13 +616,8 @@ void VGA::moveOutPic(Shared<File_Node> fn, bool skip) {
         place_bmp(260, 62, 40, 40, new_right);
         delete[] new_right;
         drawTriangle(center_x+25, center_y-8, 16, 63, 1); // skip
-        // drawTriangle(center_x-25, center_y-8, 16, 63, 0); // precend
-        // drawRectangle(center_x-35, center_y-8, center_x-33, center_y+8, 63, 1);
         drawRectangle(center_x+33, center_y-8, center_x+35, center_y+8, 63, 1);
-
-
     }
     drawString(24, 65, (const char*) "PREV", 63);
     drawString(264, 65, (const char*) "NEXT", 63);
-
 }
