@@ -45,7 +45,7 @@ QEMU_FLAGS = -no-reboot \
 	     ${QEMU_CONFIG_FLAGS} \
 	     --monitor none \
 		 -vga std \
-         -display vnc="127.0.0.1:2" \
+         -display vnc="127.0.0.1:1" \
 		 -device intel-hda -device hda-duplex \
 	     --serial file:$*.raw \
              -drive file=kernel/build/$*.img,index=0,media=disk,format=raw \
