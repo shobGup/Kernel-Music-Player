@@ -32,7 +32,7 @@ static Atomic<uint32_t> howManyAreHere(0);
 bool onHypervisor = true;
 
 static constexpr uint32_t HEAP_START = 1 * 1024 * 1024;
-static constexpr uint32_t HEAP_SIZE = 5 * 1024 * 1024;
+static constexpr uint32_t HEAP_SIZE = 20 * 1024 * 1024;
 static constexpr uint32_t VMM_FRAMES = HEAP_START + HEAP_SIZE;
 
 
@@ -142,6 +142,7 @@ extern "C" void kernelInit(void) {
     auto myOrder = howManyAreHere.add_fetch(1);
     if (myOrder == kConfig.totalProcs) {
         thread([] {
+
             kernelMain();
             Debug::shutdown();
         });

@@ -5,169 +5,14 @@
 #include "semaphore.h"
 #include "future.h"
 #include "pit.h"
-#include "wave.h"
+// #include "list_wave.h"
+#include "vga.h"
+#include "kb.h"
+// #include "names.h"
 
 
-uint16_t vendorID;
-uint8_t headerType;
-
-
-uint16_t readConfigDWord(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset, bool b) {
-    uint32_t address;
-    uint32_t lbus  = (uint32_t)bus;
-    uint32_t lslot = (uint32_t)slot;
-    uint32_t lfunc = (uint32_t)func;
-    uint16_t tmp = 0;
- 
-    // Create configuration address as per Figure 1
-    address = (uint32_t)((lbus << 16) | (lslot << 11) |
-              (lfunc << 8) | (offset & 0xFC) | ((uint32_t)0x80000000));
-
-    if(b) {
-        Debug::printf("Address: %x\n", address);
-    }
-    
-    // Write out the address
-    outl(0xCF8, address);
-    // Read in the data
-    // (offset & 2) * 8) = 0 will choose the first word of the 32-bit register
-    tmp = (uint16_t)((inl(0xCFC) >> ((offset & 2) * 8)) & 0xFFFF);
-    return tmp;
-}
-
-uint32_t readConfigDWord_prive(uint8_t bus, uint8_t slot, uint8_t func, uint8_t offset, bool b) {
-    uint32_t address;
-    uint32_t lbus  = (uint32_t)bus;
-    uint32_t lslot = (uint32_t)slot;
-    uint32_t lfunc = (uint32_t)func;
-    uint32_t tmp = 0;
- 
-    // Create configuration address as per Figure 1
-    address = (uint32_t)((lbus << 16) | (lslot << 11) |
-              (lfunc << 8) | (offset & 0xFC) | ((uint32_t)0x80000000));
-
-    if(b) {
-        Debug::printf("Address: %x\n", address);
-    }
-    
-    // Write out the address
-    outl(0xCF8, address);
-    // Read in the data
-    // (offset & 2) * 8) = 0 will choose the first word of the 32-bit register
-    tmp = inl(0xCFC); 
-    return tmp;
-}
-
-// Function to get the Vendor ID of a device
-uint16_t getVendorID(uint8_t bus, uint8_t device, uint8_t function) {
-    uint32_t val = readConfigDWord(bus, device, function, 0x00, false);
-    return val & 0xFFFF;
-}
-
-uint16_t getVendorID_priv(uint8_t bus, uint8_t device, uint8_t function) {
-    uint32_t val = readConfigDWord(bus, device, function, 0x00, true);
-    return val & 0xFFFF;
-}
-
-// Function to get the Device ID of a device
-uint16_t getDeviceID(uint8_t bus, uint8_t device, uint8_t function) {
-    uint32_t val = readConfigDWord(bus, device, function, 0x02, false);
-    return (val) & 0xFFFF;
-}
-
-// uint16_t getDeviceID(uint8_t bus, uint8_t device, uint8_t function) {
-//     uint32_t val = readConfigDWord(bus, device, function, 0x00);
-//     return (val>> 16) & 0xFFFF;
-// }
-
-
-// Function to get the Class ID of a device
-uint8_t getClassID(uint8_t bus, uint8_t device, uint8_t function) {
-    uint32_t val = readConfigDWord(bus, device, function, 0x08, false);
-    return (val >> 24) & 0xFF;
-}
-
-uint16_t getCommandRegister(uint8_t bus, uint8_t device, uint8_t function) {
-    uint32_t val = readConfigDWord(bus, device, function, 0x04, false);
-    return val & 0xFFFF;
-}
-
-// Function to get the Subclass ID of a device
-uint8_t getSubclassID(uint8_t bus, uint8_t device, uint8_t function) {
-    uint32_t val = readConfigDWord(bus, device, function, 0x08, false);
-    return (val >> 16) & 0xFF;
-}
-
-// Function to get the Header Type of a device
-uint8_t getHeaderType(uint8_t bus, uint8_t device, uint8_t function) {
-    uint32_t val = readConfigDWord(bus, device, function, 0x0C, false);
-    return (val >> 16) & 0xFF;
-}
-
-// Function to get the Header Type of a device
-uint32_t getBarZero(uint8_t bus, uint8_t device, uint8_t function) {
-    uint32_t val = readConfigDWord_prive(bus, device, function, 0x10, false);
-    return val;
-}
-
-void checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
-    // Get class ID and subclass ID
-    uint8_t classID = getClassID(bus, device, function);
-    uint8_t subclassID = getSubclassID(bus, device, function);
-
-    int vId = getVendorID_priv(bus, device, function);
-    Debug::printf("vendor id %x\n", vId);
-    int dId = getDeviceID(bus, device, function);
-    Debug::printf("device id %x\n", dId);
-    uint32_t barz = getBarZero(bus, device, function);
-    Debug::printf("Bar 0: %x \n", barz);
-
-
-    // if(vId == 0x8086 && dId == 0x2668) {
-    //     uint32_t * command_regis = getCommandRegister(bus, device, function); 
-    //     *command_regis = *command_regis | 0x4;
-    //     Debug::printf("Command regis: %x\n", command_regis);
-    // }
-
-
-
-    // Debug::printf("VENDOR ID: %x & DevicID: %x\n", getVendorID(bus, device, function), getDeviceID(bus, device, function));
-
-    // Check if this is an Intel HD device
-    if (vendorID == 0x8086 && classID == 0x03 && subclassID == 0x00) {
-        Debug::printf("Found Intel HD device at bus %d, device %d, function %d\n", bus, device, function);
-    }
-}
-
-void checkDevice(uint8_t bus, uint8_t device) {
-    uint8_t function = 0;
-
-    vendorID = getVendorID(bus, device, function);
-    if (vendorID == 0xFFFF) return; // Device doesn't exist
-    checkFunction(bus, device, function);
-    headerType = getHeaderType(bus, device, function);
-    if( (headerType & 0x80) != 0) {
-        // It's a multi-function device, so check remaining functions
-        for (function = 1; function < 8; function++) {
-            if (getVendorID(bus, device, function) != 0xFFFF) {
-                checkFunction(bus, device, function);
-            }
-        }
-    }
-}
-
-
-void checkAllBuses(void) {
-    uint16_t bus;
-    uint8_t device;
-
-    for (bus = 0; bus < 256; bus++) {
-        for (device = 0; device < 32; device++) {
-            checkDevice(bus, device);
-        }
-    }
-}
-
+// this function is used to get the response from the register after givinf it all the information in the set command 
+// function
 uint32_t get_response(char *base) {
 
     while((((*(uint32_t *) (base + 0x68)) & 0x2) >> 1) != 1) {
@@ -181,10 +26,19 @@ uint32_t get_response(char *base) {
     // reset IRV
     (*(uint32_t *) (base + 0x68)) = (*(uint32_t *) (base + 0x68)) & 0xFFFFFFFD; 
 
+
     return *((uint32_t *) (base + 0x64));
 
 }
 
+/*
+    in this function we pass the codec address, the node number, the command which we want the info about
+    and the data to send in information about the things we want the codec to do
+    Sometimes we use this function to set the speaker, turn the speaker on (mute/gain function)
+    set the stream channel, set the pin widget control and various things
+    we make a final command using all the parameters and then send that command to a particular
+    register (base + 60h) which is a Immediate Command Output Interface register so that the device knows what we want
+*/
 bool send_command(uint32_t codec, uint32_t node, uint32_t command, uint32_t data, char *base) {
 
     Debug::printf("Send Command\n");
@@ -237,6 +91,12 @@ bool send_command(uint32_t codec, uint32_t node, uint32_t command, uint32_t data
 }
 
 
+/*
+    This funtion serves similar to the send command function above but in this function
+    the number of bits for the command and data are different as mentioned in the 
+    Intel HDA documentation. Otherwise it serves the same purpose as before
+
+*/
 bool send_comman_extended(uint32_t codec, uint32_t node, uint32_t command, uint32_t data, char *base) {
 
     Debug::printf("Send Command\n");
@@ -288,13 +148,63 @@ bool send_comman_extended(uint32_t codec, uint32_t node, uint32_t command, uint3
     return true; 
 }
 
-void ready_to_play(WaveParser file, char * base, WaveParser wave_file) {
+
+/*
+    In this function we are passed the current node (song) which want to restart
+    We are zeroing out all the 16 bubffers and rebuilding the data all over again
+    In simple words we are restarting the song
+
+*/
+void reset(Shared<WaveParser_list> currentFile) {
+
+    char *base = (char *) 0xfebf0000;
+    char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
+    char * SDnCTL = (base_addy_plus_x); 
+
+    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+
+    // SDnBDL Lower Set Up 
+    // Debug::printf("Addy: %x\n",currentFile.b_entries);
+    uint32_t entries = (uint32_t) (currentFile->b_entries + (1 * 16));
+    *(uint32_t *)(base_addy_plus_x + 0x18) = entries; 
+    ASSERT((*(uint32_t *)(base_addy_plus_x + 0x18)) == entries);
+    // Debug::printf("Addy ~ Entries: %x\n",entries);
+
+    for(int x = 0; x < 16; x++) {
+        currentFile->rebuildDataZero(x);
+    }
+
+    for(int x = 0; x < 16; x++) {
+        currentFile->rebuildData(x);
+    }
+
+    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2);
+}
+
+/*
+    This is one of the important functions which makes sure that we are ready to play the song
+    First we are supposed to set the set the SDnBDL register which contains the address of 
+    where the bbuffer descriptor table is
+
+    Then we set the LVI which is the last valid index which will be 15 for us since 
+    we are dealing with 16 buffers
+
+    Then we set the SDnCBL register which contains the Cyclic Buffer Length which
+    is going to be 16 * 4096 for us
+
+    Next we set the SDnFMT register which will contains a 32 bits integer which is put together
+    after finding the Sample Base Rate, Sample Base Rate Multiple, Sample Base Rate Divisor,
+    Bits per Sample, Number of Channels. All of these information are extracted from the WAV file
+    (in the list_wave.h class)
+
+*/
+uint16_t ready_to_play(char * base, Shared<WaveParser_list> currentFile) {
 
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
 
     // SDnBDL Lower Set Up 
-    Debug::printf("Addy: %x\n",wave_file.b_entries);
-    uint32_t entries = (uint32_t) wave_file.b_entries;
+    Debug::printf("Addy: %x\n",currentFile->b_entries);
+    uint32_t entries = (uint32_t) currentFile->b_entries;
     *(uint32_t *)(base_addy_plus_x + 0x18) = entries; 
     ASSERT((*(uint32_t *)(base_addy_plus_x + 0x18)) == entries);
     Debug::printf("Addy ~ Entries: %x\n",entries);
@@ -326,25 +236,59 @@ void ready_to_play(WaveParser file, char * base, WaveParser wave_file) {
     Debug::printf("Current FMT: %x\n", current_FMT);
 
     current_FMT = current_FMT & 0x8080; 
-    current_FMT += 0x500; 
+    current_FMT += (currentFile->bit_divsor + currentFile->bit_per_sample); 
     Debug::printf("After FMT: %x\n", current_FMT);
     *(uint16_t *)(FMT) = current_FMT;
 
 
     Debug::printf("FMT: %x\n", *(uint16_t *)((base_addy_plus_x + 0x12)));
-    ASSERT(*(uint16_t *)((base_addy_plus_x + 0x12)) == (1280));
-
-    // // SDnCTL -> Set RUN -> 1 
-    // char * SDnCTL = (base_addy_plus_x); 
-    // *((uint32_t*)SDnCTL) = *((uint32_t*)SDnCTL) + 0x10;
-    // Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL))>> 4);
+    return current_FMT;
+    // ASSERT(*(uint16_t *)((base_addy_plus_x + 0x12)) == (1280));
 }
+
+/*
+    After traversing the memory to find the device we use the base address + 0x8
+    to find the GCTL register and turn on the CRST bit to turn on the device
+*/
+void turnOnDevice(uint32_t *base_u) {
+    
+    while(*(base_u + 2) == 0) {
+        Debug::printf("It's not on Yet, %x\n", *(base_u + 2));
+    }
+
+    Debug::printf("DEVICE IS TURNED ON: %x\n", (*(base_u + 2)));
+
+    volatile uint32_t help = 0; 
+
+    while(help  < 10000) {
+        help += 1; 
+    }
+}
+
+/*
+    This function is used to flip the bit of SDnCTL register which technically means 
+    if the stream is running or not
+    (used to pause and play the song)
+*/
+void flipBit() {
+    char *base = (char *) 0xfebf0000;
+    char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
+    char * SDnCTL = (base_addy_plus_x); 
+    if(*((uint32_t*)SDnCTL) == 0x20100002) {
+        *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) ^ 0x2); 
+    } else {
+        *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) | 0x2); 
+    }
+    Debug::printf("In Method SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
+}
+
+/*
+    Magic happens here
+*/
 
 void kernelMain(void) {
 
-    // checkAllBuses();
-
-    // 0x8000200
+    Shared<Names_List> fileSystem = Shared<Names_List>::make();
 
     // PCI controll register -> command register -> outl (addy we want to read) -> inl to read what it responds
     outl(0xCF8, 0x80002004);
@@ -356,113 +300,61 @@ void kernelMain(void) {
     char *base = (char *) 0xfebf0000;
     uint32_t *base_u = (uint32_t *) 0xfebf0000;
 
-    Debug::printf("Before flipping bit: VMAJ: %x\n", *((base + 3)));
-    Debug::printf("Before flipping bit: VMIN: %x\n", *( (base + 2)));
-    Debug::printf("Before flipping bit: GCAP: %x\n", *base_u);
-
-    // CRST Bit 
+    // CRST Bit being flipped 
     *(base_u + 2) = *(base_u + 2) | 0x01;
 
+
     Debug::printf("After flipping bit: GCTL: %x\n", *(base_u + 2));
-        
-        
-    Debug::printf("GCTL: %x\n", *(base_u + 2));
-    Debug::printf("After flipping bit: VMAJ: %x\n", *( (base + 3)));
-    Debug::printf("After flipping bit: VMIN: %x\n", *( (base + 2)));
+
+    // VMAJ
+    ASSERT(*((base + 3)) == 1);
+    
+    // VMIN
+    ASSERT(*((base + 2)) == 0);
+
     Debug::printf("After flipping bit: GCAP: %x\n", *base_u);
 
+    Shared<Semaphore> startSpot = Shared<Semaphore>::make(0);
 
-    while(*(base_u + 2) == 0) {
-        Debug::printf("It's not on Yet, %x\n", *(base_u + 2));
-    }
+    // the first song that plays when we start the program
+    auto currentNode = fileSystem->findName("breathe in the air",fileSystem->dummy);
+    auto currentFile = currentNode->wave_file;
 
+    // setting up the graphics
+    VGA *thisVGA = new VGA();
+    thisVGA->setup(fileSystem, currentNode ,1);
 
-    Debug::printf("Now It's On: %x\n", (*(base_u + 2)));
+    Shared<kb> thisKB = Shared<kb>::make(thisVGA);
+    thread([thisKB, startSpot] {
+        auto ide = Shared<Ide>::make(1);
+        // We expect to find an ext2 file system there
+        auto fs = Shared<Ext2>::make(ide);
+        auto root = fs->root;
+        auto logo = fs->find(root,"logo");
 
-    volatile uint32_t help = 0; 
+        thisKB->kbInit(logo, startSpot);
+    });
 
-    while(help  < 10000) {
-        // Debug::printf("Waiting: %d\n", help);
-        help += 1; 
-    }
-
-    // Debug::printf("Finding Codec\n");
-
-    // Debug::printf("After flipping bit: STATESTS: %x\n", *(base + 0x0E));
-
-
-    // Debug::printf("ATTEMPT TO SEND COMMAND: get number of nodes\n");
-    // send_command(0, 0, 0xf00, 0x4, base);
-    // Debug::printf("We got back from sending command\n");
-
-    // uint32_t result = get_response(base);
-    // uint32_t nodes = result & 0xFF;
     
-    // Debug::printf("ATTEMPT TO GET RESULT: get number of nodes %d\n", nodes);
 
-    // send_command(0, 1, 0xf00, 0x4, base);
-    // result = get_response(base);
-    // nodes = result & 0xFF;
     
-    // Debug::printf("ATTEMPT TO GET RESULT for 1: get number of nodes %d\n", nodes);
 
 
-    // send_command(0, 2, 0xf00, 0x9, base);
-    // result = get_response(base);
-    
-    // Debug::printf("ATTEMPT TO GET RESULT for 2: TYPE ~ %x\n", result);
+    // Esuring the Device is being Turned On 
+    turnOnDevice(base_u);
 
-    // send_command(0, 3, 0xf00, 0x9, base);
-    // result = get_response(base);
-    
-    // Debug::printf("ATTEMPT TO GET RESULT for 3: TYPE ~ %x\n", result);
-
-    // send_command(0, 4, 0xf00, 0x9, base);
-    // result = get_response(base);
-    
-    // Debug::printf("ATTEMPT TO GET RESULT for 4: TYPE ~ %x\n", result);
-
-    // send_command(0, 5, 0xf00, 0x9, base);
-    // result = get_response(base);
-    
-    // Debug::printf("ATTEMPT TO GET RESULT for 5: TYPE ~ %x\n", result);
-
-
-    // send_command(0, 0, 0xf00, 0x0, base);
-
-    // result = get_response(base);
-
-    // Debug::printf("ATTEMPT TO GET RESULT: get number of nodes %x\n", result);
-
-    auto ide = Shared<Ide>::make(1);
-    
-    // We expect to find an ext2 file system there
-    auto fs = Shared<Ext2>::make(ide);
-
-    Debug::printf("*** block size is %d\n",fs->get_block_size());
-    Debug::printf("*** inode size is %d\n",fs->get_inode_size());
-   
-    auto root = fs->root;
-
-    auto hello = fs->find(root,"t0.dir_data_song.wav");
-
-    WaveParser wave_file = WaveParser(hello);
-
-    Debug::printf("Addy: %x\n",wave_file.b_entries);
-
-    uint16_t GCAP = * (uint16_t *)base; 
-    Debug::printf("GCAP: %x\n", GCAP);
-    Debug::printf("Value ISS:%d\n", (GCAP >> 8) & 0xF); // 4
-
-    ready_to_play(wave_file, base, wave_file);
+    // ready to play returns the format which will be used later for commands
+    uint16_t fmt = ready_to_play(base, currentFile);
 
 
     // Send SetPinWidgetControl to Node 3 ~ 0x707
     // 01000000
+
+    // ~ Gets the inital value that is there 
     send_command(0, 3, 0xf07, 0, base);
+
     uint32_t current_pinCntl = get_response(base);
     current_pinCntl |= 0x40; 
-
     send_command(0, 3, 0x707, current_pinCntl, base); 
 
     // Send SetStreamChannel to Node 2 ~ 0x706 
@@ -476,17 +368,238 @@ void kernelMain(void) {
 
     // 1 0 1 1 0 0 0 0 "0" '......' 
     // B035
-    send_comman_extended(0, 2, 0x2, 0x500, base);
+    send_comman_extended(0, 2, 0x2, fmt, base);
 
     // SDnCTL -> Set RUN -> 1 
     char * base_addy_plus_x = (char *) (base + (0x80 + 4 * 0x20)); 
     char * SDnCTL = (base_addy_plus_x); 
-    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x2);
+    *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x100000);
+    // *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) + 0x2);
     Debug::printf("SDnCTL: %x\n", (*((uint32_t*)SDnCTL)));
 
    // DPLBASE ~ Sanity Check ~ FAIL ~ RIP ~ WE ARE INSANE
-   while(true) {
-    //    Debug::printf("Value of DPLBase: %x\n", *(uint32_t *)(base + 0x70));
+    // uint64_t offset = 4096;
+    uint64_t written = 0; 
+    uint32_t index = 0; 
+    // uint32_t size = currentFile->size_of_the_whole_file;
+
+    Shared<WaveParser_list>* my_wave = &(currentFile);
+
+    Debug::printf("Calling Down\n");
+
+    startSpot->down();
+
+    Debug::printf("After down\n");
+
+    thisVGA->spotify(currentNode, false);
+
+
+    thisVGA->new_song = true; 
+    
+    bool isItDown = false; 
+
+    bool * keepGoing = &isItDown; 
+
+    thread([thisVGA, my_wave, keepGoing] { // purpose of this thread is to keep giving the percentage of the song to the vga to draw
+        // thisVGA->progressBarInit();
+        thisVGA->last_jif = Pit::jiffies;
+        while(!(*keepGoing)) {
+            uint32_t percentage = ((*my_wave)->howMuchRead.get() * 100) / (*my_wave)->size;
+            // Debug::printf("percentage: %d, read in: %d, size: %d\n", percentage, (*my_wave)->howMuchRead.get(), (*my_wave)->size);
+            thisVGA->playingSong(percentage);
+        }
+    });
+
+
+    while(thisKB->tapped) {
+        Debug::printf("WTF Man\n");
+    }
+    
+    while(true) {
+        /* 
+            makes sure the hardware and software are in sync and there are no race condition
+        */
+        volatile uint32_t hardware_offset = *(volatile uint32_t*) (base_addy_plus_x + 0x4);
+        if (((hardware_offset - written) % 65536) > 4096) {
+            currentFile->howMuchRead.fetch_add(4096); 
+            currentFile->rebuildData(index++);
+            written += 4096;
+            written %= 65536;
+            index %= 16; 
+        }
+
+        // Done with the song
+        if(currentFile->howMuchRead.get() >= currentFile->size) {
+        
+            // Turn Off Sound 
+            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+
+            // Reset Offsets 
+            written = 0; 
+            index = 0; 
+            currentFile->offset = currentFile->reset_offset;
+            currentFile->howMuchRead.set(0);
+            thisVGA->new_song = true; 
+            thisVGA->elapsed_time.set(0); 
+            
+            /* VGA Animation */
+            thisVGA->spotify_move(currentNode, true, false);
+
+            // Changes File 
+            currentNode = currentNode->next; 
+
+            // skip the dummy node
+            if(K::streq(currentNode->file_name, "")) {
+                currentNode = currentNode->next;
+            }
+            currentFile = currentNode->wave_file;
+
+            // after the song is done playing it restarts the song again
+            reset(currentFile);
+
+            Debug::printf("Should be Reset\n");
+        }
+
+        // Space Bar
+        if(thisKB->tapped) {
+
+            // Change playing mode if playing then pause and if paused then plays
+            flipBit();
+            thisKB->tapped = false; 
+
+            // VGA 
+            thisVGA->play_pause();
+        } 
+
+        // Down Arrow
+        if(thisKB->reset) {
+            thisKB->reset = false; 
+
+            // Reset Offset 
+            currentFile->offset = currentFile->reset_offset;
+            written = 0; 
+            index = 0; 
+
+            // Reset Buffer 
+            reset(currentFile);
+
+            // VGA Reset
+            currentFile->howMuchRead.set(0);
+            thisVGA->new_song = true; 
+            thisVGA->elapsed_time.set(0); 
+
+            Debug::printf("Should be Reset\n");
+        }
+
+        // Previous Song
+        if(thisKB->precend) {
+            thisKB->precend = false; 
+
+            // Turn Off Sound 
+            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+
+            // Reset Offsets 
+            written = 0; 
+            index = 0; 
+            currentFile->offset = currentFile->reset_offset;
+            currentFile->howMuchRead.set(0);
+            thisVGA->new_song = true; 
+            thisVGA->elapsed_time.set(0); 
+
+            /* VGA Animation */
+            thisVGA->spotify_move(currentNode, true, true);
+
+            // Changes File 
+            currentNode = currentNode->prev; 
+
+            // skip the dummy node
+            if(K::streq(currentNode->file_name, "")) {
+                currentNode = currentNode->prev;
+            }
+
+            currentFile = currentNode->wave_file;
+
+            reset(currentFile);
+
+        }
+
+        // Next Song
+        if(thisKB->skip) {
+            thisKB->skip = false; 
+
+            // Turn Off Sound 
+            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+
+            // Reset Offsets 
+            written = 0; 
+            index = 0; 
+            currentFile->offset = currentFile->reset_offset;
+            currentFile->howMuchRead.set(0);
+            thisVGA->new_song = true; 
+            thisVGA->elapsed_time.set(0); 
+
+            /* VGA Animation */
+            thisVGA->spotify_move(currentNode, true, false);
+
+            // Changes File 
+            currentNode = currentNode->next; 
+
+            // skip the dummy node
+            if(K::streq(currentNode->file_name, "")) {
+                currentNode = currentNode->next;
+            }
+            currentFile = currentNode->wave_file;
+
+
+            reset(currentFile);
+        }
+
+        // Enter ~ search song 
+        if(thisKB->entered) {
+            thisKB->entered = false; 
+
+            // Changes File 
+            auto temp = fileSystem->findName((const char *) thisKB->filename, currentNode);
+
+            if(!K::streq(temp->file_name, "")) {
+
+                // Turn Off Sound 
+                *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+
+                currentNode = temp; 
+                currentFile = currentNode->wave_file;
+
+
+                // Reset Offsets 
+                written = 0; 
+                index = 0; 
+                currentFile->offset = currentFile->reset_offset;
+                currentFile->howMuchRead.set(0);
+                thisVGA->new_song = true; 
+                thisVGA->elapsed_time.set(0); 
+
+                /* VGA Animation */
+                thisVGA->spotify(currentNode, true);
+
+                reset(currentFile);
+            } else {
+                thisVGA->drawRectangle(70, 9, 250, 19, 63, 1); // text box
+                thisVGA->drawString(96, 10, (const char*)"NOT A VALID SONG", 48); // enter spotify
+            }
+
+        }
+
+        // Shutoff Screen 
+        if(thisKB->shutdown) {
+            // Turn Off Sound 
+            *((uint32_t*)SDnCTL) = (*((uint32_t*)SDnCTL) & (0xFFFFFFFD));
+
+            thisKB->shutdown = false; 
+            isItDown = true; 
+            thisVGA->shut_off();
+            
+        }
+
    }
 
 }

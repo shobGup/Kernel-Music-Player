@@ -30,7 +30,7 @@ QEMU_ACCEL ?= tcg,thread=multi
 QEMU_CPU ?= max
 QEMU_SMP ?= 4
 QEMU_MEM ?= 128m
-QEMU_TIMEOUT ?= 10
+QEMU_TIMEOUT ?= 20
 QEMU_TIMEOUT_CMD ?= timeout
 
 QEMU_PREFER = ~gheith/public/qemu_5.1.0/bin/qemu-system-i386
@@ -43,8 +43,10 @@ QEMU_CONFIG_FLAGS = -accel ${QEMU_ACCEL} \
 
 QEMU_FLAGS = -no-reboot \
 	     ${QEMU_CONFIG_FLAGS} \
-	     -nographic\
 	     --monitor none \
+		 -vga std \
+         -display vnc="127.0.0.1:1" \
+		 -device intel-hda -device hda-duplex \
 	     --serial file:$*.raw \
              -drive file=kernel/build/$*.img,index=0,media=disk,format=raw \
              -drive file=$*.data,index=1,media=disk,format=raw \
@@ -176,7 +178,7 @@ BLOCK_SIZE = ${shell cat ${TESTS_DIR}/$*.block_size}
 ${TEST_DATA} : %.data : Makefile ${TESTS_DIR}/%.block_size
 	@echo "$*.data: ${shell find $*.dir -print}" > $*_data.d
 	@rm -f $*.data
-	mkfs.ext2 -q -b ${BLOCK_SIZE} -i ${BLOCK_SIZE} -d ${TESTS_DIR}/$*.dir  -I 128 -r 0 -t ext2 $*.data 10m
+	mkfs.ext2 -q -b ${BLOCK_SIZE} -i ${BLOCK_SIZE} -d ${TESTS_DIR}/$*.dir  -I 128 -r 0 -t ext2 $*.data 100m
 
 ${TEST_OUTS} : %.out : Makefile %.raw
 	-egrep '^\*\*\*' $*.raw > $*.out 2> /dev/null || true

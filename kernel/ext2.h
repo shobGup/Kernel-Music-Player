@@ -305,6 +305,49 @@ public:
 
     virtual ~Node() {}
 
+    char* read_bmp() {
+        char* file_header = new char[14];
+        char* info_header = new char[40];
+        this->read_all(0, 14, (char*) file_header);
+        this->read_all(14, 40, (char*) info_header);
+
+        // uint32_t off = *((uint32_t*) (file_header + 10));
+        // uint32_t off = 138;
+        // uint16_t bit_count = *((uint16_t*) (info_header + 14));
+        uint32_t size = *((uint32_t*) (file_header + 2));
+        // Debug::printf("type: %c", file_header[0]);
+        // Debug::printf("%c\n", file_header[1]);
+        // Debug::printf("size: %d\n", size);
+        // Debug::printf("offset: %x\n", off);
+        // Debug::printf("bit count: %d\n", bit_count);
+        // if (bit_count < 24) {
+        //     Debug::panic("Not enough bits!");
+        // } else if (bit_count > 32) {
+        //     Debug::panic("Too many bits!!");
+        // } 
+        // uint32_t width = *((uint32_t*) (info_header + 24));
+        // uint32_t height = *((uint32_t*) (info_header + 28));
+        // Debug::printf("width: %d, offset: %d\n", width, off);
+        // uint32_t width = 70;
+        // uint32_t height = 70;
+        
+        uint8_t* buf = new uint8_t[size-138];
+        this->read_all(138, size-138, (char*) buf);
+
+        char* ret_shob = new char[((size-138) / 4) * 3];
+
+        for (uint32_t i = 0, rIdx = 0; i < size-138; i += 4, rIdx += 3) {
+            ret_shob[rIdx] = buf[i + 2]; // red
+            ret_shob[rIdx + 1] = buf[i + 1]; // green
+            ret_shob[rIdx + 2] = buf[i]; // blue
+        }
+        delete[] buf; 
+        delete[] file_header;
+        delete[] info_header;
+        return ret_shob;
+    }
+
+
     // How many bytes does this i-node represent
     //    - for a file, the size of the file
     //    - for a directory, implementation dependent
