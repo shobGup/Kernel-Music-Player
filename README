@@ -14,3 +14,6 @@ kernel/vga.cc
 wave.h
 goyalyug.cc
 goyalyug.dir
+
+Modified:
+lines 308-348 in ext2.h
