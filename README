@@ -4,6 +4,7 @@ This project implements and combines VGA, Intel HD Audio, and the PS-2 Keyboard 
 Files added:
 kernel/kb.h
 kernel/kb.cc
+kernel/list_wave.h
 kernel/ports.h
 kernel/ports.cc
 kernel/u8250.h
