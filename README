@@ -10,3 +10,5 @@ kernel/u8250.h
 kernel/u8250.cc
 kernel/vga.h
 kernel/vga.cc
+wave.h
+goyalyug.cc
