@@ -1,1 +1,12 @@
 This project implements and combines VGA, Intel HD Audio, and the PS-2 Keyboard Drivers to simulate an Operating System with a Music Player app
+
+
+Files added:
+kernel/kb.h
+kernel/kb.cc
+kernel/ports.h
+kernel/ports.cc
+kernel/u8250.h
+kernel/u8250.cc
+kernel/vga.h
+kernel/vga.cc
