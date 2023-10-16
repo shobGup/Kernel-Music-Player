@@ -12,3 +12,4 @@ kernel/vga.h
 kernel/vga.cc
 wave.h
 goyalyug.cc
+goyalyug.dir
